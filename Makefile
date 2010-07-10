@@ -116,6 +116,7 @@ sysconfig: preproot fstab
 	/sbin/mkswap $(CHROOT)/.swap
 	echo HOSTNAME=$(HOSTNAME) > $(CHROOT)/etc/conf.d/hostname
 	sed -i 's/^#TIMEZONE=.*/TIMEZONE="$(TIMEZONE)"/' $(CHROOT)/etc/conf.d/clock
+	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
 	chroot $(CHROOT) rc-update add net.eth0 default
 	echo "127.0.0.1    $(HOSTNAME) localhost" > $(CHROOT)/etc/hosts
