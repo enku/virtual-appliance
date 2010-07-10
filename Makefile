@@ -55,8 +55,10 @@ preproot: stage3
 	
 stage3: make.conf package.use package.keywords locale.gen
 	mkdir -p $(CHROOT) 
-	wget -c -q -nc $(STAGE3)
-	test -e stage3 || tar xvjpf stage3-*.tar.bz2 -C $(CHROOT) 
+	if [ ! -e stage3 ] ; then \
+		wget -c -q -nc $(STAGE3); \
+		tar xvjpf stage3-*.tar.bz2 -C $(CHROOT); \
+	fi
 	cp make.conf $(CHROOT)/etc/make.conf 
 	cp locale.gen $(CHROOT)/etc/locale.gen 
 	mkdir -p $(CHROOT)/etc/portage 
