@@ -1,0 +1,20 @@
+app-editors/nano ncurses
+dev-lang/python ssl sqlite threads xml
+sys-kernel/gentoo-sources symlink
+
+# for gnome
+app-text/enchant hunspell
+app-text/poppler cairo
+dev-libs/libxml2 python
+gnome-base/gnome-menus python
+gnome-base/gvfs gdu
+media-libs/libcanberra gtk
+media-libs/swfdec gtk
+net-misc/curl ssl
+sys-apps/dbus X
+sys-apps/parted device-mapper
+sys-auth/consolekit policykit
+sys-fs/udev extras
+x11-libs/cairo svg X
+x11-libs/gtk+ jpeg
+x11-libs/pango X
