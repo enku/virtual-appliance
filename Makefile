@@ -112,8 +112,6 @@ sysconfig: preproot fstab
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
 	chroot $(CHROOT) rc-update add net.eth0 default
 	echo "127.0.0.1    $(HOSTNAME) localhost" > $(CHROOT)/etc/hosts
-	chroot $(CHROOT) passwd -d root
-	chroot $(CHROOT) passwd -e root
 	touch sysconfig
 
 systools: sysconfig compile_options
@@ -132,15 +130,17 @@ grub: systools grub.conf kernel
 
 software: systools issue etc-update.conf critical world preinstall postinstall
 	./preinstall "$(CHROOT)"
-	chroot $(CHROOT) emerge -DNn $(USEPKG) `cat world`
 	chroot $(CHROOT) emerge -DN $(USEPKG) system
+	cp etc-update.conf $(CHROOT)/etc/
+	chroot $(CHROOT) etc-update
+	chroot $(CHROOT) emerge -DNn $(USEPKG) `cat world`
 	chroot $(CHROOT) emerge -1n app-portage/gentoolkit
 	chroot $(CHROOT) revdep-rebuild -i
 	cp issue $(CHROOT)/etc/issue
-	cp etc-update.conf $(CHROOT)/etc/
-	chroot $(CHROOT) etc-update
 	chroot $(CHROOT) emerge --depclean --with-bdeps=n
 	chroot $(CHROOT) gcc-config 1
+	chroot $(CHROOT) passwd -d root
+	chroot $(CHROOT) passwd -e root
 	./postinstall "$(CHROOT)"
 	if [ "$(PRUNE_CRITICAL)" = "YES" ] ; then \
 		chroot $(CHROOT) emerge -C `cat critical` ; \
