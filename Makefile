@@ -42,19 +42,21 @@ parted:
 preproot: stage3
 	cp -L /etc/resolv.conf $(CHROOT)/etc/ 
 	mkdir -p $(CHROOT)/usr/portage 
-	mount -t proc none $(CHROOT)/proc 
-	mount -o bind /dev/ $(CHROOT)/dev 
-	mount -o bind /var/tmp $(CHROOT)/var/tmp 
-	mount -o bind $(PORTAGE) $(CHROOT)/usr/portage 
-	mkdir -p $(CHROOT)/usr/portage/distfiles
-	mount -o bind $(DISTFILES) $(CHROOT)/usr/portage/distfiles 
+	if [ ! -e preproot ] ; then \
+		mount -t proc none $(CHROOT)/proc; \
+		mount -o bind /dev $(CHROOT)/dev; \
+		mount -o bind /var/tmp $(CHROOT)/var/tmp; \
+		mount -o bind $(PORTAGE) $(CHROOT)/usr/portage; \
+		mkdir -p $(CHROOT)/usr/portage/distfiles; \
+		mount -o bind $(DISTFILES) $(CHROOT)/usr/portage/distfiles; \
+	fi
 	chroot $(CHROOT) locale-gen 
 	touch preproot 
 	
 stage3: make.conf package.use package.keywords locale.gen
 	mkdir -p $(CHROOT) 
 	wget -c -q -nc $(STAGE3)
-	tar xvjpf stage3-*.tar.bz2 -C $(CHROOT) 
+	test -e stage3 || tar xvjpf stage3-*.tar.bz2 -C $(CHROOT) 
 	cp make.conf $(CHROOT)/etc/make.conf 
 	cp locale.gen $(CHROOT)/etc/locale.gen 
 	mkdir -p $(CHROOT)/etc/portage 
