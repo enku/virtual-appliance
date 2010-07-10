@@ -1,5 +1,6 @@
 
-HOSTNAME=gentoo
+APPLIANCE=base
+HOSTNAME=$(APPLIANCE)
 RAW_IMAGE=$(HOSTNAME).img
 QCOW_IMAGE=$(HOSTNAME).qcow
 VMDK_IMAGE=$(HOSTNAME).vmdk
@@ -22,6 +23,11 @@ PORTAGE=/portage
 DISTFILES=/var/portage/distfiles
 STAGE3=ftp://ftp.osuosl.org/pub/gentoo/releases/$(ARCH)/autobuilds/current-stage3/stage3-$(ARCH)-*.tar.bz2
 KERNEL=gentoo-sources
+PACKAGE_FILES=$(APPLIANCE)/package.*
+WORLD=$(APPLIANCE)/world
+CRITICAL=$(APPLIANCE)/critical
+PREINSTALL=$(APPLIANCE)/preinstall
+POSTINSTALL=$(APPLIANCE)/postinstall
 
 
 all: image
@@ -74,13 +80,14 @@ stage3: chroot
 	fi
 	touch stage3
 
-compile_options: make.conf package.use package.keywords locale.gen
+compile_options: make.conf locale.gen $(PACKAGE_FILES)
 	cp make.conf $(CHROOT)/etc/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
 	chroot $(CHROOT) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
-	cp package.use $(CHROOT)/etc/portage/package.use
-	cp package.keywords $(CHROOT)/etc/portage/package.keywords
+	for f in $(PACKAGE_FILES) ; do \
+		cp $$f $(CHROOT)/etc/portage/ ; \
+	done
 	touch compile_options
 
 base_system: mounts compile_options
@@ -128,12 +135,12 @@ grub: systools grub.conf kernel
 	fi
 	touch grub
 
-software: systools issue etc-update.conf critical world preinstall postinstall
-	./preinstall "$(CHROOT)"
+software: systools issue etc-update.conf $(CRITICAL) $(WORLD) $(PREINSTALL) $(POSTINSTALL)
+	./$(PREINSTALL) "$(CHROOT)"
 	chroot $(CHROOT) emerge -DN $(USEPKG) system
 	cp etc-update.conf $(CHROOT)/etc/
 	chroot $(CHROOT) etc-update
-	chroot $(CHROOT) emerge -DNn $(USEPKG) `cat world`
+	chroot $(CHROOT) emerge -DNn $(USEPKG) `cat $(WORLD)`
 	chroot $(CHROOT) emerge -1n app-portage/gentoolkit
 	chroot $(CHROOT) revdep-rebuild -i
 	cp issue $(CHROOT)/etc/issue
@@ -141,9 +148,9 @@ software: systools issue etc-update.conf critical world preinstall postinstall
 	chroot $(CHROOT) gcc-config 1
 	chroot $(CHROOT) passwd -d root
 	chroot $(CHROOT) passwd -e root
-	./postinstall "$(CHROOT)"
+	./$(POSTINSTALL) "$(CHROOT)"
 	if [ "$(PRUNE_CRITICAL)" = "YES" ] ; then \
-		chroot $(CHROOT) emerge -C `cat critical` ; \
+		chroot $(CHROOT) emerge -C `cat $(CRITICAL)` ; \
 	fi
 	touch software
 
