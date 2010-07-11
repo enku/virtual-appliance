@@ -1,0 +1,18 @@
+app-editors/nano ncurses
+dev-lang/python ssl threads xml
+sys-kernel/gentoo-sources symlink
+
+# per kde
+x11-libs/cairo X svg
+x11-libs/qt-gui accessibility dbus mng
+x11-libs/qt-qt3support accessibility kde
+x11-libs/qt-core exceptions qt3support ssl
+x11-libs/qt-sql qt3support mysql
+x11-libs/qt-webkit kde
+app-misc/strigi dbus qt4
+sys-apps/dbus X
+media-sound/phonon xcb xine
+app-text/poppler utils
+dev-libs/xmlrpc-c curl
+media-libs/xine-lib xcb
+net-misc/curl ssl

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+CHROOT="$1"
+APPLIANCE="`dirname $0`"
+
+# Copy modified kdm config files
+cp "$APPLIANCE"/kdmrc "$APPLIANCE"/Xaccess "$CHROOT"/usr/share/config/kdm
+
+# enable hal
+chroot "$CHROOT" rc-update add dbus default
+
+# enable kdm
+sed -i 's/^DISPLAYMANAGER=.*/DISPLAYMANAGER="kdm"/' "$CHROOT"/etc/conf.d/xdm
+chroot "$CHROOT" rc-update add xdm default
