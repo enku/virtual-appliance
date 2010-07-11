@@ -14,7 +14,6 @@ sys-devel/autoconf-wrapper
 sys-devel/autoconf
 sys-devel/m4
 sys-devel/gcc-config
-sys-devel/libtool
 sys-devel/binutils
 sys-devel/binutils-config
 sys-devel/patch
