@@ -40,9 +40,9 @@ partitions: parted $(RAW_IMAGE)
 	$(PARTED) -s -a optimal $(RAW_IMAGE) mkpart primary ext4 0 $(DISK_SIZE)
 	$(PARTED) -s -a optimal $(RAW_IMAGE) set 1 boot on
 
-	qemu-nbd -c /dev/nbd1 $(RAW_IMAGE)
+	qemu-nbd -c /dev/nbd0 $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext4 /dev/nbd1p1
+	mkfs.ext4 /dev/nbd0p1
 	touch partitions
 
 parted:
@@ -137,7 +137,7 @@ grub: systools grub.conf kernel
 	touch grub
 
 software: systools issue etc-update.conf $(CRITICAL) $(WORLD) $(PREINSTALL) $(POSTINSTALL)
-	./$(PREINSTALL) "$(CHROOT)"
+	./$(PREINSTALL) "$(CHROOT)" $(HOSTNAME)
 	chroot $(CHROOT) emerge -DN $(USEPKG) system
 	cp etc-update.conf $(CHROOT)/etc/
 	chroot $(CHROOT) etc-update
@@ -147,9 +147,9 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD) $(PREINSTALL) $(PO
 	cp issue $(CHROOT)/etc/issue
 	chroot $(CHROOT) emerge --depclean --with-bdeps=n
 	chroot $(CHROOT) gcc-config 1
+	./$(POSTINSTALL) "$(CHROOT)" $(HOSTNAME)
 	chroot $(CHROOT) passwd -d root
 	chroot $(CHROOT) passwd -e root
-	./$(POSTINSTALL) "$(CHROOT)"
 	if [ "$(PRUNE_CRITICAL)" = "YES" ] ; then \
 		chroot $(CHROOT) emerge -C `cat $(CRITICAL)` ; \
 	fi
@@ -160,7 +160,7 @@ device-map: $(RAW_IMAGE)
 
 image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	mkdir -p loop
-	mount /dev/nbd1p1 loop/
+	mount /dev/nbd0p1 loop/
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
 	rm -rf gentoo/usr/src/linux-*
@@ -179,7 +179,7 @@ image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	sleep 3
 	rmdir loop
 	rm -rf gentoo
-	qemu-nbd -d /dev/nbd1
+	qemu-nbd -d /dev/nbd0
 	touch image
 
 $(QCOW_IMAGE): $(RAW_IMAGE) image
