@@ -1,0 +1,9 @@
+media-sound/mpd
+media-sound/mpc
+dev-python/python-mpd
+dev-python/django
+www-servers/apache
+www-apache/mod_wsgi
+net-misc/dhcpcd
+media-libs/mutagen
+dev-vcs/mercurial

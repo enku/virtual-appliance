@@ -1,0 +1,41 @@
+#!/bin/sh -e
+
+CHROOT="$1"
+HOSTNAME="$2"
+APPLIANCE="`dirname $0`"
+
+HG_REPO="/home/percy/Hg/teamplayer"
+TP_USER="teamplayer"
+TP_HOME="/opt/teamplayer"
+TP_DB="/var/db/teamplayer"
+
+INSTALL="/usr/bin/install"
+M4="/usr/bin/m4"
+M4_DEFS="-D HOSTNAME=${HOSTNAME} -D TP_USER=${TP_USER} -D TP_HOME=${TP_HOME}"
+M4_DEFS="${M4_DEFS} -D TP_DB=${TP_DB}"
+M4C="${M4} ${M4_DEFS}"
+
+chroot ${CHROOT} getent passwd ${TP_USER} || \
+	chroot ${CHROOT} useradd -c "Teamplayer Server" -U -d ${TP_HOME} \
+	${TP_USER}
+rm -rf ${TP_HOME}
+hg clone --pull ${HG_REPO} ${CHROOT}/${TP_HOME}
+cp ${APPLIANCE}/teamplayer.wsgi  ${CHROOT}${TP_HOME}/teamplayer.wsgi
+${M4C} ${APPLIANCE}/settings_local.py > ${CHROOT}${TP_HOME}/web/settings_local.py
+mkdir -p ${CHROOT}${TP_HOME}/bin
+${M4C} ${APPLIANCE}/start-teamplayer > ${CHROOT}${TP_HOME}/bin/start-teamplayer
+chmod +x ${CHROOT}${TP_HOME}/bin/start-teamplayer
+${M4C} ${APPLIANCE}/stop-teamplayer > ${CHROOT}${TP_HOME}/bin/stop-teamplayer
+chmod +x ${CHROOT}${TP_HOME}/bin/stop-teamplayer
+chroot ${CHROOT} ${INSTALL} -d -o ${TP_USER} -g ${TP_USER} ${TP_DB}
+chroot ${CHROOT} ${INSTALL} -d -o ${TP_USER} -g ${TP_USER} ${TP_DB}/songs
+chroot ${CHROOT} rm -rf ${TP_HOME}/web/media/songs
+chroot ${CHROOT} ln -s ${TP_DB}/songs ${TP_HOME}/web/media/songs
+chroot ${CHROOT} ${INSTALL} -d -o ${TP_USER} -g ${TP_USER} ${TP_DB}/mpd
+chroot ${CHROOT} chown -R ${TP_USER}:${TP_USER} ${TP_HOME}
+${M4C} ${APPLIANCE}/10_teamplayer.conf > ${CHROOT}/etc/apache2/vhosts.d/10_teamplayer.conf
+cp ${APPLIANCE}/apache2.conf ${CHROOT}/etc/conf.d/apache2
+${M4C} ${APPLIANCE}/local.start > ${CHROOT}/etc/conf.d/local.start
+${M4C} ${APPLIANCE}/local.stop > ${CHROOT}/etc/conf.d/local.stop
+sed -i 's/Gentoo Virtual Machine/TEAMPLAYER CONSOLE/' ${CHROOT}/etc/issue
+chroot ${CHROOT} rc-update add apache2 default

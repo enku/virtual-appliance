@@ -1,0 +1,7 @@
+#!/bin/sh
+# this should be run as the TP_USER user
+
+cd ~/web
+
+[ -f "$HOME/tps.pid" ] && kill $(cat "$HOME/tps.pid")
+python manage.py stop_stream > "$HOME/teamplayer.log" 

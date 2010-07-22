@@ -1,0 +1,3 @@
+#!/bin/sh
+
+su -c "TP_HOME/bin/stop-teamplayer" TP_USER

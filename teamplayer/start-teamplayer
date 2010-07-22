@@ -1,0 +1,15 @@
+#!/bin/sh
+# this should be run as the TP_USER user
+
+cd ~
+hg serve -p 8000 --prefix /repo/ > $HOME/hgserve.log 2>&1 &
+
+cd ~/web
+
+if [ ! -f "TP_DB/teamplayer.db" ] ; then
+    python manage.py syncdb
+fi
+
+# spin!
+python manage.py spin --verbosity=2 > "$HOME/teamplayer.log" 2>&1 &
+echo $! > "$HOME/tps.pid"
