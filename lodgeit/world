@@ -1,0 +1,5 @@
+app-admin/syslog-ng
+net-misc/dhcpcd
+sys-boot/grub
+sys-kernel/gentoo-sources
+www-apache/mod_wsgi

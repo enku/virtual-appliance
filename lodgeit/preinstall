@@ -1,0 +1,13 @@
+#!/bin/sh -ev
+
+CHROOT="$1"
+APPLIANCE="`dirname $0`"
+
+# set up apache modules in make.conf
+cat >> ${CHROOT}/etc/make.conf << EOF
+
+# Apache config for LodgeIt
+APACHE2_MPMS="prefork"
+APACHE2_MODULES="authz_host dir mime"
+EOF
+
