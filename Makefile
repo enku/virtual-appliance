@@ -19,8 +19,7 @@ M4_DEFS=-D HOSTNAME=$(HOSTNAME)
 M4C=$(M4) $(M4_DEFS)
 USEPKG=--usepkg --binpkg-respect-use=y
 PARTED=/usr/sbin/parted
-PORTAGE=/portage
-DISTFILES=/var/portage/distfiles
+PORTAGE=/usr/portage
 STAGE3=ftp://ftp.osuosl.org/pub/gentoo/releases/$(ARCH)/autobuilds/current-stage3/stage3-$(ARCH)-*.tar.bz2
 KERNEL=gentoo-sources
 PACKAGE_FILES=$(APPLIANCE)/package.*
@@ -64,8 +63,6 @@ portage: stage3
 	if [ ! -e portage ] ; then \
 		mkdir -p $(CHROOT)/usr/portage; \
 		mount -o bind $(PORTAGE) $(CHROOT)/usr/portage; \
-		mkdir -p $(CHROOT)/usr/portage/distfiles; \
-		mount -o bind $(DISTFILES) $(CHROOT)/usr/portage/distfiles ; \
 	fi
 	touch portage
 
@@ -196,7 +193,7 @@ vmdk: $(VMDK_IMAGE)
 .PHONY: qcow vmdk clean
 
 clean:
-	umount $(CHROOT)/usr/portage/distfiles $(CHROOT)/usr/portage $(CHROOT)/var/tmp $(CHROOT)/dev $(CHROOT)/proc || true
+	umount $(CHROOT)/usr/portage $(CHROOT)/var/tmp $(CHROOT)/dev $(CHROOT)/proc || true
 	rm -f mounts compile_options base_system portage
 	rm -f parted grub stage3 software preproot sysconfig systools image kernel partitions device-map
 	rm -rf loop
