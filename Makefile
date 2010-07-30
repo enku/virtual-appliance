@@ -73,7 +73,7 @@ preproot: stage3 mounts portage
 stage3: chroot
 	if [ ! -e stage3 ] ; then \
 		wget -c -q -nc $(STAGE3); \
-		tar xjpf stage3-*.tar.bz2 -C $(CHROOT); \
+		tar xjpf `/bin/ls -1 stage3-*.tar.bz2|tail -n1` -C $(CHROOT); \
 	fi
 	touch stage3
 
