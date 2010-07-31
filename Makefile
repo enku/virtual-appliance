@@ -75,6 +75,9 @@ stage3: chroot
 		wget -c -q -nc $(STAGE3); \
 		tar xjpf `/bin/ls -1 stage3-*.tar.bz2|tail -n1` -C $(CHROOT); \
 	fi
+	# is it me or does the latest stage3 have python3 as the system
+	# default?!
+	chroot $(CHROOT) eselect python set python2.6
 	touch stage3
 
 compile_options: make.conf locale.gen $(PACKAGE_FILES)
