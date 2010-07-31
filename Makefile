@@ -90,7 +90,10 @@ compile_options: make.conf locale.gen $(PACKAGE_FILES)
 base_system: mounts compile_options
 	touch base_system
 
-kernel: base_system kernel.config
+kernel: $(CHROOT)/boot/vmlinuz
+
+
+$(CHROOT)/boot/vmlinuz: base_system kernel.config
 	chroot $(CHROOT) cp /usr/share/zoneinfo/GMT /etc/localtime
 	chroot $(CHROOT) emerge -N sys-kernel/$(KERNEL)
 	cp kernel.config $(CHROOT)/usr/src/linux/.config
@@ -102,7 +105,6 @@ kernel: base_system kernel.config
 	cd $(CHROOT)/boot ; \
 		k=`/bin/ls -1 --sort=time vmlinuz-*|head -n 1` ; \
 		ln -nsf $$k vmlinuz
-	touch kernel
 
 sysconfig: preproot fstab
 	cp fstab $(CHROOT)/etc/fstab
@@ -190,7 +192,7 @@ $(VMDK_IMAGE): $(RAW_IMAGE) image
 
 vmdk: $(VMDK_IMAGE)
 
-.PHONY: qcow vmdk clean
+.PHONY: kernel qcow vmdk clean
 
 clean:
 	umount $(CHROOT)/usr/portage $(CHROOT)/var/tmp $(CHROOT)/dev $(CHROOT)/proc || true
