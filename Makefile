@@ -127,6 +127,8 @@ sysconfig: preproot fstab
 systools: sysconfig compile_options
 	chroot $(CHROOT) emerge -n $(USEPKG) app-admin/syslog-ng
 	chroot $(CHROOT) rc-update add syslog-ng default
+	chroot $(CHROOT) emerge -n $(USEPKG) sys-power/acpid
+	chroot $(CHROOT) rc-update add acpid default
 	chroot $(CHROOT) emerge -n $(USEPKG) net-misc/dhcpcd
 	touch systools
 

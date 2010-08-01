@@ -1,9 +1,9 @@
-media-sound/mpd
-media-sound/mpc
-dev-python/python-mpd
 dev-python/django
-www-servers/apache
-www-apache/mod_wsgi
-net-misc/dhcpcd
-media-libs/mutagen
+dev-python/python-mpd
 dev-vcs/mercurial
+media-libs/mutagen
+media-sound/mpc
+media-sound/mpd
+net-misc/dhcpcd
+www-apache/mod_wsgi
+www-servers/apache
