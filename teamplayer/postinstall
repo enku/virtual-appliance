@@ -4,7 +4,7 @@ CHROOT="$1"
 HOSTNAME="$2"
 APPLIANCE="`dirname $0`"
 
-HG_REPO="/home/percy/Hg/teamplayer"
+HG_REPO="../teamplayer"
 TP_USER="teamplayer"
 TP_HOME="/opt/teamplayer"
 TP_DB="/var/db/teamplayer"
