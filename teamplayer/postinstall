@@ -21,6 +21,7 @@ chroot ${CHROOT} getent passwd ${TP_USER} || \
 rm -rf ${TP_HOME}
 hg clone --pull ${HG_REPO} ${CHROOT}/${TP_HOME}
 cp ${APPLIANCE}/teamplayer.wsgi  ${CHROOT}${TP_HOME}/teamplayer.wsgi
+cp ${APPLIANCE}/bash_profile ${CHROOT}${TP_HOME}/.bash_profile
 ${M4C} ${APPLIANCE}/settings_local.py > ${CHROOT}${TP_HOME}/web/settings_local.py
 mkdir -p ${CHROOT}${TP_HOME}/bin
 ${M4C} ${APPLIANCE}/start-teamplayer > ${CHROOT}${TP_HOME}/bin/start-teamplayer
