@@ -10,6 +10,7 @@ gnome-base/gnome-menus python
 gnome-base/gvfs gdu
 media-libs/libcanberra gtk
 media-libs/swfdec gtk
+net-libs/libsoup gnome
 net-misc/curl ssl
 sys-apps/dbus X
 sys-apps/parted device-mapper

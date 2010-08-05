@@ -7,7 +7,7 @@ APPLIANCE="`dirname $0`"
 cat >> ${CHROOT}/etc/make.conf << EOF
 
 # Apache config for TeamPlayer
-APACHE2_MPMS="prefork"
+APACHE2_MPMS="worker"
 APACHE2_MODULES="authz_host dir mime proxy proxy_http"
 EOF
 

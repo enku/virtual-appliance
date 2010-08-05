@@ -11,5 +11,5 @@ if [ ! -f "TP_DB/teamplayer.db" ] ; then
 fi
 
 # spin!
-python manage.py spin --verbosity=2 > "$HOME/teamplayer.log" 2>&1 &
+python manage.py spin --verbosity=2 $@ > "$HOME/teamplayer.log" 2>&1 &
 echo $! > "$HOME/tps.pid"

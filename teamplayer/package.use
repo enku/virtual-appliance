@@ -6,3 +6,4 @@ media-video/ffmpeg mmx mxext mp3 network x264
 media-libs/flac ogg
 dev-python/django sqlite
 dev-db/sqlite threadsafe
+www-servers/apache threads
