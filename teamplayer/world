@@ -1,3 +1,4 @@
+=dev-db/postgresql-server-8.4*
 dev-python/django
 dev-python/python-mpd
 dev-vcs/mercurial
@@ -5,5 +6,6 @@ media-libs/mutagen
 media-sound/mpc
 media-sound/mpd
 net-misc/dhcpcd
+net-misc/ntp
 www-apache/mod_wsgi
 www-servers/apache

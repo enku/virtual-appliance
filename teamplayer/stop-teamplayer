@@ -2,6 +2,9 @@
 # this should be run as the TP_USER user
 
 cd ~/web
+PYTHONPATH="/etc/teamplayer:$PYTHONPATH"
 
-[ -f "$HOME/tps.pid" ] && kill $(cat "$HOME/tps.pid")
-python manage.py stop_stream > "$HOME/teamplayer.log" 
+export PYTHONPATH
+
+[ -f "$HOME/tps.pid" ] && kill $(cat "TP_DB/tps.pid")
+python manage.py stop_stream >> "/var/log/teamplayer/teamplayer.log" 

@@ -1,8 +1,9 @@
 import os                                                                       
 import sys
-path = os.path.dirname(__file__)
+path = os.path.dirname(`__file__')
 sys.path.append(path)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'web.settings'
+sys.path.append('TP_HOME/web')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 import django.core.handlers.wsgi
 

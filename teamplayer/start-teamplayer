@@ -1,15 +1,18 @@
 #!/bin/sh
 # this should be run as the TP_USER user
 
+PYTHONPATH="/etc/teamplayer:$PYTHONPATH"
+export PYTHONPATH
+
 cd ~
-hg serve -p 8000 --prefix /repo/ > $HOME/hgserve.log 2>&1 &
+hg serve -p 8000 --prefix /repo/ > /var/log/teamplayer/hgserve.log 2>&1 &
 
 cd ~/web
 
-if [ ! -f "TP_DB/teamplayer.db" ] ; then
+if [ ! -f "/etc/firstboot" ] ; then
     python manage.py syncdb
 fi
 
 # spin!
-python manage.py spin --verbosity=2 $@ > "$HOME/teamplayer.log" 2>&1 &
-echo $! > "$HOME/tps.pid"
+python manage.py spin --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
+echo $! > "TP_DB/tps.pid"
