@@ -121,7 +121,6 @@ sysconfig: preproot fstab
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
 	chroot $(CHROOT) rc-update add net.eth0 default
-	echo "127.0.0.1    $(HOSTNAME) localhost" > $(CHROOT)/etc/hosts
 	touch sysconfig
 
 systools: sysconfig compile_options
