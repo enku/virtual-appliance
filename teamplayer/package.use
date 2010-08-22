@@ -1,3 +1,4 @@
+www-servers/lighttpd fastcgi pcre
 app-editors/nano ncurses
 dev-lang/python sqlite ssl threads xml
 sys-kernel/gentoo-sources symlink
@@ -5,5 +6,3 @@ media-sound/mpd audiofile ffmpeg flac id3 lame network ogg vorbis mad sqlite
 media-video/ffmpeg mmx mxext mp3 network x264 
 media-libs/flac ogg
 dev-python/django postgres
-dev-db/sqlite threadsafe
-www-servers/apache threads

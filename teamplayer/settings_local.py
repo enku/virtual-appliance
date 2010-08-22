@@ -1,5 +1,9 @@
+TIME_ZONE = 'UTC'
+DJANGO_STATIC_MEDIA = False
+FORCE_SCRIPT_NAME = ''
+
 TEMPLATE_DIRS = (
-        'TP_HOME/web/templates',
+        'TP_HOME/web/teamplayer/templates',
 )
 
 TP_STREAM_URL = '/stream.mp3'

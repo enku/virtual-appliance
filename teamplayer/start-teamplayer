@@ -13,6 +13,11 @@ if [ ! -f "/etc/firstboot" ] ; then
     python manage.py syncdb
 fi
 
+# start the fastcgi daemon
+python manage.py runfcgi daemonize=true protocol=fcgi maxrequest=20 \
+    pidfile="TP_DB/fcgi.pid" socket=TP_DB/teamplayer.sock umask=002 \
+    > "/var/log/teamplayer/teamplayer.log" 2>&1
+
 # spin!
 python manage.py spin --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
 echo $! > "TP_DB/tps.pid"
