@@ -7,7 +7,7 @@ APPLIANCE="`dirname $0`"
 HG_REPO="../teamplayer"
 TP_USER="teamplayer"
 TP_HOME="/opt/teamplayer"
-TP_DB="/var/run/teamplayer"
+TP_DB="/var/lib/teamplayer"
 PGVER="8.4"
 
 INSTALL="/usr/bin/install"
