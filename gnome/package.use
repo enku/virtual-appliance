@@ -19,3 +19,5 @@ sys-fs/udev extras
 x11-libs/cairo svg X
 x11-libs/gtk+ jpeg
 x11-libs/pango X
+mail-client/evolution ssl
+gnome-extra/evolution-data-server ssl
