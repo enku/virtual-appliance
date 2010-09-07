@@ -97,7 +97,7 @@ kernel: $(CHROOT)/boot/vmlinuz
 
 
 $(CHROOT)/boot/vmlinuz: base_system kernel.config
-	chroot $(CHROOT) cp /usr/share/zoneinfo/GMT /etc/localtime
+	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	chroot $(CHROOT) emerge -N sys-kernel/$(KERNEL)
 	cp kernel.config $(CHROOT)/usr/src/linux/.config
 	chroot $(CHROOT) gcc-config 1
