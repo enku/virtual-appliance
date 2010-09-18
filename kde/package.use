@@ -16,3 +16,6 @@ app-text/poppler utils
 dev-libs/xmlrpc-c curl
 media-libs/xine-lib xcb
 net-misc/curl ssl
+
+# KDE 4.5
+>=dev-libs/soprano-2.4.64 raptor redland

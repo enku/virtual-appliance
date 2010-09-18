@@ -12,6 +12,8 @@ CHROOT=chroot
 ARCH=amd64
 MAKEOPTS=-j4
 PRUNE_CRITICAL=NO
+HEADLESS=NO
+ACCEPT_KEYWORDS="amd64"
 
 INSTALL=install
 M4=m4
@@ -82,6 +84,7 @@ stage3: chroot
 
 compile_options: make.conf locale.gen $(PACKAGE_FILES)
 	cp make.conf $(CHROOT)/etc/make.conf
+	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
 	chroot $(CHROOT) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
@@ -92,9 +95,6 @@ compile_options: make.conf locale.gen $(PACKAGE_FILES)
 
 base_system: mounts compile_options
 	touch base_system
-
-kernel: $(CHROOT)/boot/vmlinuz
-
 
 $(CHROOT)/boot/vmlinuz: base_system kernel.config
 	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
@@ -119,8 +119,12 @@ sysconfig: preproot fstab
 	echo HOSTNAME=$(HOSTNAME) > $(CHROOT)/etc/conf.d/hostname
 	sed -i 's/^#TIMEZONE=.*/TIMEZONE="$(TIMEZONE)"/' $(CHROOT)/etc/conf.d/clock
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
+	if [ "$(HEADLESS)" == "YES" ] ; then \
+	    sed -i 's/^\(c[0-9]:\)/#\1/' $(CHROOT)/etc/inittab ; \
+	fi
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
 	chroot $(CHROOT) rc-update add net.eth0 default
+	chroot $(CHROOT) rc-update del consolefont boot
 	touch sysconfig
 
 systools: sysconfig compile_options
@@ -131,11 +135,14 @@ systools: sysconfig compile_options
 	chroot $(CHROOT) emerge -n $(USEPKG) net-misc/dhcpcd
 	touch systools
 
-grub: systools grub.conf kernel
+grub: systools grub.conf $(CHROOT)/boot/vmlinuz
 	chroot $(CHROOT) emerge -nN $(USEPKG) sys-boot/grub
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
 	if [ "$(VIRTIO)" == "YES" ] ; then \
 		sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.conf ; \
+	fi
+	if [ "$(HEADLESS)" == "YES" ] ; then \
+	    sed -i -f grub-headless.sed $(CHROOT)/boot/grub/grub.conf ; \
 	fi
 	touch grub
 
@@ -196,12 +203,12 @@ $(VMDK_IMAGE): $(RAW_IMAGE) image
 
 vmdk: $(VMDK_IMAGE)
 
-.PHONY: kernel qcow vmdk clean
+.PHONY: qcow vmdk clean
 
 clean:
 	umount $(CHROOT)/usr/portage $(CHROOT)/var/tmp $(CHROOT)/dev $(CHROOT)/proc || true
 	rm -f mounts compile_options base_system portage
-	rm -f parted grub stage3 software preproot sysconfig systools image kernel partitions device-map
+	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
 	rm -rf loop
 	rm -rf gentoo
 	rm -rf $(CHROOT)

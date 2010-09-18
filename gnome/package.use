@@ -14,6 +14,7 @@ net-libs/libsoup gnome
 net-misc/curl ssl
 sys-apps/dbus X
 sys-apps/parted device-mapper
+sys-block/parted device-mapper
 sys-auth/consolekit policykit
 sys-fs/udev extras
 x11-libs/cairo svg X
