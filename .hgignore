@@ -3,3 +3,4 @@ gentoo\/.*
 loop\/.*
 .*\.swp$
 Makefile\..*
+stage3-.*\.tar\.bz2
