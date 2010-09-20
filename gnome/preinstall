@@ -9,7 +9,3 @@ echo 1234567890abcdef1234567890abcdef > "${CHROOT}"/var/lib/dbus/machine-id
 
 # argh, something depends on pkgconfig but it's not in it's deps
 chroot "${CHROOT}" emerge -1n dev-util/pkgconfig
-
-# same shit for cheese/gtk-doc.. wtf
-# http://bugs.gentoo.org/show_bug.cgi?id=338066
-chroot "${CHROOT}" emerge -1n dev-util/gtk-doc
