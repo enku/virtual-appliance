@@ -19,6 +19,7 @@ INSTALL=install
 M4=m4
 M4_DEFS=-D HOSTNAME=$(HOSTNAME)
 M4C=$(M4) $(M4_DEFS)
+NBD_DEV=/dev/nbd0
 USEPKG=--usepkg --binpkg-respect-use=y
 PARTED=/usr/sbin/parted
 PORTAGE=/usr/portage
@@ -41,9 +42,9 @@ partitions: parted $(RAW_IMAGE)
 	$(PARTED) -s -a optimal $(RAW_IMAGE) mkpart primary ext4 0 $(DISK_SIZE)
 	$(PARTED) -s -a optimal $(RAW_IMAGE) set 1 boot on
 
-	qemu-nbd -c /dev/nbd0 $(RAW_IMAGE)
+	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext4 /dev/nbd0p1
+	mkfs.ext4 $(NBD_DEV)p1
 	touch partitions
 
 parted:
@@ -170,7 +171,7 @@ device-map: $(RAW_IMAGE)
 
 image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	mkdir -p loop
-	mount /dev/nbd0p1 loop/
+	mount $(NBD_DEV)p1 loop/
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
 	rm -rf gentoo/usr/src/linux-*
@@ -189,7 +190,7 @@ image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	sleep 3
 	rmdir loop
 	rm -rf gentoo
-	qemu-nbd -d /dev/nbd0
+	qemu-nbd -d $(NBD_DEV)
 	touch image
 
 $(QCOW_IMAGE): $(RAW_IMAGE) image
