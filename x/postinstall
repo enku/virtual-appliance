@@ -1,7 +1,0 @@
-#!/bin/sh -ev
-
-CHROOT="$1"
-APPLIANCE="`dirname $0`"
-
-cp "${APPLIANCE}"/xdm/* "${CHROOT}"/etc/X11/xdm
-chroot "${CHROOT}" rc-update add xdm default

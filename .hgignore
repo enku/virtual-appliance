@@ -2,5 +2,5 @@ chroot\/.*
 gentoo\/.*
 loop\/.*
 .*\.swp$
-Makefile\..*
+Makefile\.[^(inc)]
 stage3-.*\.tar\.bz2

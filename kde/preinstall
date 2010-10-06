@@ -1,7 +1,0 @@
-#!/bin/sh
-
-CHROOT="$1"
-
-# Add a few flags to global USE
-echo -e '\n#Added for the KDE virtual appliance' >> "$CHROOT"/etc/make.conf
-echo 'USE="$USE qt3support xcomposite opengl"' >> "$CHROOT"/etc/make.conf

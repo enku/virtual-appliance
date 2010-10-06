@@ -28,9 +28,8 @@ KERNEL=gentoo-sources
 PACKAGE_FILES=$(APPLIANCE)/package.*
 WORLD=$(APPLIANCE)/world
 CRITICAL=$(APPLIANCE)/critical
-PREINSTALL=$(APPLIANCE)/preinstall
-POSTINSTALL=$(APPLIANCE)/postinstall
 
+include $(APPLIANCE)/Makefile.inc
 
 all: image
 
@@ -147,8 +146,8 @@ grub: systools grub.conf $(CHROOT)/boot/vmlinuz
 	fi
 	touch grub
 
-software: systools issue etc-update.conf $(CRITICAL) $(WORLD) $(PREINSTALL) $(POSTINSTALL)
-	./$(PREINSTALL) "$(CHROOT)" $(HOSTNAME)
+software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
+	$(preinstall)
 	chroot $(CHROOT) emerge -DN $(USEPKG) system
 	cp etc-update.conf $(CHROOT)/etc/
 	chroot $(CHROOT) etc-update
@@ -158,7 +157,7 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD) $(PREINSTALL) $(PO
 	cp issue $(CHROOT)/etc/issue
 	chroot $(CHROOT) emerge --depclean --with-bdeps=n
 	chroot $(CHROOT) gcc-config 1
-	./$(POSTINSTALL) "$(CHROOT)" $(HOSTNAME)
+	$(postinstall)
 	chroot $(CHROOT) passwd -d root
 	chroot $(CHROOT) passwd -e root
 	if [ "$(PRUNE_CRITICAL)" = "YES" ] ; then \
