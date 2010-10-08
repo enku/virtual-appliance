@@ -2,15 +2,14 @@ HG_REPO = ../teamplayer
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
-PGVER = 8.4
+PGVER = 9.0
 
-INSTALL = /usr/bin/install
-M4 = /usr/bin/m4
-M4_DEFS = -D HOSTNAME=$(HOSTNAME) -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME)
-M4_DEFS += -D TP_DB=$(TP_DB)
+M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB)
 M4C = $(M4) $(M4_DEFS)
 
+preinstall =
 postinstall = \
+    chroot $(CHROOT) emerge -n $(USEPKG) =dev-db/postgresql-server-$(PGVER)*; \
 	chroot $(CHROOT) passwd -d postgres;                                     \
 	yes | chroot $(CHROOT) emerge --config =postgresql-server-$(PGVER)*;     \
 	chroot $(CHROOT) rc-update add postgresql-$(PGVER) default;              \
