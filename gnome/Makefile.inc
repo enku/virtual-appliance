@@ -13,6 +13,7 @@ preinstall = mkdir -p "$(CHROOT)/var/lib/dbus";                           \
 		chroot $(CHROOT) /usr/bin/layman --add gnome;                     \
 		echo "source /var/lib/layman/make.conf" >>                        \
 			$(CHROOT)/etc/make.conf;                                      \
+        echo USE='"$$USE clutter"' >> $(CHROOT)/etc/make.conf;              \
 	fi;
 
 postinstall = rm -f "$(CHROOT)"/var/lib/dbus/machine-id;                  \

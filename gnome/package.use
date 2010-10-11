@@ -26,3 +26,4 @@ gnome-extra/evolution-data-server ssl
 net-libs/xulrunner cups
 net-print/cups gnutls
 app-text/poppler utils
+app-text/ghostscript-gpl cups
