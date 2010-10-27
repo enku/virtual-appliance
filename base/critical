@@ -34,3 +34,4 @@ sys-apps/which
 dev-lang/perl
 sys-devel/libperl
 sys-apps/portage
+dev-lang/python
