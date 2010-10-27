@@ -181,6 +181,7 @@ image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 		rm -rf gentoo/usr/share/gtk-doc ; \
 		rm -rf gentoo/var/db/pkg ; \
 		rm -rf gentoo/usr/lib/perl* ; \
+		rm -f gentoo/usr/bin/python*; \
 	fi
 	rsync -ax gentoo/ loop/
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
@@ -206,7 +207,12 @@ vmdk: $(VMDK_IMAGE)
 .PHONY: qcow vmdk clean
 
 clean:
-	umount $(CHROOT)/usr/portage $(CHROOT)/var/tmp $(CHROOT)/dev $(CHROOT)/proc || true
+	for mntpt in  \
+		$(CHROOT)/usr/portage \
+		$(CHROOT)/var/tmp \
+		$(CHROOT)/dev \
+		$(CHROOT)/proc; do \
+		umount $$mntpt || true; done;
 	rm -f mounts compile_options base_system portage
 	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
 	rm -rf loop
