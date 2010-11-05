@@ -21,10 +21,9 @@ M4=m4
 M4_DEFS=-D HOSTNAME=$(HOSTNAME)
 M4C=$(M4) $(M4_DEFS)
 NBD_DEV=/dev/nbd0
+PKGDIR =
 USEPKG=--usepkg --binpkg-respect-use=y
-PARTED=/usr/sbin/parted
-PORTAGE=/usr/portage
-STAGE3=ftp://ftp.osuosl.org/pub/gentoo/releases/$(ARCH)/autobuilds/current-stage3/stage3-$(ARCH)-*.tar.bz2
+RSYNC_MIRROR = rsync://mirrors.rit.edu/gentoo/
 KERNEL=gentoo-sources
 PACKAGE_FILES=$(APPLIANCE)/package.*
 WORLD=$(APPLIANCE)/world
@@ -37,19 +36,15 @@ all: image
 $(RAW_IMAGE):
 	qemu-img create -f raw $(RAW_IMAGE) $(DISK_SIZE)
 
-partitions: parted $(RAW_IMAGE)
-	$(PARTED) -s -a optimal $(RAW_IMAGE) mklabel msdos
-	$(PARTED) -s -a optimal $(RAW_IMAGE) mkpart primary ext4 0 $(DISK_SIZE)
-	$(PARTED) -s -a optimal $(RAW_IMAGE) set 1 boot on
+partitions: $(RAW_IMAGE)
+	parted -s  $(RAW_IMAGE) mklabel msdos
+	parted -s  $(RAW_IMAGE) mkpart primary ext4 0 $(DISK_SIZE)
+	parted -s  $(RAW_IMAGE) set 1 boot on
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
 	mkfs.ext4 -L "$(APPLIANCE)" $(NBD_DEV)p1
 	touch partitions
-
-parted:
-	emerge -n1 $(USEPKG) parted
-	touch parted
 
 $(CHROOT):
 	mkdir -p $(CHROOT)
@@ -63,9 +58,11 @@ mounts: $(CHROOT) stage3
 	touch mounts
 
 portage: stage3
-	if [ ! -e portage ] ; then \
-		mkdir -p $(CHROOT)/usr/portage; \
-		mount -o bind $(PORTAGE) $(CHROOT)/usr/portage; \
+	rsync -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-latest.tar.bz2
+	tar xvjf portage-latest.tar.bz2 -C $(CHROOT)/usr
+	if [ -n "$(PKGDIR)" ]; then \
+		mkdir -p $(CHROOT)/usr/portage/packages; \
+		mount -o bind "$(PKGDIR)" $(CHROOT)/usr/portage/packages; \
 	fi
 	touch portage
 
@@ -74,10 +71,9 @@ preproot: stage3 mounts portage
 	touch preproot
 
 stage3: chroot
-	if [ ! -e stage3 ] ; then \
-		wget -c -q -nc $(STAGE3); \
-		tar xjpf `/bin/ls -1 stage3-*.tar.bz2|tail -n1` -C $(CHROOT); \
-	fi
+	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/latest-stage3.txt .
+	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/`tail -n 1 latest-stage3.txt` .
+	stage3=`tail -n 1 latest-stage3.txt` ; tar xjpf `basename $$stage3` -C $(CHROOT)
 	touch stage3
 
 compile_options: make.conf locale.gen $(PACKAGE_FILES)
@@ -174,6 +170,7 @@ image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
 	rm -rf gentoo/usr/src/linux-*
+	rm -rf gentoo/usr/portage
 	rm -rf gentoo/tmp/*
 	rm -rf gentoo/var/tmp/*
 	if [ "$(PRUNE_CRITICAL)" = "YES" ] ; then \
@@ -208,7 +205,7 @@ vmdk: $(VMDK_IMAGE)
 
 clean:
 	for mntpt in  \
-		$(CHROOT)/usr/portage \
+		$(CHROOT)/usr/portage/packages \
 		$(CHROOT)/var/tmp \
 		$(CHROOT)/dev \
 		$(CHROOT)/proc; do \
