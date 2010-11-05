@@ -72,8 +72,8 @@ preproot: stage3 mounts portage
 
 stage3: chroot
 	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/latest-stage3.txt .
-	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/`tail -n 1 latest-stage3.txt` .
-	stage3=`tail -n 1 latest-stage3.txt` ; tar xjpf `basename $$stage3` -C $(CHROOT)
+	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
+	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 	touch stage3
 
 compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
