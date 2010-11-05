@@ -4,6 +4,7 @@ HOSTNAME=$(APPLIANCE)
 RAW_IMAGE=$(HOSTNAME).img
 QCOW_IMAGE=$(HOSTNAME).qcow
 VMDK_IMAGE=$(HOSTNAME).vmdk
+KERNEL_CONFIG = kernel.config
 VIRTIO=NO
 TIMEZONE=UTC
 DISK_SIZE=6.0G
@@ -43,7 +44,7 @@ partitions: parted $(RAW_IMAGE)
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext4 $(NBD_DEV)p1
+	mkfs.ext4 -L "$(APPLIANCE)" $(NBD_DEV)p1
 	touch partitions
 
 parted:
@@ -77,9 +78,6 @@ stage3: chroot
 		wget -c -q -nc $(STAGE3); \
 		tar xjpf `/bin/ls -1 stage3-*.tar.bz2|tail -n1` -C $(CHROOT); \
 	fi
-	# is it me or does the latest stage3 have python3 as the system
-	# default?!
-	chroot $(CHROOT) eselect python set python2.6
 	touch stage3
 
 compile_options: make.conf locale.gen $(PACKAGE_FILES)
@@ -96,10 +94,10 @@ compile_options: make.conf locale.gen $(PACKAGE_FILES)
 base_system: mounts compile_options
 	touch base_system
 
-$(CHROOT)/boot/vmlinuz: base_system kernel.config
+$(CHROOT)/boot/vmlinuz: base_system $(KERNEL_CONFIG)
 	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	chroot $(CHROOT) emerge -N sys-kernel/$(KERNEL)
-	cp kernel.config $(CHROOT)/usr/src/linux/.config
+	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
 	chroot $(CHROOT) gcc-config 1
 	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux oldconfig
 	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux
@@ -148,14 +146,16 @@ grub: systools grub.conf $(CHROOT)/boot/vmlinuz
 
 software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(preinstall)
-	chroot $(CHROOT) emerge -DN $(USEPKG) system
+	#chroot $(CHROOT) emerge -DN $(USEPKG) system
 	cp etc-update.conf $(CHROOT)/etc/
-	chroot $(CHROOT) etc-update
-	chroot $(CHROOT) emerge -DNn $(USEPKG) `cat $(WORLD)`
+	cat $(WORLD) >> $(CHROOT)/var/lib/portage/world
+	#chroot $(CHROOT) emerge -DNn $(USEPKG) `cat $(WORLD)`
+	chroot $(CHROOT) emerge $(USEPKG) --update --newuse --deep world
 	chroot $(CHROOT) emerge -1n app-portage/gentoolkit
 	chroot $(CHROOT) revdep-rebuild -i
 	cp issue $(CHROOT)/etc/issue
 	chroot $(CHROOT) emerge --depclean --with-bdeps=n
+	chroot $(CHROOT) etc-update
 	chroot $(CHROOT) gcc-config 1
 	$(postinstall)
 	chroot $(CHROOT) passwd -d root
