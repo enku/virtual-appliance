@@ -43,7 +43,7 @@ partitions: $(RAW_IMAGE)
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext4 -L "$(APPLIANCE)" $(NBD_DEV)p1
+	mkfs.ext4 -O sparse_super -L "$(APPLIANCE)" $(NBD_DEV)p1
 	touch partitions
 
 $(CHROOT):
@@ -194,15 +194,13 @@ $(VMDK_IMAGE): $(RAW_IMAGE) image
 
 vmdk: $(VMDK_IMAGE)
 
-.PHONY: qcow vmdk clean
+umount: 
+	umount -l $(CHROOT)/usr/portage/packages
+	umount -l $(CHROOT)/var/tmp
+	umount -l $(CHROOT)/dev
+	umount -l $(CHROOT)/proc
 
-clean:
-	for mntpt in  \
-		$(CHROOT)/usr/portage/packages \
-		$(CHROOT)/var/tmp \
-		$(CHROOT)/dev \
-		$(CHROOT)/proc; do \
-		umount $$mntpt || true; done;
+clean: umount
 	rm -f mounts compile_options base_system portage
 	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
 	rm -rf loop
@@ -211,3 +209,5 @@ clean:
 
 realclean: clean
 	rm -f $(RAW_IMAGE) $(QCOW_IMAGE) $(VMDK_IMAGE)
+
+.PHONY: qcow vmdk clean umount
