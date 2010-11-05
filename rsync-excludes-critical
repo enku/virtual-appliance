@@ -1,0 +1,4 @@
+usr/lib/python*/test
+usr/share/gtk-doc
+var/db/pkg
+usr/lib/perl*

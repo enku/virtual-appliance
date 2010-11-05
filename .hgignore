@@ -1,6 +1,7 @@
 chroot\/.*
-gentoo\/.*
 loop\/.*
 .*\.swp$
 Makefile\.[^(inc)]
-stage3-.*\.tar\.bz2
+latest-stage3\.txt
+portage-latest\.tar\.bz2
+stage3-.*-\d{8}.tar.bz2

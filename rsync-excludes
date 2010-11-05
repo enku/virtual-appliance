@@ -1,0 +1,5 @@
+usr/src/linux-*
+usr/portage
+tmp/*
+var/tmp/*
+

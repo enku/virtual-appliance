@@ -59,7 +59,7 @@ mounts: $(CHROOT) stage3
 
 portage: stage3
 	rsync -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-latest.tar.bz2
-	tar xvjf portage-latest.tar.bz2 -C $(CHROOT)/usr
+	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
 	if [ -n "$(PKGDIR)" ]; then \
 		mkdir -p $(CHROOT)/usr/portage/packages; \
 		mount -o bind "$(PKGDIR)" $(CHROOT)/usr/portage/packages; \
@@ -76,7 +76,7 @@ stage3: chroot
 	stage3=`tail -n 1 latest-stage3.txt` ; tar xjpf `basename $$stage3` -C $(CHROOT)
 	touch stage3
 
-compile_options: make.conf locale.gen $(PACKAGE_FILES)
+compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
 	cp make.conf $(CHROOT)/etc/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
@@ -92,7 +92,7 @@ base_system: mounts compile_options
 
 $(CHROOT)/boot/vmlinuz: base_system $(KERNEL_CONFIG)
 	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
-	chroot $(CHROOT) emerge -N sys-kernel/$(KERNEL)
+	chroot $(CHROOT) emerge -n $(USEPKG) sys-kernel/$(KERNEL)
 	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
 	chroot $(CHROOT) gcc-config 1
 	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux oldconfig
@@ -166,27 +166,20 @@ device-map: $(RAW_IMAGE)
 
 image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	mkdir -p loop
-	mount $(NBD_DEV)p1 loop/
+	mount -o noatime $(NBD_DEV)p1 loop
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
-	rm -rf gentoo/usr/src/linux-*
-	rm -rf gentoo/usr/portage
-	rm -rf gentoo/tmp/*
-	rm -rf gentoo/var/tmp/*
 	if [ "$(PRUNE_CRITICAL)" = "YES" ] ; then \
-		rm -rf gentoo/usr/lib/python*/test ; \
-		rm -rf gentoo/usr/share/gtk-doc ; \
-		rm -rf gentoo/var/db/pkg ; \
-		rm -rf gentoo/usr/lib/perl* ; \
-		rm -f gentoo/usr/bin/python*; \
+		rsync -ax --exclude-from=rsync-excludes --exclude-from=rsync-excludes-critical gentoo/ loop/ ; \
+	else \
+		rsync -ax --exclude-from=rsync-excludes gentoo/ loop/ ; \
 	fi
-	rsync -ax gentoo/ loop/
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
-	umount loop
 	umount gentoo
+	rmdir gentoo
+	umount loop
 	sleep 3
 	rmdir loop
-	rm -rf gentoo
 	qemu-nbd -d $(NBD_DEV)
 	touch image
 
