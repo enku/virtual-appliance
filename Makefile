@@ -38,12 +38,12 @@ $(RAW_IMAGE):
 
 partitions: $(RAW_IMAGE)
 	parted -s  $(RAW_IMAGE) mklabel msdos
-	parted -s  $(RAW_IMAGE) mkpart primary ext4 0 $(DISK_SIZE)
+	parted -s  $(RAW_IMAGE) mkpart primary ext2 0 $(DISK_SIZE)
 	parted -s  $(RAW_IMAGE) set 1 boot on
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext4 -O sparse_super -L "$(APPLIANCE)" $(NBD_DEV)p1
+	mkfs.ext2 -O sparse_super -L "$(APPLIANCE)" $(NBD_DEV)p1
 	touch partitions
 
 $(CHROOT):
