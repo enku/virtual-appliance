@@ -46,9 +46,6 @@ partitions: $(RAW_IMAGE)
 	mkfs.ext2 -O sparse_super -L "$(APPLIANCE)" $(NBD_DEV)p1
 	touch partitions
 
-$(CHROOT):
-	mkdir -p $(CHROOT)
-
 mounts: $(CHROOT) stage3
 	if [ ! -e mounts ] ; then \
 		mount -t proc none $(CHROOT)/proc; \
@@ -70,7 +67,8 @@ preproot: stage3 mounts portage
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
 	touch preproot
 
-stage3: chroot
+stage3: 
+	mkdir -p $(CHROOT)
 	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/latest-stage3.txt .
 	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
 	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
@@ -200,9 +198,11 @@ umount:
 	umount -l $(CHROOT)/dev
 	umount -l $(CHROOT)/proc
 
-clean: umount
+remove_checkpoints:
 	rm -f mounts compile_options base_system portage
 	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
+
+clean: umount remove_checkpoints
 	rm -rf loop
 	rm -rf gentoo
 	rm -rf $(CHROOT)
@@ -210,4 +210,8 @@ clean: umount
 realclean: clean
 	rm -f $(RAW_IMAGE) $(QCOW_IMAGE) $(VMDK_IMAGE)
 
+distclean: realclean
+	rm -f *.qcow *.img *.vmdk
+	rm -f latest-stage3.txt stage3-amd64-latest.tar.bz2
+	rm -f portage-latest.tar.bz2
 .PHONY: qcow vmdk clean umount
