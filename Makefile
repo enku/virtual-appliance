@@ -69,8 +69,8 @@ preproot: stage3 mounts portage
 
 stage3: 
 	mkdir -p $(CHROOT)
-	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/latest-stage3.txt .
-	rsync $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
+	rsync $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .
+	rsync $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
 	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 	touch stage3
 
@@ -215,8 +215,9 @@ clean: umount remove_checkpoints
 realclean: clean
 	rm -f $(RAW_IMAGE) $(QCOW_IMAGE) $(VMDK_IMAGE)
 
-distclean: realclean
+distclean: 
 	rm -f *.qcow *.img *.vmdk
-	rm -f latest-stage3.txt stage3-amd64-latest.tar.bz2
+	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
 	rm -f portage-latest.tar.bz2
-.PHONY: qcow vmdk clean umount
+
+.PHONY: qcow vmdk clean umount realclean distclean remove_checkpoints
