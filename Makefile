@@ -140,13 +140,18 @@ grub: systools grub.conf $(CHROOT)/boot/vmlinuz
 
 software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(preinstall)
-	#chroot $(CHROOT) emerge -DN $(USEPKG) system
 	cp etc-update.conf $(CHROOT)/etc/
-	cat $(WORLD) >> $(CHROOT)/var/lib/portage/world
-	#chroot $(CHROOT) emerge -DNn $(USEPKG) `cat $(WORLD)`
-	chroot $(CHROOT) emerge $(USEPKG) --update --newuse --deep world
-	chroot $(CHROOT) emerge -1n app-portage/gentoolkit
+	
+	# some packages, like, tar need xz-utils to unpack, but it not part of
+	# the stage3 so may not be installed yet
+	chroot $(CHROOT) emerge -1n $(USEPKG) app-arch/xz-utils
+	
+	chroot $(CHROOT) emerge $(USEPKG) --update --newuse --deep `cat $(WORLD)`
+	
+	# Need gentoolkit to run revdep-rebuild
+	chroot $(CHROOT) emerge -1n $(USEPKG) app-portage/gentoolkit
 	chroot $(CHROOT) revdep-rebuild -i
+	
 	cp issue $(CHROOT)/etc/issue
 	chroot $(CHROOT) emerge --depclean --with-bdeps=n
 	chroot $(CHROOT) etc-update
