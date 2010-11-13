@@ -1,7 +1,7 @@
-chroot\/.*
+vabuild\/.*
 loop\/.*
 .*\.swp$
-Makefile\.[^(inc)]
+.*\.cfg
 latest-stage3\.txt
 portage-latest\.tar\.bz2
 stage3-.*-latest\.tar\.bz2

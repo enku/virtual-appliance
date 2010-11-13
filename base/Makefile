@@ -1,0 +1,6 @@
+preinstall:
+
+postinstall:
+
+clean:
+
