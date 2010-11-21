@@ -9,7 +9,7 @@ preinstall:
 	mkdir -p "$(CHROOT)/var/lib/dbus"
 	echo 1234567890abcdef1234567890abcdef > \
 		"$(CHROOT)"/var/lib/dbus/machine-id
-	chroot "$(CHROOT)" $(EMERGE) $(USEPKG)-1n dev-util/pkgconfig
+	chroot "$(CHROOT)" $(EMERGE) $(USEPKG) -1n dev-util/pkgconfig
 	$(DO_OVERLAY) chroot $(CHROOT) $(EMERGE) $(USEPKG) -1n app-portage/layman
 	$(DO_OVERLAY) chroot $(CHROOT) $(EMERGE) $(USEPKG) -1n dev-vcs/git
 	$(DO_OVERLAY) chroot $(CHROOT) /usr/bin/layman --sync ALL
