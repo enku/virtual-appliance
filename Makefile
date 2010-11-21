@@ -88,7 +88,6 @@ portage: stage3
 	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-latest.tar.bz2
 	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
 	$(MOUNT_PKGDIR)
-	chroot $(CHROOT) $(EMERGE) -un $(USEPKG) sys-apps/portage
 	touch portage
 
 preproot: stage3 mounts portage
@@ -236,7 +235,7 @@ remove_checkpoints:
 	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
 
 clean: umount remove_checkpoints
-	rm -rf loop
+	rm -rf loop gentoo
 	rm -rf gentoo
 	rm -rf $(CHROOT)
 
