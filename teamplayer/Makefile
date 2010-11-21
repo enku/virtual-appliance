@@ -3,6 +3,7 @@ TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
 PGVER = 9.0
+INSTALL = install
 
 M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB)
 M4C = $(M4) $(M4_DEFS)
