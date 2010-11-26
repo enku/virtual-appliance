@@ -1,6 +1,7 @@
 app-editors/mousepad
 app-office/orage
 net-misc/dhcpcd
+www-client/firefox
 x11-apps/xdm
 x11-terms/terminal
 x11-themes/tango-icon-theme
