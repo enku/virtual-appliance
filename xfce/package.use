@@ -1,8 +1,10 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
 sys-kernel/gentoo-sources symlink
-x11-terms/terminal
+www-client/firefox bindist
 x11-libs/cairo X svg
+x11-libs/pango X
+x11-terms/terminal
 xfce-base/thunar xfce_plugins_trash
 xfce-base/xfce4-meta svg
 xfce-base/xfwm4 xcomposite
