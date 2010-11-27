@@ -3,6 +3,7 @@ app-office/orage
 net-misc/dhcpcd
 www-client/firefox
 x11-apps/xdm
+x11-apps/xrandr
 x11-terms/terminal
 x11-themes/tango-icon-theme
 x11-themes/xfwm4-themes
