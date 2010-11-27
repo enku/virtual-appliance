@@ -55,6 +55,8 @@ ifeq ($(HEADLESS),YES)
 	HEADLESS_GRUB = sed -i -f grub-headless.sed $(CHROOT)/boot/grub/grub.conf
 endif
 
+gcc_config = chroot $(CHROOT) gcc-config 1
+
 export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C 
 export HOSTNAME MAKEOPTS PRUNE_CRITICAL TIMEZONE USEPKG WORLD
 
@@ -120,7 +122,7 @@ $(CHROOT)/boot/vmlinuz: base_system $(KERNEL_CONFIG)
 	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) sys-kernel/$(KERNEL)
 	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
-	chroot $(CHROOT) gcc-config 1
+	$(gcc_config)
 	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux oldconfig
 	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux
 	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux modules_install
@@ -148,6 +150,7 @@ sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostna
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	$(HEADLESS_INITTAB)
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
+	chroot $(CHROOT) ln -nsf net.lo /etc/init.d/net.eth0
 	chroot $(CHROOT) rc-update add net.eth0 default
 	chroot $(CHROOT) rc-update del consolefont boot
 	touch sysconfig
@@ -176,16 +179,17 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
 	
 	chroot $(CHROOT) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)`
-	chroot $(CHROOT) gcc-config 1
+	$(gcc_config)
 	
 	# Need gentoolkit to run revdep-rebuild
 	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit
 	chroot $(CHROOT) revdep-rebuild -i
 	
 	cp issue $(CHROOT)/etc/issue
-	chroot $(CHROOT) gcc-config 1
+	$(gcc_config)
 	chroot $(CHROOT) $(EMERGE) $(USEPKG) --update --newuse --deep world
 	chroot $(CHROOT) $(EMERGE) --depclean --with-bdeps=n
+	$(gcc_config)
 	chroot $(CHROOT) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
 	chroot $(CHROOT) passwd -d root
