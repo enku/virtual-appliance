@@ -1,0 +1,9 @@
+local_start() {
+        /usr/bin/kdm -daemon
+        return 0
+}
+
+local_stop() {
+        pkill kdm
+        return 0
+}
