@@ -2,8 +2,10 @@
 preinstall:
 	echo 'USE="$$USE qt3support xcomposite opengl"' >>  "$(CHROOT)"/etc/make.conf;
 
-postinstall: kdmrc Xaccess local
+postinstall: kdmrc Xaccess local knotifyrc
 	cp kdmrc Xaccess "$(CHROOT)"/usr/share/config/kdm
+	mkdir -p "$(CHROOT)"/etc/skel/.kde4/share/config
+	cp knotifyrc "$(CHROOT)"/etc/skel/.kde4/share/config/knotifyrc
 	chroot "$(CHROOT)" rc-update add dbus default
 	if [ -e "$(CHROOT)"/etc/conf.d/xdm ]; then                             \
     	sed -i 's/^DISPLAYMANAGER=.*/DISPLAYMANAGER="kdm"/'                \
