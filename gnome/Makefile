@@ -21,6 +21,7 @@ postinstall: custom.conf
 	$(RM) "$(CHROOT)"/var/lib/dbus/machine-id
 	cp custom.conf "$(CHROOT)"/etc/X11/gdm/custom.conf
 	#chroot "$(CHROOT)" rc-update add hald default
+	chroot "$(CHROOT)" rc-update add dbus default
 	echo 'gdm &>/dev/null' >> "$(CHROOT)"/etc/conf.d/local.start
 
 clean:
