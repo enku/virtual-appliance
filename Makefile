@@ -28,7 +28,7 @@ PACKAGE_FILES = $(APPLIANCE)/package.*
 WORLD = $(APPLIANCE)/world
 CRITICAL = $(APPLIANCE)/critical
 
--include $(PROFILE).cfg
+-include $(profile).cfg
 
 ifneq ($(PKGDIR),)
 	MOUNT_PKGDIR = mkdir -p $(CHROOT)/var/portage/packages; \
