@@ -150,6 +150,7 @@ sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostna
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	$(HEADLESS_INITTAB)
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
+	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
 	chroot $(CHROOT) ln -nsf net.lo /etc/init.d/net.eth0
 	chroot $(CHROOT) rc-update add net.eth0 default
 	chroot $(CHROOT) rc-update del consolefont boot
