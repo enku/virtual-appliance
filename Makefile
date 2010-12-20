@@ -13,6 +13,8 @@ SWAP_FILE = $(CHROOT)/.swap
 ARCH = amd64
 MAKEOPTS = -j4
 PRUNE_CRITICAL = NO
+REMOVE_PORTAGE_TREE = YES
+CHANGE_PASSWORD = YES
 HEADLESS = NO
 ACCEPT_KEYWORDS = amd64
 
@@ -43,6 +45,14 @@ ifeq ($(PRUNE_CRITICAL),YES)
 	UNMERGE_CRITICAL = chroot $(CHROOT) $(EMERGE) -C `cat $(CRITICAL)`
 else
 	COPY_LOOP = rsync -ax --exclude-from=rsync-excludes gentoo/ loop/
+endif
+
+ifeq ($(CHANGE_PASSWORD),YES)
+	change_password = chroot $(CHROOT) passwd -d root; chroot $(CHROOT) passwd -e root
+endif
+
+ifeq ($(REMOVE_PORTAGE_TREE),YES)
+	COPY_LOOP += --exclude=usr/portage
 endif
 
 ifeq ($(VIRTIO),YES)
@@ -193,8 +203,7 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(gcc_config)
 	chroot $(CHROOT) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
-	chroot $(CHROOT) passwd -d root
-	chroot $(CHROOT) passwd -e root
+	$(change_password)
 	$(UNMERGE_CRITICAL)
 	touch software
 
