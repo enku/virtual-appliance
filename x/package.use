@@ -1,2 +1,3 @@
-x11-base/xorg-server xorg
 dev-lang/python xml
+dev-libs/libxml2 python
+x11-base/xorg-server xorg
