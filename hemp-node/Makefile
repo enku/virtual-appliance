@@ -1,6 +1,7 @@
 preinstall:
 
 postinstall:
+	chroot "$(CHROOT)" emerge -C '>=dev-lang/python-3.0' gentoo-sources
 	# we want sshd running
 	chroot "$(CHROOT)" rc-update add sshd default
 
