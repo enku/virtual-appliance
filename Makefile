@@ -48,7 +48,11 @@ else
 endif
 
 ifeq ($(CHANGE_PASSWORD),YES)
-	change_password = chroot $(CHROOT) passwd -d root; chroot $(CHROOT) passwd -e root
+	ifdef ROOT_PASSWORD
+		change_password = chroot $(CHROOT) usermod -p '$(ROOT_PASSWORD)' root
+	else
+		change_password = chroot $(CHROOT) passwd -d root; chroot $(CHROOT) passwd -e root
+	endif
 endif
 
 ifeq ($(REMOVE_PORTAGE_TREE),YES)
