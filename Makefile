@@ -14,6 +14,7 @@ ARCH = amd64
 MAKEOPTS = -j4
 PRUNE_CRITICAL = NO
 REMOVE_PORTAGE_TREE = YES
+ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
 HEADLESS = NO
 ACCEPT_KEYWORDS = amd64
@@ -67,6 +68,10 @@ endif
 ifeq ($(HEADLESS),YES)
 	HEADLESS_INITTAB = sed -ri 's/^(c[0-9]:)/\#\1/' $(CHROOT)/etc/inittab
 	HEADLESS_GRUB = sed -i -f grub-headless.sed $(CHROOT)/boot/grub/grub.conf
+endif
+
+ifeq ($(ENABLE_SSHD),YES)
+	enable_sshd = chroot $(CHROOT) rc-update add sshd default
 endif
 
 gcc_config = chroot $(CHROOT) gcc-config 1
@@ -212,6 +217,7 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(gcc_config)
 	chroot $(CHROOT) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
+	$(enable_sshd)
 	$(change_password)
 	$(UNMERGE_CRITICAL)
 	touch software
