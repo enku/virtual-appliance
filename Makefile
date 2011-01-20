@@ -100,8 +100,11 @@ mounts: stage3
 	fi
 	touch mounts
 
-portage: stage3
+sync_portage:
 	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-latest.tar.bz2
+	touch sync_portage
+
+portage: sync_portage stage3
 	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
 	$(MOUNT_PKGDIR)
 	touch portage
@@ -250,7 +253,7 @@ umount:
 	touch umount
 
 remove_checkpoints:
-	rm -f mounts compile_options base_system portage
+	rm -f mounts compile_options base_system portage sync_portage
 	rm -f umount
 	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
 
