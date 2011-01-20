@@ -16,6 +16,7 @@ preinstall:
 postinstall: $(post_files)
 	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) =dev-db/postgresql-server-$(PGVER)*
 	chroot $(CHROOT) passwd -d postgres
+	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	yes | chroot $(CHROOT) $(EMERGE) --config =postgresql-server-$(PGVER)*
 	chroot $(CHROOT) rc-update add postgresql-$(PGVER) default
 	chroot $(CHROOT) getent passwd $(TP_USER) || \
