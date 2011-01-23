@@ -260,10 +260,10 @@ umount:
 
 remove_checkpoints:
 	rm -f mounts compile_options base_system portage sync_portage
-	rm -f umount
 	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
 
 clean: umount remove_checkpoints
+	rm -f umount
 	rm -rf loop gentoo
 	rm -rf gentoo
 	rm -rf $(CHROOT)
