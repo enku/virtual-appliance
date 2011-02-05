@@ -17,6 +17,7 @@ REMOVE_PORTAGE_TREE = YES
 ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
 HEADLESS = NO
+EXTERNAL_KERNEL = NO
 ACCEPT_KEYWORDS = amd64
 
 M4 = m4
@@ -142,8 +143,9 @@ compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
 base_system: mounts compile_options
 	touch base_system
 
-$(CHROOT)/boot/vmlinuz: base_system $(KERNEL_CONFIG)
+kernel: base_system $(KERNEL_CONFIG)
 	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
+ifneq ($(EXTERNAL_KERNEL),YES)
 	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) sys-kernel/$(KERNEL)
 	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
 	$(gcc_config)
@@ -154,6 +156,8 @@ $(CHROOT)/boot/vmlinuz: base_system $(KERNEL_CONFIG)
 	cd $(CHROOT)/boot ; \
 		k=`/bin/ls -1 --sort=time vmlinuz-*|head -n 1` ; \
 		ln -nsf $$k vmlinuz
+endif
+	touch kernel
 
 $(SWAP_FILE): preproot
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
@@ -188,11 +192,13 @@ systools: sysconfig compile_options
 	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) net-misc/dhcpcd
 	touch systools
 
-grub: systools grub.conf $(CHROOT)/boot/vmlinuz
+grub: systools grub.conf kernel
+ifneq ($(EXTERNAL_KERNEL),YES)
 	chroot $(CHROOT) $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
 	$(VIRTIO_GRUB)
 	$(HEADLESS_GRUB)
+endif
 	touch grub
 
 software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
@@ -231,7 +237,9 @@ image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
 	$(COPY_LOOP)
+ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
+endif
 	umount gentoo
 	rmdir gentoo
 	umount loop
@@ -260,7 +268,7 @@ umount:
 
 remove_checkpoints:
 	rm -f mounts compile_options base_system portage sync_portage
-	rm -f parted grub stage3 software preproot sysconfig systools image partitions device-map
+	rm -f parted kernel grub stage3 software preproot sysconfig systools image partitions device-map
 
 clean: umount remove_checkpoints
 	rm -f umount
