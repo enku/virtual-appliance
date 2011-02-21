@@ -94,7 +94,7 @@ partitions: $(RAW_IMAGE)
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext2 -O sparse_super -L "$(APPLIANCE)"_root $(NBD_DEV)p1
+	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root $(NBD_DEV)p1
 	touch partitions
 
 mounts: stage3
