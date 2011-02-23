@@ -10,7 +10,7 @@ hg serve -p 8000 --prefix /repo/ > /var/log/teamplayer/hgserve.log 2>&1 &
 cd ~/web
 
 if [ ! -f "/etc/firstboot" ] ; then
-    python manage.py syncdb
+    python manage.py syncdb --noinput --verbosity=0
 fi
 
 # start the fastcgi daemon
