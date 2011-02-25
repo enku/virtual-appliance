@@ -3,6 +3,7 @@ dev-lang/python ssl threads xml
 sys-kernel/gentoo-sources symlink
 www-client/firefox bindist
 x11-libs/cairo X svg
+x11-libs/gdk-pixbuf X
 x11-libs/pango X
 x11-terms/terminal
 xfce-base/thunar xfce_plugins_trash
