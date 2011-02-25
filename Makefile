@@ -34,6 +34,8 @@ CRITICAL = $(APPLIANCE)/critical
 
 -include $(profile).cfg
 
+inroot := chroot $(CHROOT)
+
 ifneq ($(PKGDIR),)
 	MOUNT_PKGDIR = mkdir -p $(CHROOT)/var/portage/packages; \
 		mount -o bind "$(PKGDIR)" $(CHROOT)/var/portage/packages
@@ -44,16 +46,16 @@ endif
 ifeq ($(PRUNE_CRITICAL),YES)
 	COPY_LOOP = rsync -ax --exclude-from=rsync-excludes \
 		--exclude-from=rsync-excludes-critical gentoo/ loop/
-	UNMERGE_CRITICAL = chroot $(CHROOT) $(EMERGE) -C `cat $(CRITICAL)`
+	UNMERGE_CRITICAL = $(inroot) $(EMERGE) -C `cat $(CRITICAL)`
 else
 	COPY_LOOP = rsync -ax --exclude-from=rsync-excludes gentoo/ loop/
 endif
 
 ifeq ($(CHANGE_PASSWORD),YES)
 	ifdef ROOT_PASSWORD
-		change_password = chroot $(CHROOT) usermod -p '$(ROOT_PASSWORD)' root
+		change_password = $(inroot) usermod -p '$(ROOT_PASSWORD)' root
 	else
-		change_password = chroot $(CHROOT) passwd -d root; chroot $(CHROOT) passwd -e root
+		change_password = $(inroot) passwd -d root; $(inroot) passwd -e root
 	endif
 endif
 
@@ -72,10 +74,10 @@ ifeq ($(HEADLESS),YES)
 endif
 
 ifeq ($(ENABLE_SSHD),YES)
-	enable_sshd = chroot $(CHROOT) rc-update add sshd default
+	enable_sshd = $(inroot) rc-update add sshd default
 endif
 
-gcc_config = chroot $(CHROOT) gcc-config 1
+gcc_config = $(inroot) gcc-config 1
 
 export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C 
 export HOSTNAME MAKEOPTS PRUNE_CRITICAL TIMEZONE USEPKG WORLD OVERLAY
@@ -118,7 +120,7 @@ portage: sync_portage stage3
 preproot: stage3 mounts portage
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
 	# bug in portage... annoying
-	chroot $(CHROOT) eselect python set python2.6
+	$(inroot) eselect python set python2.6
 	touch preproot
 
 stage3: 
@@ -133,7 +135,7 @@ compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
 	$(ADD_PKGDIR)
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
-	chroot $(CHROOT) locale-gen
+	$(inroot) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
 	for f in $(PACKAGE_FILES) ; do \
 		cp $$f $(CHROOT)/etc/portage/ ; \
@@ -144,15 +146,15 @@ base_system: mounts compile_options
 	touch base_system
 
 kernel: base_system $(KERNEL_CONFIG)
-	chroot $(CHROOT) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
+	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 ifneq ($(EXTERNAL_KERNEL),YES)
-	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) sys-kernel/$(KERNEL)
+	$(inroot) $(EMERGE) -n $(USEPKG) sys-kernel/$(KERNEL)
 	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
 	$(gcc_config)
-	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux oldconfig
-	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux
-	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux modules_install
-	chroot $(CHROOT) make $(MAKEOPTS) -C /usr/src/linux install
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux oldconfig
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux modules_install
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux install
 	cd $(CHROOT)/boot ; \
 		k=`/bin/ls -1 --sort=time vmlinuz-*|head -n 1` ; \
 		ln -nsf $$k vmlinuz
@@ -179,22 +181,22 @@ sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostna
 	$(HEADLESS_INITTAB)
 	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
 	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
-	chroot $(CHROOT) ln -nsf net.lo /etc/init.d/net.eth0
-	chroot $(CHROOT) rc-update add net.eth0 default
-	chroot $(CHROOT) rc-update del consolefont boot
+	$(inroot) ln -nsf net.lo /etc/init.d/net.eth0
+	$(inroot) rc-update add net.eth0 default
+	$(inroot) rc-update del consolefont boot
 	touch sysconfig
 
 systools: sysconfig compile_options
-	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) app-admin/syslog-ng
-	chroot $(CHROOT) rc-update add syslog-ng default
-	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) sys-power/acpid
-	chroot $(CHROOT) rc-update add acpid default
-	chroot $(CHROOT) $(EMERGE) -n $(USEPKG) net-misc/dhcpcd
+	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/syslog-ng
+	$(inroot) rc-update add syslog-ng default
+	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
+	$(inroot) rc-update add acpid default
+	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcpcd
 	touch systools
 
 grub: systools grub.conf kernel
 ifneq ($(EXTERNAL_KERNEL),YES)
-	chroot $(CHROOT) $(EMERGE) -nN $(USEPKG) sys-boot/grub
+	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
 	$(VIRTIO_GRUB)
 	$(HEADLESS_GRUB)
@@ -207,21 +209,21 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	
 	# some packages, like, tar need xz-utils to unpack, but it not part of
 	# the stage3 so may not be installed yet
-	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
+	$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
 	
-	chroot $(CHROOT) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)`
+	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)`
 	$(gcc_config)
 	
 	# Need gentoolkit to run revdep-rebuild
-	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit
-	chroot $(CHROOT) revdep-rebuild -i
+	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit
+	$(inroot) revdep-rebuild -i
 	
 	cp issue $(CHROOT)/etc/issue
 	$(gcc_config)
-	chroot $(CHROOT) $(EMERGE) $(USEPKG) --update --newuse --deep world
-	chroot $(CHROOT) $(EMERGE) --depclean --with-bdeps=n
+	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
+	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
-	chroot $(CHROOT) etc-update
+	$(inroot) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
 	$(enable_sshd)
 	$(change_password)
