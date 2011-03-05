@@ -3,7 +3,6 @@ dev-python/flup
 dev-python/python-mpd
 dev-vcs/mercurial
 media-libs/mutagen
-media-sound/mpc
 media-sound/mpd
 net-misc/dhcpcd
 net-misc/ntp
