@@ -119,8 +119,6 @@ portage: sync_portage stage3
 
 preproot: stage3 mounts portage
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
-	# bug in portage... annoying
-	$(inroot) eselect python set python2.6
 	touch preproot
 
 stage3: 
