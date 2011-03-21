@@ -6,9 +6,12 @@ sys-kernel/gentoo-sources symlink
 app-text/enchant hunspell
 app-text/poppler cairo
 dev-libs/libxml2 python
+dev-python/pygobject threads
 gnome-base/gnome-menus python
 gnome-base/gvfs gdu
+gnome-base/gnome-panel bonobo
 media-libs/libcanberra gtk
+media-libs/libtheora encode
 media-libs/swfdec gtk
 net-libs/libsoup gnome ssl
 net-misc/curl ssl
@@ -19,6 +22,7 @@ sys-auth/consolekit policykit
 sys-fs/udev extras
 x11-libs/cairo svg X
 x11-libs/gtk+ jpeg
+x11-libs/gdk-pixbuf X jpeg
 x11-libs/pango X
 mail-client/evolution ssl
 gnome-extra/evolution-data-server ssl
