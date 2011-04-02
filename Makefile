@@ -18,6 +18,7 @@ ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
 HEADLESS = NO
 EXTERNAL_KERNEL = NO
+UDEV = YES
 ACCEPT_KEYWORDS = amd64
 
 M4 = m4
@@ -79,7 +80,7 @@ endif
 
 gcc_config = $(inroot) gcc-config 1
 
-export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C 
+export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C inroot
 export HOSTNAME MAKEOPTS PRUNE_CRITICAL TIMEZONE USEPKG WORLD OVERLAY
 
 unexport PKGDIR ARCH NBD_DEV 
@@ -219,6 +220,8 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	cp issue $(CHROOT)/etc/issue
 	$(gcc_config)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
+	# Per bug #357009
+	$(inroot) eselect python update
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
 	$(inroot) etc-update
@@ -239,6 +242,13 @@ image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
 	$(COPY_LOOP)
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
+endif
+ifeq ($(UDEV),NO)
+	rm -f loop/dev/vda*
+	/bin/mknod loop/dev/vda b 254 0
+	/bin/mknod loop/dev/vda1 b 254 1
+	/bin/mknod loop/dev/vda2 b 254 2
+	sed -i 's/RC_DEVICES="auto"/RC_DEVICES="static"/' loop/etc/conf.d/rc
 endif
 	umount gentoo
 	rmdir gentoo
