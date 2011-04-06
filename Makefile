@@ -20,6 +20,7 @@ HEADLESS = NO
 EXTERNAL_KERNEL = NO
 UDEV = YES
 ACCEPT_KEYWORDS = amd64
+DASH = NO
 
 M4 = m4
 EMERGE = /usr/bin/emerge
@@ -191,6 +192,11 @@ systools: sysconfig compile_options
 	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
 	$(inroot) rc-update add acpid default
 	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcpcd
+ifeq ($(DASH),YES)
+	$(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash
+	echo /bin/dash >> $(CHROOT)/etc/shells
+	$(inroot) chsh -s /bin/dash root
+endif
 	touch systools
 
 grub: systools grub.conf kernel
@@ -248,6 +254,7 @@ ifeq ($(UDEV),NO)
 	/bin/mknod loop/dev/vda b 254 0
 	/bin/mknod loop/dev/vda1 b 254 1
 	/bin/mknod loop/dev/vda2 b 254 2
+	chown root:disk loop/dev/vda*
 	sed -i 's/RC_DEVICES="auto"/RC_DEVICES="static"/' loop/etc/conf.d/rc
 endif
 	umount gentoo
