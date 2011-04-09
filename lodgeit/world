@@ -1,6 +1,1 @@
-app-admin/syslog-ng
-dev-lang/python:2.6
-net-misc/dhcpcd
-sys-boot/grub
-sys-kernel/gentoo-sources
 www-apache/mod_wsgi

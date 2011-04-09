@@ -5,6 +5,8 @@ POST_FILES += issue
 
 preinstall: make.conf.extra
 	cat make.conf.extra >> $(CHROOT)/etc/make.conf
+	chroot $(CHROOT) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
+	chroot $(CHROOT) eselect python set python2.7
 
 postinstall: $(POST_FILES)
 	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) dev-vcs/mercurial
