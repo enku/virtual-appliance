@@ -2,6 +2,7 @@
 # this should be run as the TP_USER user
 
 PYTHONPATH="/etc/teamplayer:$PYTHONPATH"
+PYTHON=python2.7
 export PYTHONPATH
 
 cd ~
@@ -10,14 +11,14 @@ hg serve -p 8000 --prefix /repo/ > /var/log/teamplayer/hgserve.log 2>&1 &
 cd ~/web
 
 if [ ! -f "/etc/firstboot" ] ; then
-    python manage.py syncdb --noinput --verbosity=0
+    $PYTHON manage.py syncdb --noinput --verbosity=0
 fi
 
 # start the fastcgi daemon
-python manage.py runfcgi daemonize=true protocol=fcgi maxrequest=20 \
+$PYTHON manage.py runfcgi daemonize=true protocol=fcgi maxrequest=20 \
     pidfile="TP_DB/fcgi.pid" socket=TP_DB/teamplayer.sock umask=002 \
     > "/var/log/teamplayer/teamplayer.log" 2>&1
 
 # spin!
-python manage.py spin --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
+$PYTHON manage.py spin --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
 echo $! > "TP_DB/tps.pid"

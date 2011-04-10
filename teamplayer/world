@@ -1,7 +1,6 @@
 dev-python/django
 dev-python/flup
 dev-python/python-mpd
-dev-vcs/mercurial
 media-libs/mutagen
 media-sound/mpd
 net-misc/dhcpcd

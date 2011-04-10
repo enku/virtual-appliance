@@ -3,9 +3,10 @@
 
 cd ~/web
 PYTHONPATH="/etc/teamplayer:$PYTHONPATH"
+PYTHON=python2.7
 
 export PYTHONPATH
 
 [ -f "TP_DB/tps.pid" ] && kill $(cat "TP_DB/tps.pid")
 [ -f "TP_DB/fcgi.pid" ] && kill $(cat "TP_DB/fcgi.pid")
-python manage.py stop_stream >> "/var/log/teamplayer/teamplayer.log" 
+$PYTHON manage.py stop_stream >> "/var/log/teamplayer/teamplayer.log" 

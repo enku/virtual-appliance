@@ -11,8 +11,4 @@ fi
 su -c "TP_HOME/bin/start-teamplayer" TP_USER
 tailf /var/log/teamplayer/teamplayer.log > /dev/tty7 &
 
-# put some ionice on mpd
-sleep 3
-ionice -c2 -n0 -p$(cat TP_DB/mpd/mpd.pid)
-
 touch /etc/firstboot

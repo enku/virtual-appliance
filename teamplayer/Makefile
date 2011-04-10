@@ -15,11 +15,14 @@ post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
 post_files += local.start local.stop issue lighttpd.conf teamplayer.service
 
 preinstall:
+	$(inroot) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
+	$(inroot) eselect python set python2.7
 
 postinstall: $(post_files)
 	$(inroot) $(EMERGE) -n $(USEPKG) =dev-db/postgresql-server-$(PGVER)*
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
+	$(inroot) eselect postgresql set $(PGVER)
 	yes | $(inroot) $(EMERGE) --config =postgresql-server-$(PGVER)*
 	$(inroot) rc-update add postgresql-$(PGVER) default
 ifeq ($(AVAHI),YES)
@@ -53,6 +56,9 @@ endif
 	$(inroot) gpasswd -a lighttpd teamplayer
 	$(inroot) rc-update add lighttpd default
 	$(inroot) rc-update add ntpd default
+
+	# Fix for Gentoo bug #359361.  Remove when fixed
+	$(inroot) ln -s /usr/lib/postgresql-$(PGVER)/lib64/libpq.so.5 /usr/lib/libpq.so.5
 
 clean:
 
