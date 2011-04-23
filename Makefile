@@ -179,7 +179,8 @@ sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostna
 	$(VIRTIO_FSTAB)
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	$(HEADLESS_INITTAB)
-	echo 'config_eth0=( "dhcp" )' > $(CHROOT)/etc/conf.d/net
+	echo 'modules=( "dhclient" )' > $(CHROOT)/etc/conf.d/net
+	echo 'config_eth0=( "dhcp" )' >> $(CHROOT)/etc/conf.d/net
 	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
 	$(inroot) ln -nsf net.lo /etc/init.d/net.eth0
 	$(inroot) rc-update add net.eth0 default
@@ -191,7 +192,7 @@ systools: sysconfig compile_options
 	$(inroot) rc-update add syslog-ng default
 	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
 	$(inroot) rc-update add acpid default
-	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcpcd
+	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcp
 ifeq ($(DASH),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash
 	echo /bin/dash >> $(CHROOT)/etc/shells
