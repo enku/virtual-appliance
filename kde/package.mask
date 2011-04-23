@@ -1,2 +1,0 @@
-# Build error: bug #346491
-=media-libs/libgphoto2-2.4.10

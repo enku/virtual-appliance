@@ -1,6 +1,6 @@
 
 preinstall:
-	echo 'USE="$$USE qt3support xcomposite opengl"' >>  "$(CHROOT)"/etc/make.conf;
+	echo 'USE="$$USE qt3support xcomposite opengl"' >>  "$(CHROOT)"/etc/make.conf
 
 postinstall: kdmrc Xaccess local knotifyrc
 	cp kdmrc Xaccess "$(CHROOT)"/usr/share/config/kdm
