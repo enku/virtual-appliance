@@ -1,10 +1,13 @@
 app-editors/nano ncurses
 dev-lang/python ssl sqlite threads xml
+sys-auth/pambase minimal
 sys-kernel/gentoo-sources symlink
+sys-libs/ncurses minimal
 
 # for gnome
 app-text/enchant hunspell
 app-text/poppler cairo
+dev-db/sqlite extensions
 dev-libs/libxml2 python
 dev-python/pygobject threads
 gnome-base/gnome-menus python
