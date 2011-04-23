@@ -1,6 +1,9 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
+net-misc/dhcp client
+sys-auth/pambase minimal
 sys-kernel/gentoo-sources symlink
+sys-libs/ncurses minimal
 www-client/firefox bindist
 x11-libs/cairo X svg
 x11-libs/gdk-pixbuf X
@@ -9,7 +12,3 @@ x11-terms/terminal
 xfce-base/thunar xfce_plugins_trash
 xfce-base/xfce4-meta svg
 xfce-base/xfwm4 xcomposite
-xfce-extra/xfce4-cpugraph-plugin
-xfce-extra/xfce4-screenshooter
-xfce-extra/xfce4-systemload-plugin
-xfce-extra/xfce4-taskmanager
