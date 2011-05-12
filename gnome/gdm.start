@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# gdm.start: start gdm (duh)
+
+gdm &>/dev/null
+
