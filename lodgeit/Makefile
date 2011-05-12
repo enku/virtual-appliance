@@ -9,6 +9,8 @@ preinstall: make.conf.extra
 	chroot $(CHROOT) eselect python set python2.7
 
 postinstall: $(POST_FILES)
+	chroot $(CHROOT) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
+	chroot $(CHROOT) eselect python set python2.7
 	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) dev-vcs/mercurial
 	chroot $(CHROOT) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
 	chroot $(CHROOT) getent group lodgeit || chroot $(CHROOT) groupadd lodgeit
@@ -21,7 +23,7 @@ postinstall: $(POST_FILES)
 	python genkey.py $(CHROOT)
 	cp lodgeit.wsgi $(CHROOT)/home/lodgeit/lodgeitproject/lodgeit
 	cp issue $(CHROOT)/etc/issue
-	chroot $(CHROOT) rc-update add apache2 default
+	ln -sf /etc/init.d/apache2 $(CHROOT)/etc/runlevels/default/apache2
 	chroot $(CHROOT) $(EMERGE) -C dev-vcs/mercurial
 	chroot $(CHROOT) $(EMERGE) -C dev-python/virtualenv
 	chroot $(CHROOT) $(EMERGE) --depclean --with-bdeps=n
