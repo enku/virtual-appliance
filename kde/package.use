@@ -9,18 +9,20 @@ sys-libs/ncurses minimal
 app-misc/strigi dbus qt4
 app-text/poppler utils
 dev-libs/libxml2 python
+dev-libs/soprano raptor redland
 dev-libs/xmlrpc-c curl
 media-libs/phonon xine
 media-libs/xine-lib xcb
 media-sound/phonon xcb xine
 net-misc/curl ssl
 sys-apps/dbus X
+sys-auth/consolekit policykit
+sys-block/parted device-mapper
+sys-fs/udev extras
 x11-libs/cairo X svg
 x11-libs/qt-core exceptions qt3support ssl
 x11-libs/qt-gui accessibility dbus mng
 x11-libs/qt-qt3support accessibility kde
 x11-libs/qt-sql qt3support mysql
+x11-libs/qt-svg accessibility
 x11-libs/qt-webkit kde
-
-# KDE 4.5
->=dev-libs/soprano-2.4.64 raptor redland
