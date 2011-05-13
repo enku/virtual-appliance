@@ -10,6 +10,7 @@ M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB)
 M4C = $(M4) $(M4_DEFS)
 
 inroot := chroot $(CHROOT)
+rcdefault := /etc/runlevels/default
 
 post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
 post_files += local.start local.stop issue lighttpd.conf teamplayer.service
@@ -24,12 +25,12 @@ postinstall: $(post_files)
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	yes | $(inroot) $(EMERGE) --config =postgresql-server-$(PGVER)*
-	$(inroot) rc-update add postgresql-$(PGVER) default
+	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
 	cp teamplayer.service $(CHROOT)/etc/avahi/services
-	$(inroot) rc-update add avahi-daemon default
+	$(inroot) ln -sf /etc/init.d/avahi-daemon $(rcdefault)/avahi-daemon
 endif
 	$(inroot) getent passwd $(TP_USER) || \
 		$(inroot) useradd -c "Teamplayer Server" -G postgres -U -d $(TP_HOME) $(TP_USER)
@@ -47,18 +48,21 @@ endif
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)/songs
 	$(inroot) rm -rf $(TP_HOME)/web/media/songs
 	$(inroot) ln -s $(TP_DB)/songs $(TP_HOME)/web/media/songs
+	$(inroot) chown -R $(TP_USER) $(TP_HOME)
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)/mpd
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) /var/log/teamplayer
-	$(M4C) local.start > $(CHROOT)/etc/conf.d/local.start
-	$(M4C) local.stop > $(CHROOT)/etc/conf.d/local.stop
+	$(M4C) local.start > $(CHROOT)/etc/local.d/teamplayer.start
+	$(M4C) local.stop > $(CHROOT)/etc/local.d/teamplayer.stop
+	$(inroot) chmod +x /etc/local.d/teamplayer.start
+	$(inroot) chmod +x /etc/local.d/teamplayer.stop
 	cp issue $(CHROOT)/etc/issue
 	$(M4C) lighttpd.conf > $(CHROOT)/etc/lighttpd/lighttpd.conf
 	$(inroot) gpasswd -a lighttpd teamplayer
-	$(inroot) rc-update add lighttpd default
-	$(inroot) rc-update add ntpd default
 
 	# Fix for Gentoo bug #359361.  Remove when fixed
-	$(inroot) ln -s /usr/lib/postgresql-$(PGVER)/lib64/libpq.so.5 /usr/lib/libpq.so.5
+	$(inroot) ln -sf /usr/lib/postgresql-$(PGVER)/lib64/libpq.so.5 /usr/lib/libpq.so.5
+	$(inroot) ln -sf /etc/init.d/lighttpd $(rcdefault)/lighttpd
+	$(inroot) ln -sf /etc/init.d/ntpd $(rcdefault)/ntpd
 
 clean:
 
