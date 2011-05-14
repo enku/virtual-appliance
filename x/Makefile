@@ -4,7 +4,7 @@ preinstall:
 
 postinstall: $(xdm_files)
 	cp xdm/* "$(CHROOT)"/etc/X11/xdm
-	chroot "$(CHROOT)" rc-update add xdm default;
+	ln -sf /etc/init.d/xdm "$(CHROOT)/etc/runlevels/default/xdm"
 
 clean:
 
