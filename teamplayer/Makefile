@@ -39,6 +39,7 @@ endif
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) mkdir -p /etc/teamplayer
 	$(M4C) settings_local.py > $(CHROOT)/etc/teamplayer/settings_local.py
+	test -e '.scrobbler_auth' && cat .scrobbler_auth >> $(CHROOT)/etc/teamplayer/settings_local.py
 	mkdir -p $(CHROOT)$(TP_HOME)/bin
 	$(M4C) start-teamplayer > $(CHROOT)$(TP_HOME)/bin/start-teamplayer
 	chmod +x $(CHROOT)$(TP_HOME)/bin/start-teamplayer
