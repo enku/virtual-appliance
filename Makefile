@@ -4,6 +4,7 @@ HOSTNAME = $(APPLIANCE)
 RAW_IMAGE = $(HOSTNAME).img
 QCOW_IMAGE = $(HOSTNAME).qcow
 VMDK_IMAGE = $(HOSTNAME).vmdk
+STAGE4_TARBALL = stage4/$(HOSTNAME)-stage4.tar.bz2
 KERNEL_CONFIG = kernel.config
 VIRTIO = NO
 TIMEZONE = UTC
@@ -19,6 +20,7 @@ CHANGE_PASSWORD = YES
 HEADLESS = NO
 EXTERNAL_KERNEL = NO
 UDEV = YES
+SOFTWARE = 1
 ACCEPT_KEYWORDS = amd64
 DASH = NO
 
@@ -34,9 +36,14 @@ PACKAGE_FILES = $(APPLIANCE)/package.*
 WORLD = $(APPLIANCE)/world
 CRITICAL = $(APPLIANCE)/critical
 
+-include $(APPLIANCE)/$(APPLIANCE).cfg
 -include $(profile).cfg
 
 inroot := chroot $(CHROOT)
+
+ifneq ($(SOFTWARE),0)
+	software_extra = build-software
+endif
 
 ifneq ($(PKGDIR),)
 	MOUNT_PKGDIR = mkdir -p $(CHROOT)/var/portage/packages; \
@@ -46,11 +53,11 @@ ifneq ($(PKGDIR),)
 endif
 
 ifeq ($(PRUNE_CRITICAL),YES)
-	COPY_LOOP = rsync -ax --exclude-from=rsync-excludes \
-		--exclude-from=rsync-excludes-critical gentoo/ loop/
+	COPY_ARGS = --exclude-from=rsync-excludes \
+		--exclude-from=rsync-excludes-critical
 	UNMERGE_CRITICAL = $(inroot) $(EMERGE) -C `cat $(CRITICAL)`
 else
-	COPY_LOOP = rsync -ax --exclude-from=rsync-excludes gentoo/ loop/
+	COPY_ARGS = --exclude-from=rsync-excludes
 endif
 
 ifeq ($(CHANGE_PASSWORD),YES)
@@ -62,7 +69,7 @@ ifeq ($(CHANGE_PASSWORD),YES)
 endif
 
 ifeq ($(REMOVE_PORTAGE_TREE),YES)
-	COPY_LOOP += --exclude=usr/portage
+	COPY_ARGS += --exclude=usr/portage
 endif
 
 ifeq ($(VIRTIO),YES)
@@ -76,7 +83,7 @@ ifeq ($(HEADLESS),YES)
 endif
 
 ifeq ($(ENABLE_SSHD),YES)
-	enable_sshd = $(inroot) rc-update add sshd default
+	enable_sshd = $(inroot) /sbin/rc-update add sshd default
 endif
 
 gcc_config = $(inroot) gcc-config 1
@@ -121,13 +128,17 @@ portage: sync_portage stage3
 
 preproot: stage3 mounts portage
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
+	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	touch preproot
 
 stage3: 
 	mkdir -p $(CHROOT)
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
-	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
+	if test -e "$(STAGE4_TARBALL)"; \
+	then tar xjpf "$(STAGE4_TARBALL)" -C $(CHROOT); \
+	else rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .; \
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2; \
+	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT); \
+	fi
 	touch stage3
 
 compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
@@ -147,6 +158,7 @@ base_system: mounts compile_options
 
 kernel: base_system $(KERNEL_CONFIG)
 	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
+	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) sys-kernel/$(KERNEL)
 	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
@@ -169,38 +181,43 @@ $(CHROOT)/etc/fstab: fstab preproot
 	cp fstab $(CHROOT)/etc/fstab
 
 $(CHROOT)/etc/conf.d/hostname: preproot
-	echo HOSTNAME=$(HOSTNAME) > $(CHROOT)/etc/conf.d/hostname
+	echo hostname=$(HOSTNAME) > $(CHROOT)/etc/conf.d/hostname
 
-$(CHROOT)/etc/conf.d/clock: preproot
-	sed -i 's/^#TIMEZONE=.*/TIMEZONE="$(TIMEZONE)"/' $(CHROOT)/etc/conf.d/clock
-
-sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname $(CHROOT)/etc/conf.d/clock
+sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
 	@echo $(VIRTIO)
 	$(VIRTIO_FSTAB)
+ifeq ($(VIRTIO),YES)
+	sed -i 's:clock_hctosys="YES":clock_hctosys="NO":g' "$(CHROOT)/etc/conf.d/hwclock"
+	sed -i '/^rc_sys=/d' "$(CHROOT)/etc/rc.conf"
+	echo 'rc_sys=""' >> "$(CHROOT)/etc/rc.conf"
+endif
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	$(HEADLESS_INITTAB)
-	echo 'modules=( "dhclient" )' > $(CHROOT)/etc/conf.d/net
-	echo 'config_eth0=( "dhcp" )' >> $(CHROOT)/etc/conf.d/net
+	echo 'modules="dhclient"' > $(CHROOT)/etc/conf.d/net
+	echo 'config_eth0="dhcp"' >> $(CHROOT)/etc/conf.d/net
 	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
 	$(inroot) ln -nsf net.lo /etc/init.d/net.eth0
-	$(inroot) rc-update add net.eth0 default
-	$(inroot) rc-update del consolefont boot
+	$(inroot) ln -nsf /etc/init.d/net.eth0 /etc/runlevels/default/net.eth0
+	$(inroot) rm -f /etc/runlevels/boot/consolefont
 	touch sysconfig
 
 systools: sysconfig compile_options
 	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/syslog-ng
-	$(inroot) rc-update add syslog-ng default
+	$(inroot) /sbin/rc-update add syslog-ng default
 	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
-	$(inroot) rc-update add acpid default
+	$(inroot) /sbin/rc-update add acpid default
 	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcp
 ifeq ($(DASH),YES)
-	$(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash
-	echo /bin/dash >> $(CHROOT)/etc/shells
-	$(inroot) chsh -s /bin/dash root
+	if ! test -e "$(STAGE4_TARBALL)"; \
+	then $(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash; \
+	echo /bin/dash >> $(CHROOT)/etc/shells; \
+	$(inroot) chsh -s /bin/dash root; \
+	fi
 endif
+	$(inroot) ln -sf dash /bin/sh
 	touch systools
 
-grub: systools grub.conf kernel
+grub: stage3 grub.conf kernel partitions
 ifneq ($(EXTERNAL_KERNEL),YES)
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
@@ -209,7 +226,7 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 endif
 	touch grub
 
-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
+build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(MAKE) -C $(APPLIANCE) preinstall
 	cp etc-update.conf $(CHROOT)/etc/
 	
@@ -236,17 +253,19 @@ software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(enable_sshd)
 	$(change_password)
 	$(UNMERGE_CRITICAL)
+
+software: stage3 $(software_extra)
 	touch software
 
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: $(RAW_IMAGE) grub partitions device-map grub.shell systools software
+image: software device-map grub.shell grub 
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
-	$(COPY_LOOP)
+	rsync -ax $(COPY_ARGS) gentoo/ loop/
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
 endif
@@ -256,7 +275,7 @@ ifeq ($(UDEV),NO)
 	/bin/mknod loop/dev/vda1 b 254 1
 	/bin/mknod loop/dev/vda2 b 254 2
 	chown root:disk loop/dev/vda*
-	sed -i 's/RC_DEVICES="auto"/RC_DEVICES="static"/' loop/etc/conf.d/rc
+	rm -f loop/etc/runlevels/sysinit/udev
 endif
 	umount gentoo
 	rmdir gentoo
@@ -276,6 +295,18 @@ $(VMDK_IMAGE): $(RAW_IMAGE) image
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
+
+$(STAGE4_TARBALL): software kernel rsync-excludes rsync-excludes-critical
+	mkdir -p stage4
+	mkdir -p gentoo
+	mount -o bind $(CHROOT) gentoo
+	tar -jScf "$(STAGE4_TARBALL)".tmp --numeric-owner $(COPY_ARGS) -C gentoo --one-file-system .
+	umount gentoo
+	rmdir gentoo
+	mv "$(STAGE4_TARBALL)".tmp "$(STAGE4_TARBALL)"
+
+stage4: $(STAGE4_TARBALL)
+
 
 umount: 
 	$(UMOUNT_PKGDIR)
@@ -300,6 +331,8 @@ realclean: clean
 distclean: 
 	rm -f *.qcow *.img *.vmdk
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
+	rm -f *-stage4.tar.bz2
 	rm -f portage-latest.tar.bz2
 
-.PHONY: qcow vmdk clean realclean distclean remove_checkpoints
+.PHONY: qcow vmdk clean realclean distclean remove_checkpoints build-software
+	
