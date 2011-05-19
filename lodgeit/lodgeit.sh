@@ -5,7 +5,7 @@ set -v
 cd ~/
 [ -d lodgeitproject ] || virtualenv --no-site-packages lodgeitproject
 cd lodgeitproject
-source bin/activate
+. bin/activate
 [ -d lodgeit ] || hg clone http://dev.pocoo.org/hg/lodgeit-main lodgeit
 pip install --upgrade pygments
 pip install --upgrade jinja2
