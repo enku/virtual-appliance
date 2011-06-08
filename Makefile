@@ -245,7 +245,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(gcc_config)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
 	# Per bug #357009
-	$(inroot) eselect python update
+	$(inroot) eselect python update --ignore 3.*
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
 	$(inroot) etc-update
@@ -334,5 +334,5 @@ distclean:
 	rm -f *-stage4.tar.bz2
 	rm -f portage-latest.tar.bz2
 
-.PHONY: qcow vmdk clean realclean distclean remove_checkpoints build-software
+.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software
 	
