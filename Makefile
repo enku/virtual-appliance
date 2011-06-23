@@ -4,6 +4,7 @@ HOSTNAME = $(APPLIANCE)
 RAW_IMAGE = $(HOSTNAME).img
 QCOW_IMAGE = $(HOSTNAME).qcow
 VMDK_IMAGE = $(HOSTNAME).vmdk
+XVA_IMAGE = $(HOSTNAME).xva
 STAGE4_TARBALL = stage4/$(HOSTNAME)-stage4.tar.bz2
 KERNEL_CONFIG = kernel.config
 VIRTIO = NO
@@ -299,6 +300,12 @@ $(QCOW_IMAGE): $(RAW_IMAGE) image
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
+
+$(XVA_IMAGE): $(RAW_IMAGE) image
+	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
+		--filename=$(XVA_IMAGE)
+
+xva: $(XVA_IMAGE)
 
 
 $(VMDK_IMAGE): $(RAW_IMAGE) image
