@@ -21,6 +21,7 @@ HEADLESS = NO
 EXTERNAL_KERNEL = NO
 UDEV = YES
 SOFTWARE = 1
+PKGLIST = 0
 ACCEPT_KEYWORDS = amd64
 DASH = NO
 
@@ -138,6 +139,11 @@ stage3:
 	else rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .; \
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2; \
 	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT); \
+	rm -f $(CHROOT)/dev/null ; \
+	mknod --mode=600 $(CHROOT)/dev/console c 5 1; \
+	mknod --mode=666 $(CHROOT)/dev/null c 1 3; \
+	mknod --mode=666 $(CHROOT)/dev/zero c 1 5; \
+	$(inroot) ln -nsf /etc/init.d/udev /etc/runlevels/sysinit/udev; \
 	fi
 	touch stage3
 
@@ -181,7 +187,7 @@ $(CHROOT)/etc/fstab: fstab preproot
 	cp fstab $(CHROOT)/etc/fstab
 
 $(CHROOT)/etc/conf.d/hostname: preproot
-	echo hostname=$(HOSTNAME) > $(CHROOT)/etc/conf.d/hostname
+	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
 
 sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
 	@echo $(VIRTIO)
@@ -255,12 +261,15 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(UNMERGE_CRITICAL)
 
 software: stage3 $(software_extra)
+ifneq ($(PKGLIST),0)
+	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) > $(APPLIANCE)-packages.lst
+endif
 	touch software
 
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: software device-map grub.shell grub 
+image: software device-map grub.shell grub dev.tar.bz2
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
 	mkdir -p gentoo
@@ -270,6 +279,7 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
 endif
 ifeq ($(UDEV),NO)
+	tar jxf dev.tar.bz2 -C loop/dev
 	rm -f loop/dev/vda*
 	/bin/mknod loop/dev/vda b 254 0
 	/bin/mknod loop/dev/vda1 b 254 1

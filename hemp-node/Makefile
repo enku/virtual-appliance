@@ -1,4 +1,5 @@
 preinstall:
+	eselect python set python2.7
 
 postinstall:
 	# we want sshd running
