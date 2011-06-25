@@ -32,7 +32,7 @@ M4_DEFS = -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 NBD_DEV = /dev/nbd0
 USEPKG = --usepkg --binpkg-respect-use=y
-RSYNC_MIRROR = rsync://mirrors.rit.edu/gentoo/
+RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 KERNEL = gentoo-sources
 PACKAGE_FILES = $(APPLIANCE)/package.*
 WORLD = $(APPLIANCE)/world
