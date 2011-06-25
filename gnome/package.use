@@ -5,14 +5,17 @@ sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 
 # for gnome
+>=gnome-extra/evolution-data-server-2.30 weather
 app-text/enchant hunspell
 app-text/poppler cairo
 dev-db/sqlite extensions
 dev-libs/libxml2 python
 dev-python/pygobject threads
 gnome-base/gnome-menus python
-gnome-base/gvfs gdu
 gnome-base/gnome-panel bonobo
+gnome-base/gvfs cdda gdu udev
+gnome-extra/evolution-data-server ssl
+mail-client/evolution ssl
 media-libs/libcanberra gtk
 media-libs/libtheora encode
 media-libs/swfdec gtk
@@ -20,16 +23,13 @@ net-libs/libsoup gnome ssl
 net-misc/curl ssl
 sys-apps/dbus X
 sys-apps/parted device-mapper
-sys-block/parted device-mapper
 sys-auth/consolekit policykit
+sys-block/parted device-mapper
 sys-fs/udev extras
 x11-libs/cairo svg X
-x11-libs/gtk+ jpeg
 x11-libs/gdk-pixbuf X jpeg
+x11-libs/gtk+ jpeg
 x11-libs/pango X
-mail-client/evolution ssl
-gnome-extra/evolution-data-server ssl
->=gnome-extra/evolution-data-server-2.30 weather
 
 #net-libs/xulrunner cups
 #net-print/cups gnutls
