@@ -1,6 +1,6 @@
 app-editors/leafpad
 app-office/orage
-net-misc/dhcpcd
+net-misc/dhcp
 www-client/firefox
 x11-apps/xdm
 x11-apps/xrandr

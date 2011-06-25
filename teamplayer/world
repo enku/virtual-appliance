@@ -3,6 +3,6 @@ dev-python/flup
 dev-python/python-mpd
 media-libs/mutagen
 media-sound/mpd
-net-misc/dhcpcd
+net-misc/dhcp
 net-misc/ntp
 www-servers/lighttpd
