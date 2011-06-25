@@ -5,6 +5,7 @@ RAW_IMAGE = $(HOSTNAME).img
 QCOW_IMAGE = $(HOSTNAME).qcow
 VMDK_IMAGE = $(HOSTNAME).vmdk
 XVA_IMAGE = $(HOSTNAME).xva
+LST_FILE = $(HOSTNAME)-packages.lst
 STAGE4_TARBALL = stage4/$(HOSTNAME)-stage4.tar.bz2
 KERNEL_CONFIG = kernel.config
 VIRTIO = NO
@@ -263,7 +264,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 
 software: stage3 $(software_extra)
 ifneq ($(PKGLIST),0)
-	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) > $(APPLIANCE)-packages.lst
+	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) > $(LST_FILE)
 endif
 	touch software
 
