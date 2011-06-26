@@ -282,11 +282,6 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 endif
 ifeq ($(UDEV),NO)
 	tar jxf dev.tar.bz2 -C loop/dev
-	rm -f loop/dev/vda*
-	/bin/mknod loop/dev/vda b 254 0
-	/bin/mknod loop/dev/vda1 b 254 1
-	/bin/mknod loop/dev/vda2 b 254 2
-	chown root:disk loop/dev/vda*
 	rm -f loop/etc/runlevels/sysinit/udev
 endif
 	umount gentoo
