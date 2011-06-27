@@ -168,12 +168,14 @@ kernel: base_system $(KERNEL_CONFIG)
 	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
-	$(inroot) $(EMERGE) -n $(USEPKG) sys-kernel/$(KERNEL)
+	$(inroot) $(EMERGE) $(USEPKG) sys-kernel/$(KERNEL)
 	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
 	$(gcc_config)
 	$(inroot) make $(MAKEOPTS) -C /usr/src/linux oldconfig
 	$(inroot) make $(MAKEOPTS) -C /usr/src/linux
+	$(inroot) rm -rf /lib/modules/*
 	$(inroot) make $(MAKEOPTS) -C /usr/src/linux modules_install
+	$(inroot) rm -f /boot/vmlinuz*
 	$(inroot) make $(MAKEOPTS) -C /usr/src/linux install
 	cd $(CHROOT)/boot ; \
 		k=`/bin/ls -1 --sort=time vmlinuz-*|head -n 1` ; \
@@ -221,8 +223,8 @@ ifeq ($(DASH),YES)
 	echo /bin/dash >> $(CHROOT)/etc/shells; \
 	$(inroot) chsh -s /bin/dash root; \
 	fi
-endif
 	$(inroot) ln -sf dash /bin/sh
+endif
 	touch systools
 
 grub: stage3 grub.conf kernel partitions
@@ -264,7 +266,11 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 
 software: stage3 $(software_extra)
 ifneq ($(PKGLIST),0)
-	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) > $(LST_FILE)
+	echo \# > $(LST_FILE)
+	echo \# Gentoo Virtual Appliance \"$(APPLIANCE)\" package list >> $(LST_FILE)
+	echo \# Generated `date -u` >> $(LST_FILE)
+	echo \# >> $(LST_FILE)
+	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) >> $(LST_FILE)
 endif
 	touch software
 
