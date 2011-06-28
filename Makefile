@@ -168,18 +168,23 @@ kernel: base_system $(KERNEL_CONFIG)
 	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
-	$(inroot) $(EMERGE) $(USEPKG) sys-kernel/$(KERNEL)
-	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config
-	$(gcc_config)
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux oldconfig
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux
-	$(inroot) rm -rf /lib/modules/*
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux modules_install
-	$(inroot) rm -f /boot/vmlinuz*
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux install
+	if [ -e "$(CHROOT)/boot/vmlinuz" ] && $(inroot) emerge -pq sys-kernel/$(KERNEL)|grep '^\[.*R.*\]' >/dev/null ; \
+	then \
+	/bin/true ; \
+	else \
+	$(inroot) $(EMERGE) $(USEPKG) sys-kernel/$(KERNEL) ; \
+	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config ; \
+	$(gcc_config) ; \
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux oldconfig ; \
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux ; \
+	$(inroot) rm -rf /lib/modules/* ; \
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux modules_install ; \
+	$(inroot) rm -f /boot/vmlinuz* ; \
+	$(inroot) make $(MAKEOPTS) -C /usr/src/linux install ; \
 	cd $(CHROOT)/boot ; \
 		k=`/bin/ls -1 --sort=time vmlinuz-*|head -n 1` ; \
-		ln -nsf $$k vmlinuz
+		ln -nsf $$k vmlinuz ; \
+	fi
 endif
 	touch kernel
 
