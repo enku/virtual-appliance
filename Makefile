@@ -35,32 +35,34 @@ NBD_DEV = /dev/nbd0
 USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 KERNEL = gentoo-sources
-PACKAGE_FILES = $(APPLIANCE)/package.*
+PACKAGE_FILES = $(wildcard $(APPLIANCE)/package.*)
 WORLD = $(APPLIANCE)/world
 CRITICAL = $(APPLIANCE)/critical
 
+# Allow appliance to override variables
 -include $(APPLIANCE)/$(APPLIANCE).cfg
+
+# Allow user to override variables
 -include $(profile).cfg
 
 inroot := chroot $(CHROOT)
+stage4-exists := $(wildcard $(STAGE4_TARBALL))
+software-deps := stage3
 
 ifneq ($(SOFTWARE),0)
-	software_extra = build-software
+	software-deps += build-software
 endif
 
-ifneq ($(PKGDIR),)
-	MOUNT_PKGDIR = mkdir -p $(CHROOT)/var/portage/packages; \
-		mount -o bind "$(PKGDIR)" $(CHROOT)/var/portage/packages
-	UMOUNT_PKGDIR = umount $(CHROOT)/var/portage/packages
-	ADD_PKGDIR = echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/make.conf
-endif
 
 ifeq ($(PRUNE_CRITICAL),YES)
 	COPY_ARGS = --exclude-from=rsync-excludes \
 		--exclude-from=rsync-excludes-critical
-	UNMERGE_CRITICAL = $(inroot) $(EMERGE) -C `cat $(CRITICAL)`
 else
 	COPY_ARGS = --exclude-from=rsync-excludes
+endif
+
+ifeq ($(REMOVE_PORTAGE_TREE),YES)
+	COPY_ARGS += --exclude=usr/portage
 endif
 
 ifeq ($(CHANGE_PASSWORD),YES)
@@ -69,24 +71,6 @@ ifeq ($(CHANGE_PASSWORD),YES)
 	else
 		change_password = $(inroot) passwd -d root; $(inroot) passwd -e root
 	endif
-endif
-
-ifeq ($(REMOVE_PORTAGE_TREE),YES)
-	COPY_ARGS += --exclude=usr/portage
-endif
-
-ifeq ($(VIRTIO),YES)
-	VIRTIO_FSTAB = sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
-	VIRTIO_GRUB = sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.conf
-endif
-
-ifeq ($(HEADLESS),YES)
-	HEADLESS_INITTAB = sed -ri 's/^(c[0-9]:)/\#\1/' $(CHROOT)/etc/inittab
-	HEADLESS_GRUB = sed -i -f grub-headless.sed $(CHROOT)/boot/grub/grub.conf
-endif
-
-ifeq ($(ENABLE_SSHD),YES)
-	enable_sshd = $(inroot) /sbin/rc-update add sshd default
 endif
 
 gcc_config = $(inroot) gcc-config 1
@@ -126,7 +110,10 @@ sync_portage:
 
 portage: sync_portage stage3
 	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
-	$(MOUNT_PKGDIR)
+ifdef PKGDIR
+	mkdir -p $(CHROOT)/var/portage/packages
+	mount -o bind "$(PKGDIR)" $(CHROOT)/var/portage/packages
+endif
 	touch portage
 
 preproot: stage3 mounts portage
@@ -136,55 +123,39 @@ preproot: stage3 mounts portage
 
 stage3: 
 	mkdir -p $(CHROOT)
-	if test -e "$(STAGE4_TARBALL)"; \
-	then tar xjpf "$(STAGE4_TARBALL)" -C $(CHROOT); \
-	else rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .; \
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2; \
-	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT); \
-	rm -f $(CHROOT)/dev/null ; \
-	mknod --mode=600 $(CHROOT)/dev/console c 5 1; \
-	mknod --mode=666 $(CHROOT)/dev/null c 1 3; \
-	mknod --mode=666 $(CHROOT)/dev/zero c 1 5; \
-	$(inroot) ln -nsf /etc/init.d/udev /etc/runlevels/sysinit/udev; \
-	fi
+ifdef stage4-exists
+	tar xjpf "$(STAGE4_TARBALL)" -C $(CHROOT)
+else
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
+	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
+endif
 	touch stage3
 
 compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
 	cp make.conf $(CHROOT)/etc/make.conf
-	$(ADD_PKGDIR)
+ifdef PKGDIR
+	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/make.conf
+endif
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
-	for f in $(PACKAGE_FILES) ; do \
-		cp $$f $(CHROOT)/etc/portage/ ; \
-	done
+ifdef PACKAGE_FILES
+	cp $(PACKAGE_FILES) $(CHROOT)/etc/portage/
+endif
 	touch compile_options
 
 base_system: mounts compile_options
 	touch base_system
 
-kernel: base_system $(KERNEL_CONFIG)
+kernel: base_system $(KERNEL_CONFIG) kernel.sh
 	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
-	if [ -e "$(CHROOT)/boot/vmlinuz" ] && $(inroot) emerge -pq sys-kernel/$(KERNEL)|grep '^\[.*R.*\]' >/dev/null ; \
-	then \
-	/bin/true ; \
-	else \
-	$(inroot) $(EMERGE) $(USEPKG) sys-kernel/$(KERNEL) ; \
-	cp $(KERNEL_CONFIG) $(CHROOT)/usr/src/linux/.config ; \
-	$(gcc_config) ; \
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux oldconfig ; \
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux ; \
-	$(inroot) rm -rf /lib/modules/* ; \
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux modules_install ; \
-	$(inroot) rm -f /boot/vmlinuz* ; \
-	$(inroot) make $(MAKEOPTS) -C /usr/src/linux install ; \
-	cd $(CHROOT)/boot ; \
-		k=`/bin/ls -1 --sort=time vmlinuz-*|head -n 1` ; \
-		ln -nsf $$k vmlinuz ; \
-	fi
+	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
+	KERNEL=$(KERNEL) EMERGE="$(EMERGE)" USEPKG="$(USEPKG)" MAKEOPTS="$(MAKEOPTS)" \
+	   $(inroot) /bin/sh < kernel.sh
 endif
 	touch kernel
 
@@ -200,14 +171,16 @@ $(CHROOT)/etc/conf.d/hostname: preproot
 
 sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
 	@echo $(VIRTIO)
-	$(VIRTIO_FSTAB)
 ifeq ($(VIRTIO),YES)
+	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
 	sed -i 's:clock_hctosys="YES":clock_hctosys="NO":g' "$(CHROOT)/etc/conf.d/hwclock"
 	sed -i '/^rc_sys=/d' "$(CHROOT)/etc/rc.conf"
 	echo 'rc_sys=""' >> "$(CHROOT)/etc/rc.conf"
 endif
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
-	$(HEADLESS_INITTAB)
+ifeq ($(HEADLESS),YES)
+	sed -ri 's/^(c[0-9]:)/\#\1/' $(CHROOT)/etc/inittab
+endif
 	echo 'modules="dhclient"' > $(CHROOT)/etc/conf.d/net
 	echo 'config_eth0="dhcp"' >> $(CHROOT)/etc/conf.d/net
 	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
@@ -236,8 +209,12 @@ grub: stage3 grub.conf kernel partitions
 ifneq ($(EXTERNAL_KERNEL),YES)
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
-	$(VIRTIO_GRUB)
-	$(HEADLESS_GRUB)
+ifeq ($(VIRTIO),YES)
+	sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.conf
+endif
+ifeq ($(HEADLESS),YES)
+	sed -i -f grub-headless.sed $(CHROOT)/boot/grub/grub.conf
+endif
 endif
 	touch grub
 
@@ -265,11 +242,15 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(gcc_config)
 	$(inroot) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
-	$(enable_sshd)
+ifeq ($(ENABLE_SSHD),YES)
+	$(inroot) /sbin/rc-update add sshd default
+endif
 	$(change_password)
-	$(UNMERGE_CRITICAL)
+ifeq ($PRUNE_CRITICAL),YES)
+	$(inroot) $(EMERGE) -C `cat $(CRITICAL)`
+endif
 
-software: stage3 $(software_extra)
+software: $(software-deps)
 ifneq ($(PKGLIST),0)
 	echo \# > $(LST_FILE)
 	echo \# Gentoo Virtual Appliance \"$(APPLIANCE)\" package list >> $(LST_FILE)
@@ -324,16 +305,18 @@ $(STAGE4_TARBALL): software kernel rsync-excludes rsync-excludes-critical
 	mkdir -p stage4
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
-	tar -jScf "$(STAGE4_TARBALL)".tmp --numeric-owner $(COPY_ARGS) -C gentoo --one-file-system .
+	tar -jScf "$(STAGE4_TARBALL).tmp" --numeric-owner $(COPY_ARGS) -C gentoo --one-file-system .
 	umount gentoo
 	rmdir gentoo
-	mv "$(STAGE4_TARBALL)".tmp "$(STAGE4_TARBALL)"
+	mv "$(STAGE4_TARBALL).tmp" "$(STAGE4_TARBALL)"
 
 stage4: $(STAGE4_TARBALL)
 
 
 umount: 
-	$(UMOUNT_PKGDIR)
+ifdef PKGDIR
+	umount $(CHROOT)/var/portage/packages
+endif
 	umount  $(CHROOT)/var/tmp
 	umount  $(CHROOT)/dev
 	umount  $(CHROOT)/proc
@@ -359,4 +342,3 @@ distclean:
 	rm -f portage-latest.tar.bz2
 
 .PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software
-	
