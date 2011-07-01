@@ -177,8 +177,8 @@ ifeq ($(VIRTIO),YES)
 	sed -i '/^rc_sys=/d' "$(CHROOT)/etc/rc.conf"
 	echo 'rc_sys=""' >> "$(CHROOT)/etc/rc.conf"
 endif
-	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 ifeq ($(HEADLESS),YES)
+	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	sed -ri 's/^(c[0-9]:)/\#\1/' $(CHROOT)/etc/inittab
 endif
 	echo 'modules="dhclient"' > $(CHROOT)/etc/conf.d/net
