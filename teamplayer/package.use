@@ -3,7 +3,7 @@ dev-db/sqlite extensions
 dev-lang/python sqlite ssl threads xml
 dev-python/django postgres
 media-libs/flac ogg
-media-sound/mpd audiofile ffmpeg flac id3 lame network ogg vorbis mad sqlite 
+media-sound/mpd audiofile ffmpeg flac id3tag lame network ogg vorbis mad sqlite 
 media-video/ffmpeg mmx mxext mp3 network x264 
 sys-auth/pambase minimal
 sys-kernel/gentoo-sources symlink
