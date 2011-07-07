@@ -19,7 +19,7 @@ preinstall:
 	$(inroot) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
 	$(inroot) eselect python set python2.7
 
-postinstall: $(post_files)
+postinstall: $(post_files) $(SCROBBLER_AUTH)
 	$(inroot) $(EMERGE) -n $(USEPKG) =dev-db/postgresql-server-$(PGVER)*
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
@@ -39,7 +39,9 @@ endif
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) mkdir -p /etc/teamplayer
 	$(M4C) settings_local.py > $(CHROOT)/etc/teamplayer/settings_local.py
-	test -e '.scrobbler_auth' && cat .scrobbler_auth >> $(CHROOT)/etc/teamplayer/settings_local.py
+ifdef SCROBBLER_AUTH
+	cat $(SCROBBLER_AUTH) >> $(CHROOT)/etc/teamplayer/settings_local.py
+endif
 	mkdir -p $(CHROOT)$(TP_HOME)/bin
 	$(M4C) start-teamplayer > $(CHROOT)$(TP_HOME)/bin/start-teamplayer
 	chmod +x $(CHROOT)$(TP_HOME)/bin/start-teamplayer
