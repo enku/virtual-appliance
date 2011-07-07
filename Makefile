@@ -1,5 +1,5 @@
-CHROOT=./vabuild
-APPLIANCE = base
+CHROOT = $(PWD)/vabuild
+APPLIANCE ?= base
 HOSTNAME = $(APPLIANCE)
 RAW_IMAGE = $(HOSTNAME).img
 QCOW_IMAGE = $(HOSTNAME).qcow
