@@ -5,7 +5,6 @@ dev-python/django postgres
 media-libs/flac ogg
 media-sound/mpd audiofile ffmpeg flac id3tag lame network ogg vorbis mad sqlite 
 media-video/ffmpeg mmx mxext mp3 network x264 
-sys-auth/pambase minimal
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 virtual/ffmpeg x264 mp3

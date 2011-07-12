@@ -1,5 +1,4 @@
 dev-lang/python xml
 dev-libs/libxml2 python
-sys-auth/pambase minimal
 sys-libs/ncurses minimal
 x11-base/xorg-server xorg

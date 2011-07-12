@@ -1,7 +1,6 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
 net-misc/dhcp client
-sys-auth/pambase minimal
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-client/firefox bindist

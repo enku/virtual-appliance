@@ -263,12 +263,13 @@ endif
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: software device-map grub.shell grub dev.tar.bz2
+image: software device-map grub.shell grub dev.tar.bz2 motd.sh
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
 	rsync -ax $(COPY_ARGS) gentoo/ loop/
+	./motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
 endif

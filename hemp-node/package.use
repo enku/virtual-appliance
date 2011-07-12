@@ -1,5 +1,4 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
-sys-auth/pambase minimal
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
