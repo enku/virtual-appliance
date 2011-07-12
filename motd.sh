@@ -19,7 +19,7 @@ cat << EOF
  
                https://bitbucket.org/marduk/virtual-appliance/
  
- The system image was built on `date -u +"%Y-%m-%d %H:%M %Z"` based on the "${APPLIANCE}"
+ The system image was built on `date +"%Y-%m-%d %H:%M %Z"` based on the "${APPLIANCE}"
  appliance. It was built with the following features:
  
 EOF
