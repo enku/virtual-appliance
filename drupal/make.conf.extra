@@ -1,0 +1,4 @@
+
+# Apache config for LodgeIt
+APACHE2_MPMS="prefork"
+APACHE2_MODULES="authz_host dir mime"

@@ -35,4 +35,9 @@ cat << EOF | column -c80
  UDEV: ${UDEV}
  DASH: ${DASH}
 EOF
+
+if [ -x "${APPLIANCE}/motd.sh" ]
+then
+    "${APPLIANCE}/motd.sh" $@
+fi
 echo

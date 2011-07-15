@@ -1,0 +1,11 @@
+#!/bin/sh
+
+DPVER=7.4
+
+echo Configuring Postgres for Drupal
+createuser --no-adduser --no-createdb --no-createrole -U postgres drupal
+createdb --encoding=UNICODE --owner=drupal -U postgres drupal
+
+chmod a+w /usr/share/webapps/drupal/${DPVER}/htdocs/sites/default/settings.php
+
+mv /etc/local.d/firstboot.start /root
