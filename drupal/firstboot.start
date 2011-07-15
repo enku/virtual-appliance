@@ -8,4 +8,4 @@ createdb --encoding=UNICODE --owner=drupal -U postgres drupal
 
 chmod a+w /usr/share/webapps/drupal/${DPVER}/htdocs/sites/default/settings.php
 
-mv /etc/local.d/firstboot.start /root
+mv /etc/local.d/firstboot.start /etc/local.d/firstboot.start.disabled
