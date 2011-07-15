@@ -246,7 +246,7 @@ ifeq ($(ENABLE_SSHD),YES)
 	$(inroot) /sbin/rc-update add sshd default
 endif
 	$(change_password)
-ifeq ($PRUNE_CRITICAL),YES)
+ifeq ($(PRUNE_CRITICAL),YES)
 	$(inroot) $(EMERGE) -C `cat $(CRITICAL)`
 endif
 
