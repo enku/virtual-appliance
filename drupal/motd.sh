@@ -17,7 +17,5 @@ cat << EOF
  Before using this appliance, you must first configure Drupal, point your
  browser at http://${HOSTNAME}/ to configure.  The database name is "drupal"
  and the username is "drupal".  The DBMS is on localhost and requires no
- password.  After configuration, be sure to change the permissions of
- /usr/share/webapps/drupal/${DPVER}/htdocs/sites/default/settings.php so
- that it is not world-writable.
+ password. 
 EOF
