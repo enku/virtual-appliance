@@ -1,1 +1,2 @@
 www-apps/drupal ~amd64 ~x86
+dev-php5/pecl-uploadprogress ~amd64 ~x86

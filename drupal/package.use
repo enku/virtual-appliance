@@ -1,8 +1,9 @@
 app-editors/nano ncurses
 dev-lang/php ctype fileinfo filter iconv phar posix simplexml tokenizer apache2 xml pdo gd postgres apache2 zlib cli session hash json
 dev-lang/python ssl threads xml
+dev-php5/pecl-uploadprogress php_targets_php5-3
+mail-mta/ssmtp mta ssl
 net-misc/dhcp client
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-apps/drupal postgres
-mail-mta/ssmtp mta ssl
