@@ -9,6 +9,7 @@ then
     exit
 fi
 
+${EMERGE} ${USEPKG} --oneshot --noreplace dev-lang/perl
 ${EMERGE} ${USEPKG} sys-kernel/${KERNEL}
 cp /root/kernel.config /usr/src/linux/.config
 gcc-config 1
@@ -22,3 +23,4 @@ make ${MAKEOPTS} install
 cd /boot
 k=`/bin/ls -1 vmlinuz-*`
 ln -nsf $k vmlinuz
+${EMERGE} --depclean dev-lang/perl

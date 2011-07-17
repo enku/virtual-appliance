@@ -154,8 +154,10 @@ kernel: base_system $(KERNEL_CONFIG) kernel.sh
 	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
+	cp kernel.sh $(CHROOT)/tmp/kernel.sh
 	KERNEL=$(KERNEL) EMERGE="$(EMERGE)" USEPKG="$(USEPKG)" MAKEOPTS="$(MAKEOPTS)" \
-	   $(inroot) /bin/sh < kernel.sh
+	   $(inroot) /bin/sh /tmp/kernel.sh
+	rm -f $(CHROOT)/tmp/kernel.sh
 endif
 	touch kernel
 
@@ -248,6 +250,9 @@ endif
 	$(change_password)
 ifeq ($(PRUNE_CRITICAL),YES)
 	$(inroot) $(EMERGE) -C `cat $(CRITICAL)`
+ifeq ($(DASH),YES)
+	$(inroot) $(EMERGE) -C app-shells/bash
+endif
 endif
 
 software: $(software-deps)
@@ -263,7 +268,7 @@ endif
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: software device-map grub.shell grub dev.tar.bz2 motd.sh
+image: kernel software device-map grub.shell grub dev.tar.bz2 motd.sh
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
 	mkdir -p gentoo
