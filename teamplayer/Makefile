@@ -1,4 +1,4 @@
-HG_REPO = ../../teamplayer
+HG_REPO ?= ../../teamplayer
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
