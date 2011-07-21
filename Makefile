@@ -281,6 +281,7 @@ endif
 ifeq ($(UDEV),NO)
 	tar jxf dev.tar.bz2 -C loop/dev
 	rm -f loop/etc/runlevels/sysinit/udev
+	ln -sf /etc/init.d/udev loop/etc/runlevels/sysinit/udev
 endif
 	umount gentoo
 	rmdir gentoo
