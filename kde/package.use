@@ -12,7 +12,7 @@ dev-libs/libxml2 python
 dev-libs/soprano raptor redland
 dev-libs/xmlrpc-c curl
 media-libs/phonon xine
-media-libs/xine-lib xcb
+media-libs/xine-lib vorbis xcb 
 media-sound/phonon xcb xine
 net-misc/curl ssl
 sys-apps/dbus X
