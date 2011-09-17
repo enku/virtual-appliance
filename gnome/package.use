@@ -18,11 +18,13 @@ mail-client/evolution ssl
 media-libs/libcanberra gtk
 media-libs/libtheora encode
 media-libs/swfdec gtk
+net-libs/glib-networking ssl
 net-libs/libsoup gnome ssl
 net-misc/curl ssl
 sys-apps/dbus X
 sys-apps/parted device-mapper
 sys-auth/consolekit policykit
+sys-auth/pambase consolekit
 sys-block/parted device-mapper
 sys-fs/udev extras
 x11-libs/cairo svg X
