@@ -2,7 +2,7 @@ HG_REPO ?= ../../teamplayer
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
-PGVER = 9.0
+PGVER = 9.1
 INSTALL = install
 AVAHI := NO
 
