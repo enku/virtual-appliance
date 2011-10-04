@@ -86,8 +86,8 @@ $(RAW_IMAGE):
 	qemu-img create -f raw $(RAW_IMAGE) $(DISK_SIZE)
 
 partitions: $(RAW_IMAGE)
-	parted -s $(RAW_IMAGE) mklabel msdos
-	parted -s $(RAW_IMAGE) mkpart primary ext2 0 $(DISK_SIZE)
+	parted -s $(RAW_IMAGE) mklabel gpt
+	parted -s $(RAW_IMAGE) mkpart primary 0 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE) set 1 boot on
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
