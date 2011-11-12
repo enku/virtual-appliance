@@ -1,5 +1,6 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
+media-libs/libpng apng
 net-misc/dhcp client
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
