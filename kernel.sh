@@ -23,4 +23,5 @@ make ${MAKEOPTS} install
 cd /boot
 k=`/bin/ls -1 vmlinuz-*`
 ln -nsf $k vmlinuz
-${EMERGE} --depclean dev-lang/perl
+cp -a /usr/src/linux/.config /root/kernel.config
+${EMERGE} --depclean
