@@ -1,3 +1,4 @@
+sys-devel/gcc cxx
 dev-lang/python xml
 dev-libs/libxml2 python
 sys-libs/ncurses minimal

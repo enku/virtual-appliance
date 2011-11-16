@@ -4,6 +4,7 @@ dev-lang/python ssl threads xml
 dev-php5/pecl-uploadprogress php_targets_php5-3
 mail-mta/ssmtp mta ssl
 net-misc/dhcp client
+sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-apps/drupal postgres

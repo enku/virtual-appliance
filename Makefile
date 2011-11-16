@@ -37,6 +37,7 @@ RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 KERNEL = gentoo-sources
 PACKAGE_FILES = $(wildcard $(APPLIANCE)/package.*)
 WORLD = $(APPLIANCE)/world
+EXTRA_WORLD =
 CRITICAL = $(APPLIANCE)/critical
 
 # Allow appliance to override variables
@@ -228,7 +229,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	# the stage3 so may not be installed yet
 	$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
 	
-	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)`
+	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD)
 	$(gcc_config)
 	
 	# Need gentoolkit to run revdep-rebuild

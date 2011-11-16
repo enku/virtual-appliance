@@ -1,5 +1,6 @@
 app-editors/nano ncurses
 dev-lang/python ssl sqlite threads xml
+sys-devel/gcc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 
