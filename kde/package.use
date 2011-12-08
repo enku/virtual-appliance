@@ -12,8 +12,9 @@ app-text/poppler utils
 dev-libs/libxml2 python
 dev-libs/soprano raptor redland
 dev-libs/xmlrpc-c curl
-media-libs/phonon xine
+media-libs/phonon gstreamer
 media-libs/xine-lib vorbis xcb 
+media-plugins/gst-plugins-meta ogg vorbis
 media-sound/phonon xcb xine
 net-misc/curl ssl
 sys-apps/dbus X
@@ -21,8 +22,8 @@ sys-auth/consolekit policykit
 sys-block/parted device-mapper
 sys-fs/udev extras
 x11-libs/cairo X svg
-x11-libs/qt-core exceptions qt3support ssl
-x11-libs/qt-gui accessibility dbus mng
+x11-libs/qt-core exceptions glib qt3support ssl
+x11-libs/qt-gui accessibility dbus glib mng
 x11-libs/qt-qt3support accessibility kde
 x11-libs/qt-sql qt3support mysql
 x11-libs/qt-svg accessibility
