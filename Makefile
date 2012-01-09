@@ -34,6 +34,7 @@ M4C = $(M4) $(M4_DEFS)
 NBD_DEV = /dev/nbd0
 USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
+EMERGE_RSYNC = NO
 KERNEL = gentoo-sources
 PACKAGE_FILES = $(wildcard $(APPLIANCE)/package.*)
 WORLD = $(APPLIANCE)/world
@@ -111,6 +112,9 @@ sync_portage:
 
 portage: sync_portage stage3
 	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
+ifeq ($(EMERGE_RSYNC),YES)
+	$(inroot) emerge --sync --quiet
+endif
 ifdef PKGDIR
 	mkdir -p $(CHROOT)/var/portage/packages
 	mount -o bind "$(PKGDIR)" $(CHROOT)/var/portage/packages
@@ -275,6 +279,9 @@ image: kernel software device-map grub.shell grub dev.tar.bz2 motd.sh
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
 	rsync -ax $(COPY_ARGS) gentoo/ loop/
+ifeq ($(PRUNE_CRITICAL),YES)
+	rsync -ax gentoo/usr/include/python* loop/usr/include/
+endif
 	./motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
@@ -290,6 +297,7 @@ endif
 	umount loop
 	sleep 3
 	rmdir loop
+	e2fsck -fyD $(NBD_DEV)p1 || true
 	qemu-nbd -d $(NBD_DEV)
 	touch image
 

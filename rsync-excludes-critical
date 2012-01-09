@@ -1,6 +1,10 @@
+usr/include/*
 usr/lib/python*/test
+usr/lib64/python*/test
 usr/share/gtk-doc
 var/db/pkg
 usr/lib/perl*
+usr/lib64/perl*
+usr/share/doc/*
 *.pyc
 *.pyo
