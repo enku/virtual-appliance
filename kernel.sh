@@ -2,9 +2,17 @@ set -ev
 
 # (possibly) build the kernel
 
+current_kernel=""
+if [ -d "/var/db/pkg/sys-kernel" ]
+then
+    cd "/var/db/pkg/sys-kernel"
+    current_kernel=`/bin/ls -d1 "${KERNEL}-"* | tail -n 1|sed s/"${KERNEL}-//;s/-r[1-9]\+$//"`
+fi
+
 # If there is already a kernel in /boot and emerging the kernel only
 # re-installs the same package, we can skip this
-if [ -e /boot/vmlinuz ] && emerge -pq sys-kernel/${KERNEL}|grep '^\[.*R.*\]' >/dev/null
+if [ -n "$current_kernel" ] && [ -e /boot/vmlinuz ] && \
+    readlink /boot/vmlinuz | grep $current_kernel > /dev/null
 then
     exit
 fi
