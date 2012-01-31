@@ -1,5 +1,5 @@
-=dev-db/postgresql-server-9.0*
-dev-php5/pecl-uploadprogress
+dev-db/postgresql-server:9.1
+dev-php/pecl-uploadprogress
 mail-mta/ssmtp
 net-misc/dhcp
 www-apps/drupal

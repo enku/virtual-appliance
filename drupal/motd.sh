@@ -8,7 +8,7 @@ UDEV=$5
 DASH=$6
 ARCH=$7
 
-DPVER=7.4
+DPVER=7.10
 
 TZ=$TIMEZONE ; export TZ
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DPVER=7.4
+DPVER=7.10
 
 echo Configuring Postgres for Drupal
 createuser --no-adduser --no-createdb --no-createrole -U postgres drupal

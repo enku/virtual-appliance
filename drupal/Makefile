@@ -1,5 +1,5 @@
-PGVER = 9.0
-DPVER = 7.4
+PGVER = 9.1
+DPVER = 7.10
 
 inroot := chroot $(CHROOT)
 rcdefault := /etc/runlevels/default
@@ -11,6 +11,7 @@ postinstall: firstboot.start
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
+	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
 	yes | $(inroot) $(EMERGE) --config =postgresql-server-$(PGVER)*
 	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
 	$(inroot) ln -sf /etc/init.d/apache2 $(rcdefault)/apache2
