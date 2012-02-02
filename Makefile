@@ -14,7 +14,7 @@ DISK_SIZE = 6.0G
 SWAP_SIZE = 30
 SWAP_FILE = $(CHROOT)/.swap
 ARCH = amd64
-MAKEOPTS = -j4
+MAKEOPTS = -j10 -l10
 PRUNE_CRITICAL = NO
 REMOVE_PORTAGE_TREE = YES
 ENABLE_SSHD = NO
@@ -28,7 +28,7 @@ ACCEPT_KEYWORDS = amd64
 DASH = NO
 
 M4 = m4
-EMERGE = /usr/bin/emerge
+EMERGE = /usr/bin/emerge --jobs
 M4_DEFS = -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 NBD_DEV = /dev/nbd0
@@ -89,12 +89,12 @@ $(RAW_IMAGE):
 
 partitions: $(RAW_IMAGE)
 	parted -s $(RAW_IMAGE) mklabel gpt
-	parted -s $(RAW_IMAGE) mkpart primary 0 $(DISK_SIZE)
+	parted -s $(RAW_IMAGE) mkpart primary 1 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE) set 1 boot on
 
 	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
 	sleep 3
-	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root $(NBD_DEV)p1
+	mkfs.ext4 -C 21504 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root $(NBD_DEV)p1
 	touch partitions
 
 mounts: stage3
@@ -111,6 +111,7 @@ sync_portage:
 	touch sync_portage
 
 portage: sync_portage stage3
+	rm -rf $(CHROOT)/usr/portage
 	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
 ifeq ($(EMERGE_RSYNC),YES)
 	$(inroot) emerge --sync --quiet
