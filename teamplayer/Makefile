@@ -1,4 +1,4 @@
-HG_REPO ?= ../../teamplayer
+TP_REPO ?= ../../teamplayer
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
@@ -35,7 +35,7 @@ endif
 	$(inroot) getent passwd $(TP_USER) || \
 		$(inroot) useradd -c "Teamplayer Server" -G postgres -U -d $(TP_HOME) $(TP_USER)
 	rm -rf $(CHROOT)/$(TP_HOME)
-	hg clone --pull $(HG_REPO) $(CHROOT)/$(TP_HOME)
+	hg clone --pull $(TP_REPO) $(CHROOT)/$(TP_HOME)
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) mkdir -p /etc/teamplayer
 	$(M4C) settings_local.py > $(CHROOT)/etc/teamplayer/settings_local.py
