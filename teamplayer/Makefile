@@ -24,6 +24,7 @@ postinstall: $(post_files) $(SCROBBLER_AUTH)
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
+	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
 	yes | $(inroot) $(EMERGE) --config =postgresql-server-$(PGVER)*
 	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
 ifeq ($(AVAHI),YES)
