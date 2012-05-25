@@ -28,7 +28,7 @@ ACCEPT_KEYWORDS = amd64
 DASH = NO
 
 M4 = m4
-EMERGE = /usr/bin/emerge --jobs
+EMERGE = /usr/bin/emerge --jobs=4
 M4_DEFS = -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 NBD_DEV = /dev/nbd0
@@ -188,6 +188,8 @@ endif
 ifeq ($(HEADLESS),YES)
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
 	sed -ri 's/^(c[0-9]:)/\#\1/' $(CHROOT)/etc/inittab
+	rm -f $(CHROOT)/etc/runlevels/boot/termencoding
+	rm -f $(CHROOT)/etc/runlevels/boot/keymaps
 endif
 	echo 'modules="dhclient"' > $(CHROOT)/etc/conf.d/net
 	echo 'config_eth0="dhcp"' >> $(CHROOT)/etc/conf.d/net
@@ -198,8 +200,8 @@ endif
 	touch sysconfig
 
 systools: sysconfig compile_options
-	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/syslog-ng
-	$(inroot) /sbin/rc-update add syslog-ng default
+	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/metalog
+	$(inroot) /sbin/rc-update add metalog default
 	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
 	$(inroot) /sbin/rc-update add acpid default
 	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcp
@@ -238,14 +240,13 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(gcc_config)
 	
 	# Need gentoolkit to run revdep-rebuild
-	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit
+	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit sys-devel/prelink
 	$(inroot) revdep-rebuild -i
 	
 	cp issue $(CHROOT)/etc/issue
 	$(gcc_config)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
-	# Per bug #357009
-	$(inroot) eselect python update --ignore 3.*
+	$(inroot) prelink -amRf
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
 	$(inroot) etc-update
