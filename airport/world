@@ -1,3 +1,6 @@
 dev-db/postgresql-server:9.1
 net-misc/dhcp
 www-apache/mod_wsgi
+dev-python/django
+dev-python/psycopg
+www-servers/nginx

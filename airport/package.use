@@ -5,3 +5,4 @@ sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 sys-apps/portage python2
+www-servers/nginx http                                                               
