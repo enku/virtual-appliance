@@ -27,7 +27,7 @@ sys-apps/parted device-mapper
 sys-auth/consolekit policykit
 sys-auth/pambase consolekit
 sys-block/parted device-mapper
-sys-fs/udev extras
+sys-fs/udev gudev
 x11-libs/cairo glib svg X
 x11-libs/gdk-pixbuf X jpeg
 x11-libs/gtk+ jpeg
