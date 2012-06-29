@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+import sys
+
+write = sys.stdout.write
+
+write('\n')
+write('\x1b[')  # escape, left-bracket
+write('1;31m')  # bold red
+write(' '.join(sys.argv[1:]))
+write('\x1b[')  # escape, left-bracket
+write('0m')     # reset
+write('\n')

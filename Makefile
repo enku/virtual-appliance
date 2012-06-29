@@ -88,6 +88,7 @@ $(RAW_IMAGE):
 	qemu-img create -f raw $(RAW_IMAGE) $(DISK_SIZE)
 
 partitions: $(RAW_IMAGE)
+	@./echo Creating partition layout
 	parted -s $(RAW_IMAGE) mklabel gpt
 	parted -s $(RAW_IMAGE) mkpart primary 1 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE) set 1 boot on
@@ -98,6 +99,7 @@ partitions: $(RAW_IMAGE)
 	touch partitions
 
 mounts: stage3
+	@./echo Creating chroot in $(CHROOT)
 	mkdir -p $(CHROOT)
 	if [ ! -e mounts ] ; then \
 		mount -t proc none $(CHROOT)/proc; \
@@ -107,13 +109,16 @@ mounts: stage3
 	touch mounts
 
 sync_portage:
+	@./echo Grabbing latest portage snapshot
 	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-latest.tar.bz2
 	touch sync_portage
 
 portage: sync_portage stage3
+	@./echo Unpacking portage snapshot
 	rm -rf $(CHROOT)/usr/portage
 	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
 ifeq ($(EMERGE_RSYNC),YES)
+	@./echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
 endif
 ifdef PKGDIR
@@ -130,10 +135,12 @@ preproot: stage3 mounts portage
 stage3: 
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
+	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
 	tar xjpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
+	@./echo Using stage3 tarball
 	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
 	touch stage3
@@ -159,6 +166,7 @@ kernel: base_system $(KERNEL_CONFIG) kernel.sh
 	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
+	@./echo Configuring kernel
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
 	cp kernel.sh $(CHROOT)/tmp/kernel.sh
 	KERNEL=$(KERNEL) EMERGE="$(EMERGE)" USEPKG="$(USEPKG)" MAKEOPTS="$(MAKEOPTS)" \
@@ -168,6 +176,7 @@ endif
 	touch kernel
 
 $(SWAP_FILE): preproot
+	@./echo Creating swap file: $(SWAP_FILE)
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
 
@@ -200,6 +209,7 @@ endif
 	touch sysconfig
 
 systools: sysconfig compile_options
+	@./echo Installing standard system tools
 	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/metalog
 	$(inroot) /sbin/rc-update add metalog default
 	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
@@ -217,6 +227,7 @@ endif
 
 grub: stage3 grub.conf kernel partitions
 ifneq ($(EXTERNAL_KERNEL),YES)
+	@./echo Installing Grub
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
 ifeq ($(VIRTIO),YES)
@@ -229,6 +240,7 @@ endif
 	touch grub
 
 build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
+	@./echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C $(APPLIANCE) preinstall
 	cp etc-update.conf $(CHROOT)/etc/
 	
@@ -239,6 +251,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD)
 	$(gcc_config)
 	
+	@./echo Running revdep-rebuild and prelink
 	# Need gentoolkit to run revdep-rebuild
 	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit sys-devel/prelink
 	$(inroot) revdep-rebuild -i
@@ -276,6 +289,7 @@ device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
 image: kernel software device-map grub.shell grub dev.tar.bz2 motd.sh
+	@./echo Installing files to $(RAW_IMAGE) 
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
 	mkdir -p gentoo
@@ -304,11 +318,13 @@ endif
 	touch image
 
 $(QCOW_IMAGE): $(RAW_IMAGE) image
+	@./echo Creating $(QCOW_IMAGE)
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
 $(XVA_IMAGE): $(RAW_IMAGE) image
+	@./echo Creating $(XVA_IMAGE)
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE)
 
@@ -316,11 +332,13 @@ xva: $(XVA_IMAGE)
 
 
 $(VMDK_IMAGE): $(RAW_IMAGE) image
+	@./echo Creating $(VMDK_IMAGE)
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
 $(STAGE4_TARBALL): software kernel rsync-excludes rsync-excludes-critical
+	@./echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p stage4
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
@@ -333,6 +351,7 @@ stage4: $(STAGE4_TARBALL)
 
 
 umount: 
+	@./echo Attempting to unmount chroot mounts
 ifdef PKGDIR
 	umount $(CHROOT)/var/portage/packages
 endif
