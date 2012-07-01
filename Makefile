@@ -93,7 +93,7 @@ partitions: $(RAW_IMAGE)
 	parted -s $(RAW_IMAGE) mkpart primary 1 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE) set 1 boot on
 
-	qemu-nbd -c $(NBD_DEV) $(RAW_IMAGE)
+	qemu-nbd -c $(NBD_DEV) "`realpath $(RAW_IMAGE)`"
 	sleep 3
 	mkfs.ext4 -t small -C 21504 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root $(NBD_DEV)p1
 	touch partitions
@@ -251,15 +251,14 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD)
 	$(gcc_config)
 	
-	@./echo Running revdep-rebuild and prelink
+	@./echo Running revdep-rebuild
 	# Need gentoolkit to run revdep-rebuild
-	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit sys-devel/prelink
+	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit
 	$(inroot) revdep-rebuild -i
 	
 	cp issue $(CHROOT)/etc/issue
 	$(gcc_config)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
-	$(inroot) prelink -amRf
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
 	$(inroot) etc-update
