@@ -23,11 +23,10 @@ net-libs/glib-networking ssl
 net-libs/libsoup gnome ssl
 net-misc/curl ssl
 sys-apps/dbus X
-sys-apps/parted device-mapper
 sys-auth/consolekit policykit
 sys-auth/pambase consolekit
 sys-block/parted device-mapper
-sys-fs/udev gudev
+sys-fs/udev gudev hwdb
 x11-libs/cairo glib svg X
 x11-libs/gdk-pixbuf X jpeg
 x11-libs/gtk+ jpeg
