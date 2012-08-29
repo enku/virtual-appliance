@@ -1,1 +1,5 @@
+<dev-lang/python-3.0
+dev-python/virtualenv
+dev-vcs/git
+dev-vcs/mercurial
 net-misc/openssh
