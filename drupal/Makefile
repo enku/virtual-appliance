@@ -1,5 +1,5 @@
 PGVER = 9.1
-DPVER = 7.10
+DPVER = 7.15
 
 inroot := chroot $(CHROOT)
 rcdefault := /etc/runlevels/default
