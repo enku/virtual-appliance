@@ -1,0 +1,8 @@
+app-editors/nano ncurses
+dev-lang/python ssl threads xml
+net-misc/dhcp client
+sys-devel/gcc cxx
+sys-kernel/gentoo-sources symlink
+sys-libs/ncurses minimal
+dev-libs/libpcre cxx
+dev-db/mongodb v8
