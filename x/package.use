@@ -1,5 +1,5 @@
 sys-devel/gcc cxx
-dev-lang/python xml
+dev-lang/python ssl xml
 dev-libs/libxml2 python
 sys-libs/ncurses minimal
 x11-base/xorg-server xorg
