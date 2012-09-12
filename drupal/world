@@ -1,4 +1,4 @@
-dev-db/postgresql-server:9.1
+dev-db/postgresql-server:9.2
 dev-php/pecl-uploadprogress
 mail-mta/ssmtp
 net-misc/dhcp

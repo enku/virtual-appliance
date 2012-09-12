@@ -1,4 +1,4 @@
-PGVER = 9.1
+PGVER = 9.2
 DPVER = 7.15
 
 inroot := chroot $(CHROOT)

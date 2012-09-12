@@ -2,7 +2,7 @@ TP_REPO ?= ../../teamplayer
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
-PGVER = 9.1
+PGVER = 9.2
 INSTALL = install
 AVAHI := NO
 
@@ -16,16 +16,19 @@ post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
 post_files += local.start local.stop issue lighttpd.conf teamplayer.service
 
 preinstall:
+	sed -i '/^PYTHON_TARGETS=/d' $(CHROOT)/etc/make.conf
+	echo 'PYTHON_TARGETS="python2_7"' >> $(CHROOT)/etc/make.conf
 	$(inroot) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
 	$(inroot) eselect python set python2.7
+	$(inroot) python-updater
 
 postinstall: $(post_files) $(SCROBBLER_AUTH)
-	$(inroot) $(EMERGE) -n $(USEPKG) =dev-db/postgresql-server-$(PGVER)*
+	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql-server:$(PGVER)
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
-	yes | $(inroot) $(EMERGE) --config =postgresql-server-$(PGVER)*
+	yes | $(inroot) $(EMERGE) --config postgresql-server:$(PGVER)
 	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
