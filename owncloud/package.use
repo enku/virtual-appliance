@@ -1,0 +1,11 @@
+app-editors/nano ncurses
+dev-lang/python ssl threads xml
+net-misc/dhcp client
+sys-devel/gcc cxx
+sys-kernel/gentoo-sources symlink
+sys-libs/ncurses minimal
+
+dev-lang/php apache2 cgi ctype curl fileinfo force-cgi-redirect fpm gd hash iconv json mhash pdo session simplexml sqlite3 truetype xml xmlreader xmlwriter zip zlib
+dev-libs/libpcre cxx
+www-apps/owncloud curl sqlite3
+www-servers/apache ssl
