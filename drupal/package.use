@@ -8,4 +8,4 @@ net-misc/dhcp client
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
-www-apps/drupal postgres
+www-apps/drupal postgres -mysql
