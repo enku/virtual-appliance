@@ -6,6 +6,7 @@ sys-libs/ncurses minimal
 
 # for gnome
 >=gnome-extra/evolution-data-server-2.30 weather
+app-crypt/pinentry gtk
 app-text/enchant hunspell
 app-text/poppler cairo
 dev-db/sqlite extensions
@@ -22,6 +23,7 @@ media-libs/swfdec gtk
 net-libs/glib-networking ssl
 net-libs/libsoup gnome ssl
 net-misc/curl ssl
+net-print/cups dbus gnutls
 sys-apps/dbus X
 sys-auth/consolekit policykit
 sys-auth/pambase consolekit
@@ -29,10 +31,9 @@ sys-block/parted device-mapper
 sys-fs/udev gudev hwdb
 x11-libs/cairo glib svg X
 x11-libs/gdk-pixbuf X jpeg
-x11-libs/gtk+ jpeg
+x11-libs/gtk+ jpeg X
 x11-libs/pango X
 
 #net-libs/xulrunner cups
-#net-print/cups gnutls
 #app-text/poppler utils
 #app-text/ghostscript-gpl cups
