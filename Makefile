@@ -6,7 +6,7 @@ QCOW_IMAGE = $(HOSTNAME).qcow
 VMDK_IMAGE = $(HOSTNAME).vmdk
 XVA_IMAGE = $(HOSTNAME).xva
 LST_FILE = $(HOSTNAME)-packages.lst
-STAGE4_TARBALL = stage4/$(HOSTNAME)-stage4.tar.bz2
+STAGE4_TARBALL = stage4/$(HOSTNAME)-stage4.tar.xz
 KERNEL_CONFIG = kernel.config
 VIRTIO = NO
 TIMEZONE = UTC
@@ -136,7 +136,7 @@ stage3:
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
-	tar xjpf "$(STAGE4_TARBALL)" -C $(CHROOT)
+	tar xapf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
@@ -341,10 +341,10 @@ $(STAGE4_TARBALL): software kernel rsync-excludes rsync-excludes-critical
 	mkdir -p stage4
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
-	tar -jScf "$(STAGE4_TARBALL).tmp" --numeric-owner $(COPY_ARGS) -C gentoo --one-file-system .
+	tar -aScf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C gentoo --one-file-system .
 	umount gentoo
 	rmdir gentoo
-	mv "$(STAGE4_TARBALL).tmp" "$(STAGE4_TARBALL)"
+	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
 
 stage4: $(STAGE4_TARBALL)
 
@@ -375,7 +375,6 @@ realclean: clean
 distclean: 
 	rm -f *.qcow *.img *.vmdk
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
-	rm -f *-stage4.tar.bz2
 	rm -f portage-latest.tar.bz2
 
 .PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software
