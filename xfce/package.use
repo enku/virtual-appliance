@@ -4,6 +4,7 @@ dev-libs/libxml2 python
 media-libs/libpng apng
 net-misc/dhcp client
 sys-devel/gcc cxx
+sys-fs/udev gudev
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-client/firefox bindist
