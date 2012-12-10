@@ -5,6 +5,7 @@ net-misc/dhcp client
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
+sys-auth/pambase consolekit
 
 # per kde
 app-misc/strigi dbus qt4
@@ -24,8 +25,19 @@ x11-libs/cairo X svg
 x11-libs/cairo glib
 x11-libs/qt-core exceptions glib qt3support ssl
 x11-libs/qt-declarative accessibility
-x11-libs/qt-gui accessibility dbus glib mng
+x11-libs/qt-declarative qt3support
+x11-libs/qt-gui accessibility dbus glib mng qt3support
+x11-libs/qt-opengl qt3support
 x11-libs/qt-qt3support accessibility kde
 x11-libs/qt-sql qt3support mysql
 x11-libs/qt-svg accessibility
 x11-libs/qt-webkit kde
+kde-base/kwin opengl
+kde-base/kdelibs opengl
+media-libs/gd png
+app-text/poppler qt4
+net-print/cups dbus
+dev-python/PyQt4 X dbus declarative sql svg webkit
+sys-fs/udev hwdb gudev
+virtual/udev hwdb gudev
+app-crypt/pinentry qt4
