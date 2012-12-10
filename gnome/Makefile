@@ -11,8 +11,8 @@ ifeq ($(OVERLAY),YES)
 	chroot $(CHROOT) $(EMERGE) $(USEPKG) -1n dev-vcs/git
 	chroot $(CHROOT) /usr/bin/layman --sync ALL
 	chroot $(CHROOT) /usr/bin/layman --add gnome
-	echo "source /var/lib/layman/make.conf" >> $(CHROOT)/etc/make.conf
-	echo USE='"$$USE clutter"' >> $(CHROOT)/etc/make.conf
+	echo "source /var/lib/layman/make.conf" >> $(CHROOT)/etc/portage/make.conf
+	echo USE='"$$USE clutter"' >> $(CHROOT)/etc/portage/make.conf
 endif
 
 postinstall: custom.conf gdm.start

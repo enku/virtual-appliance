@@ -33,6 +33,7 @@ x11-libs/cairo glib svg X
 x11-libs/gdk-pixbuf X jpeg
 x11-libs/gtk+ jpeg X
 x11-libs/pango X
+virtual/udev gudev hwdb
 
 #net-libs/xulrunner cups
 #app-text/poppler utils
