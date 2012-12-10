@@ -5,7 +5,7 @@ inroot := chroot $(CHROOT)
 rcdefault := /etc/runlevels/default
 
 preinstall: make.conf.extra
-	cat make.conf.extra >> $(CHROOT)/etc/make.conf
+	cat make.conf.extra >> $(CHROOT)/etc/portage/make.conf
 
 postinstall: firstboot.start
 	$(inroot) passwd -d postgres
