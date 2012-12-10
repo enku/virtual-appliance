@@ -4,7 +4,7 @@ POST_FILES = lodgeit.sh 10_lodgeit.conf apache2.conf genkey.py lodgeit.wsgi
 POST_FILES += issue
 
 preinstall: make.conf.extra
-	cat make.conf.extra >> $(CHROOT)/etc/make.conf
+	cat make.conf.extra >> $(CHROOT)/etc/portage/make.conf
 	chroot $(CHROOT) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
 	chroot $(CHROOT) eselect python set python2.7
 
