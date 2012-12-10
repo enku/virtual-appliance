@@ -22,3 +22,4 @@ DATABASES = {
 
 TP_MPD_HOME = 'TP_DB/mpd'
 TP_REPO_URL = '/repo/'
+TP_MPD_LOG = '/dev/null'
