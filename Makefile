@@ -40,6 +40,7 @@ PACKAGE_FILES = $(wildcard $(APPLIANCE)/package.*)
 WORLD = $(APPLIANCE)/world
 EXTRA_WORLD =
 CRITICAL = $(APPLIANCE)/critical
+DOWNLOAD_DIR = .downloads
 
 # Allow appliance to override variables
 -include $(APPLIANCE)/$(APPLIANCE).cfg
@@ -110,13 +111,14 @@ mounts: stage3
 
 sync_portage:
 	@./echo Grabbing latest portage snapshot
-	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-latest.tar.bz2
+	mkdir -p $(DOWNLOAD_DIR)
+	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 $(DOWNLOAD_DIR)/portage-latest.tar.bz2
 	touch sync_portage
 
 portage: sync_portage stage3
 	@./echo Unpacking portage snapshot
 	rm -rf $(CHROOT)/usr/portage
-	tar xjf portage-latest.tar.bz2 -C $(CHROOT)/usr
+	tar xjf $(DOWNLOAD_DIR)/portage-latest.tar.bz2 -C $(CHROOT)/usr
 ifeq ($(EMERGE_RSYNC),YES)
 	@./echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
@@ -138,19 +140,20 @@ ifdef stage4-exists
 	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
 	tar xapf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt .
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
+	mkdir -p $(DOWNLOAD_DIR)
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt $(DOWNLOAD_DIR)
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 $(DOWNLOAD_DIR)/latest-stage3.txt` $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2
 	@./echo Using stage3 tarball
-	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
+	tar xjpf $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
 	touch stage3
 
 compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
-	cp make.conf $(CHROOT)/etc/make.conf
+	cp make.conf $(CHROOT)/etc/portage/make.conf
 ifdef PKGDIR
-	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/make.conf
+	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/portage/make.conf
 endif
-	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/make.conf
+	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
@@ -228,7 +231,7 @@ endif
 grub: stage3 grub.conf kernel partitions
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@./echo Installing Grub
-	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
+	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
 	cp grub.conf $(CHROOT)/boot/grub/grub.conf
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.conf
@@ -246,7 +249,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	
 	# some packages, like, tar need xz-utils to unpack, but it not part of
 	# the stage3 so may not be installed yet
-	$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
+	#$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
 	
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD)
 	$(gcc_config)
@@ -261,7 +264,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
-	$(inroot) etc-update
+	EDITOR=/usr/bin/nano $(inroot) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
 ifeq ($(ENABLE_SSHD),YES)
 	$(inroot) /sbin/rc-update add sshd default
