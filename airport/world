@@ -1,5 +1,4 @@
 dev-db/postgresql-server:9.2
-net-misc/dhcp
 www-apache/mod_wsgi
 dev-python/django
 dev-python/psycopg

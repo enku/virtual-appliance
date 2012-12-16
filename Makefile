@@ -142,7 +142,7 @@ ifdef stage4-exists
 else
 	mkdir -p $(DOWNLOAD_DIR)
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt $(DOWNLOAD_DIR)
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`tail -n 1 $(DOWNLOAD_DIR)/latest-stage3.txt` $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep $(ARCH) $(DOWNLOAD_DIR)/latest-stage3.txt|grep -v multilib` $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2
 	@./echo Using stage3 tarball
 	tar xjpf $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
@@ -189,7 +189,7 @@ $(CHROOT)/etc/fstab: fstab preproot
 $(CHROOT)/etc/conf.d/hostname: preproot
 	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
 
-sysconfig: preproot $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
+sysconfig: preproot acpi.start $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
 	@echo $(VIRTIO)
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
@@ -204,25 +204,23 @@ ifeq ($(HEADLESS),YES)
 	rm -f $(CHROOT)/etc/runlevels/boot/keymaps
 endif
 	echo 'modules="dhclient"' > $(CHROOT)/etc/conf.d/net
-	echo 'config_eth0="dhcp"' >> $(CHROOT)/etc/conf.d/net
+	echo 'config_eth0="udhcpc"' >> $(CHROOT)/etc/conf.d/net
 	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
 	$(inroot) ln -nsf net.lo /etc/init.d/net.eth0
 	$(inroot) ln -nsf /etc/init.d/net.eth0 /etc/runlevels/default/net.eth0
 	$(inroot) rm -f /etc/runlevels/boot/consolefont
+	cp -a acpi.start $(CHROOT)/etc/local.d
 	touch sysconfig
 
 systools: sysconfig compile_options
 	@./echo Installing standard system tools
 	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/metalog
 	$(inroot) /sbin/rc-update add metalog default
-	$(inroot) $(EMERGE) -n $(USEPKG) sys-power/acpid
-	$(inroot) /sbin/rc-update add acpid default
-	$(inroot) $(EMERGE) -n $(USEPKG) net-misc/dhcp
 ifeq ($(DASH),YES)
-	if ! test -e "$(STAGE4_TARBALL)"; \
+	if ! test -e "$(STAGE4_TARBALL)";  \
 	then $(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash; \
 	echo /bin/dash >> $(CHROOT)/etc/shells; \
-	$(inroot) chsh -s /bin/dash root; \
+	$(inroot) chsh -s /bin/sh root; \
 	fi
 	$(inroot) ln -sf dash /bin/sh
 endif
@@ -251,7 +249,11 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	# the stage3 so may not be installed yet
 	#$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
 	
-	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD)
+	if test `cat $(WORLD)` ; then \
+		$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD); \
+		else \
+		true; \
+	fi
 	$(gcc_config)
 	
 	@./echo Running revdep-rebuild
@@ -273,7 +275,7 @@ endif
 ifeq ($(PRUNE_CRITICAL),YES)
 	$(inroot) $(EMERGE) -C `cat $(CRITICAL)`
 ifeq ($(DASH),YES)
-	$(inroot) $(EMERGE) -C app-shells/bash
+	$(inroot) $(EMERGE) -c app-shells/bash
 endif
 endif
 

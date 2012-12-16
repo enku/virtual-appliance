@@ -1,0 +1,10 @@
+#!/bin/sh
+
+script="/etc/acpi/PWRF/00000080"
+if [ ! -f $script ] ; then
+    mkdir -p `dirname $script`
+    echo '#!/bin/sh\n/sbin/halt\n' > $script
+    chmod +x $script
+fi
+
+busybox acpid
