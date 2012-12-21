@@ -49,6 +49,10 @@ DOWNLOAD_DIR = .downloads
 -include $(profile).cfg
 
 inroot := chroot $(CHROOT)
+ifeq ($(ARCH),x86)
+	inroot := linux32 $(inroot)
+endif
+
 stage4-exists := $(wildcard $(STAGE4_TARBALL))
 software-deps := stage3
 
@@ -148,8 +152,8 @@ else
 endif
 	touch stage3
 
-compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
-	cp make.conf $(CHROOT)/etc/portage/make.conf
+compile_options: portage make.conf.$(ARCH) locale.gen $(PACKAGE_FILES)
+	cp make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
 ifdef PKGDIR
 	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/portage/make.conf
 endif
