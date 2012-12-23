@@ -7,13 +7,13 @@ VMDK_IMAGE = $(HOSTNAME).vmdk
 XVA_IMAGE = $(HOSTNAME).xva
 LST_FILE = $(HOSTNAME)-packages.lst
 STAGE4_TARBALL = stage4/$(HOSTNAME)-stage4.tar.xz
-KERNEL_CONFIG = kernel.config
 VIRTIO = NO
 TIMEZONE = UTC
 DISK_SIZE = 6.0G
 SWAP_SIZE = 30
 SWAP_FILE = $(CHROOT)/.swap
 ARCH = amd64
+KERNEL_CONFIG = kernel.config.$(ARCH)
 MAKEOPTS = -j10 -l10
 PRUNE_CRITICAL = NO
 REMOVE_PORTAGE_TREE = YES
@@ -49,6 +49,10 @@ DOWNLOAD_DIR = .downloads
 -include $(profile).cfg
 
 inroot := chroot $(CHROOT)
+ifeq ($(ARCH),x86)
+	inroot := linux32 $(inroot)
+endif
+
 stage4-exists := $(wildcard $(STAGE4_TARBALL))
 software-deps := stage3
 
@@ -148,13 +152,13 @@ else
 endif
 	touch stage3
 
-compile_options: portage make.conf locale.gen $(PACKAGE_FILES)
-	cp make.conf $(CHROOT)/etc/portage/make.conf
+compile_options: portage make.conf.$(ARCH) locale.gen $(PACKAGE_FILES)
+	cp make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
 ifdef PKGDIR
 	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/portage/make.conf
 endif
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
-	[ -f "$(APPLIANCE)/make.conf" ] && cat "$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
+	-[ -f "$(APPLIANCE)/make.conf" ] && cat "$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
