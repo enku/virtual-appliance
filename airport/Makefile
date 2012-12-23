@@ -5,14 +5,9 @@ PGVER := 9.2
 rcdefault := /etc/runlevels/default
 
 preinstall:
-	sed -i '/^PYTHON_TARGETS=/d' $(CHROOT)/etc/portage/make.conf
-	echo 'PYTHON_TARGETS="python2_7"' >> $(CHROOT)/etc/portage/make.conf
 	$(inroot) $(EMERGE) -n $(USEPKG) python:2.7
 	$(inroot) eselect python set python2.7
 	$(inroot) python-updater
-	sed -i '/^APACHE2_/d' $(CHROOT)/etc/portage/make.conf
-	echo 'APACHE2_MPMS="prefork"' >> $(CHROOT)/etc/portage/make.conf
-	echo 'APACHE2_MODULES="auth_basic authz_host env include info"' >> $(CHROOT)/etc/portage/make.conf
 
 
 postinstall: airport.service settings.py airport.wsgi default_vhost.include firstboot.start issue

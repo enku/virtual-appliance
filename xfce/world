@@ -5,6 +5,7 @@ x11-apps/xdm
 x11-apps/xrandr
 x11-terms/terminal
 x11-themes/tango-icon-theme
+x11-themes/gtk-engines-xfce
 x11-themes/xfwm4-themes
 xfce-base/thunar
 xfce-base/xfce4-meta
@@ -12,3 +13,4 @@ xfce-extra/xfce4-cpugraph-plugin
 xfce-extra/xfce4-screenshooter
 xfce-extra/xfce4-systemload-plugin
 xfce-extra/xfce4-taskmanager
+xfce-extra/xfce4-notifyd

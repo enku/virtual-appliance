@@ -16,8 +16,6 @@ post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
 post_files += local.start local.stop issue lighttpd.conf teamplayer.service
 
 preinstall:
-	sed -i '/^PYTHON_TARGETS=/d' $(CHROOT)/etc/portage/make.conf
-	echo 'PYTHON_TARGETS="python2_7"' >> $(CHROOT)/etc/portage/make.conf
 	$(inroot) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
 	$(inroot) eselect python set python2.7
 	$(inroot) python-updater
