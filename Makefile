@@ -250,7 +250,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	# the stage3 so may not be installed yet
 	#$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
 	
-	if test `cat $(WORLD)` ; then \
+	if test `stat -c "%s" $(WORLD)` -ne 0 ; then \
 		$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD); \
 		else \
 		true; \
