@@ -4,8 +4,7 @@ DPVER = 7.17
 inroot := chroot $(CHROOT)
 rcdefault := /etc/runlevels/default
 
-preinstall: make.conf.extra
-	cat make.conf.extra >> $(CHROOT)/etc/portage/make.conf
+preinstall: 
 
 postinstall: firstboot.start
 	$(inroot) passwd -d postgres

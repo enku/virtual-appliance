@@ -158,6 +158,7 @@ ifdef PKGDIR
 	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/portage/make.conf
 endif
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
+	[ -f "$(APPLIANCE)/make.conf" ] && cat "$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
 	cp locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
