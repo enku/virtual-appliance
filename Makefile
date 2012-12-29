@@ -1,4 +1,4 @@
-CHROOT = $(PWD)/vabuild
+CHROOT = $(CURDIR)/vabuild
 APPLIANCE ?= base
 HOSTNAME = $(APPLIANCE)
 RAW_IMAGE = $(HOSTNAME).img
