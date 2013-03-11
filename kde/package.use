@@ -24,14 +24,13 @@ sys-block/parted device-mapper
 sys-fs/udev extras
 x11-libs/cairo X svg
 x11-libs/cairo glib
-x11-libs/qt-core exceptions glib qt3support ssl
-x11-libs/qt-declarative accessibility
-x11-libs/qt-declarative qt3support
-x11-libs/qt-gui accessibility dbus glib mng qt3support
+dev-qt/qtcore exceptions glib qt3support ssl
+dev-qt/qtdeclarative qt3support accessibility
+dev-qt/qtgui accessibility dbus glib mng qt3support
 x11-libs/qt-opengl qt3support
-x11-libs/qt-qt3support accessibility kde
-x11-libs/qt-sql qt3support mysql
-x11-libs/qt-svg accessibility
+dev-qt/qt3support accessibility kde
+dev-qt/qtsql qt3support mysql
+dev-qt/qtsvg accessibility
 x11-libs/qt-webkit kde
 kde-base/kwin opengl
 kde-base/kdelibs opengl
