@@ -5,7 +5,8 @@ sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 
-dev-lang/php apache2 cgi ctype curl fileinfo force-cgi-redirect fpm gd hash iconv json mhash pdo session simplexml sqlite3 truetype xml xmlreader xmlwriter zip zlib
+app-admin/eselect-php apache2 fpm
+dev-lang/php apache2 cgi ctype curl fileinfo filter force-cgi-redirect fpm gd hash iconv json mhash pdo session simplexml sqlite truetype xml xmlreader xmlwriter zip zlib
 dev-libs/libpcre cxx
 www-apps/owncloud curl sqlite
 www-servers/apache ssl
