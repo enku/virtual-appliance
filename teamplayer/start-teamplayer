@@ -1,17 +1,15 @@
 #!/bin/sh
 # this should be run as the TP_USER user
 
-PYTHONPATH="/etc/teamplayer:$PYTHONPATH"
-PYTHON=python2.7
-export PYTHONPATH
+PYTHON=python
+DJANGO_SETTINGS_MODULE="project.settings_local" ; export DJANGO_SETTINGS_MODULE
 
 cd ~
-hg serve -p 8000 --prefix /repo/ > /var/log/teamplayer/hgserve.log 2>&1 &
-
-cd ~/web
+. bin/activate
 
 if [ ! -f "/etc/firstboot" ] ; then
     $PYTHON manage.py syncdb --noinput --verbosity=0
+    $PYTHON manage.py collectstatic --noinput --verbosity=0
 fi
 
 # start the fastcgi daemon
@@ -19,6 +17,6 @@ $PYTHON manage.py runfcgi daemonize=true protocol=fcgi maxrequest=20 \
     pidfile="TP_DB/fcgi.pid" socket=TP_DB/teamplayer.sock umask=002 \
     > "/var/log/teamplayer/teamplayer.log" 2>&1
 
-# spin!
-$PYTHON manage.py spin --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
+# Start the Spin Doctor
+$PYTHON manage.py spindoctor --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
 echo $! > "TP_DB/tps.pid"

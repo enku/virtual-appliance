@@ -1,12 +1,13 @@
 app-editors/nano ncurses
 dev-db/sqlite extensions
 dev-lang/python sqlite ssl threads xml
-dev-python/django postgres
 media-libs/flac ogg
-media-sound/mpd audiofile ffmpeg flac id3tag lame network ogg vorbis mad sqlite 
+media-sound/mpd aac audiofile ffmpeg flac inotify id3tag lame network ogg vorbis mad sqlite 
 media-video/ffmpeg mmx mxext mp3 network x264 
+sys-apps/kmod tools
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
+virtual/python-imaging python_targets_python2_7
 virtual/ffmpeg x264 mp3
 www-servers/lighttpd fastcgi pcre

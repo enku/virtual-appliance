@@ -1,7 +1,3 @@
-=dev-python/django-1.3*
-dev-python/flup
-dev-python/python-mpd
-media-libs/mutagen
 media-sound/mpd
 net-misc/ntp
 www-servers/lighttpd

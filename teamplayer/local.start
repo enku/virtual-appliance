@@ -1,14 +1,16 @@
 #!/bin/sh
 
+LOGFILE="/var/log/teamplayer/teamplayer.log"
+
 if [ ! -f /etc/firstboot ] ; then
     echo "Creating TeamPlayer database ..."
     createuser -U postgres -D -S -R  teamplayer
     createdb -U postgres teamplayer
-    touch /var/log/teamplayer/teamplayer.log
-    chown TP_USER:TP_USER /var/log/teamplayer/teamplayer.log
+    touch "$LOGFILE"
+    chown TP_USER:TP_USER "$LOGFILE"
 fi
 
 su -c "TP_HOME/bin/start-teamplayer" TP_USER
-tailf /var/log/teamplayer/teamplayer.log > /dev/tty7 &
+#tailf "$LOGFILE" > /dev/console &
 
 touch /etc/firstboot
