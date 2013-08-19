@@ -43,7 +43,7 @@ endif
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) virtualenv-2.7 $(TP_HOME)
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install -e $(TP_HOME)/teamplayer"
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 flup 'Whoosh<2.5.0'"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 flup 'Whoosh<2.5.0' setproctitle"
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; django-admin.py startproject project $(TP_HOME)"
 	chmod +x $(CHROOT)/$(TP_HOME)/manage.py
 	$(inroot) ln -sf ../manage.py $(TP_HOME)/bin/manage
