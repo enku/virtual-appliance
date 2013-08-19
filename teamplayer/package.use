@@ -8,6 +8,6 @@ sys-apps/kmod tools
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
-virtual/python-imaging python_targets_python2_7
 virtual/ffmpeg x264 mp3
+virtual/python-imaging python_targets_python2_7
 www-servers/lighttpd fastcgi pcre

@@ -1,8 +1,9 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
 net-misc/dhcp client
+sys-apps/kmod tools
+sys-apps/portage python2
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
-sys-apps/portage python2
 www-servers/nginx http                                                               

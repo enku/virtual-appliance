@@ -4,6 +4,7 @@ dev-lang/python ssl sqlite threads xml
 dev-libs/libxml2 python
 media-libs/libpng apng
 net-misc/dhcp client
+sys-apps/kmod tools
 sys-devel/gcc cxx
 sys-fs/udev gudev
 sys-kernel/gentoo-sources symlink

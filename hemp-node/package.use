@@ -3,6 +3,7 @@ dev-db/sqlite extensions
 dev-lang/python ssl sqlite threads xml
 dev-vcs/git curl
 net-misc/curl ssl threads curl_ssl_openssl
+sys-apps/kmod tools
 sys-apps/portage python2
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink

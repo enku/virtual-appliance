@@ -3,10 +3,11 @@ dev-lang/python ssl threads xml
 mail-mta/ssmtp mta
 net-misc/dhcp client
 sys-apps/hwids udev
+sys-apps/kmod tools
+sys-auth/pambase consolekit
 sys-devel/gcc cxx
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
-sys-auth/pambase consolekit
 
 # per kde
 app-misc/strigi dbus qt4
