@@ -5,7 +5,7 @@ net-misc/dhcp client
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-auth/pambase consolekit
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 

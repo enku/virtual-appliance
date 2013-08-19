@@ -4,6 +4,6 @@ dev-libs/libpcre cxx
 net-misc/dhcp client
 net-misc/wget ssl
 sys-apps/kmod tools
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal

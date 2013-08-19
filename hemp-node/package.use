@@ -5,6 +5,6 @@ dev-vcs/git curl
 net-misc/curl ssl threads curl_ssl_openssl
 sys-apps/kmod tools
 sys-apps/portage python2
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal

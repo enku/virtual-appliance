@@ -7,7 +7,7 @@ dev-php/pecl-uploadprogress php_targets_php5-3
 mail-mta/ssmtp mta ssl
 net-misc/dhcp client
 sys-apps/kmod tools
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-apps/drupal postgres -mysql

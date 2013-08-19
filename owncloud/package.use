@@ -2,7 +2,7 @@ app-editors/nano ncurses
 dev-lang/python ssl threads xml
 net-misc/dhcp client
 sys-apps/kmod tools
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 

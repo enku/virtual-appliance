@@ -5,7 +5,7 @@ media-libs/flac ogg
 media-sound/mpd aac audiofile ffmpeg flac inotify id3tag lame network ogg vorbis mad sqlite 
 media-video/ffmpeg mmx mxext mp3 network x264 
 sys-apps/kmod tools
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 virtual/ffmpeg x264 mp3

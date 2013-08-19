@@ -1,6 +1,6 @@
 dev-lang/python ssl xml
 dev-libs/libxml2 python
 sys-apps/kmod tools
-sys-devel/gcc cxx
+sys-devel/gcc cxx nptl
 sys-libs/ncurses minimal
 x11-base/xorg-server xorg
