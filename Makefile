@@ -146,7 +146,7 @@ ifdef stage4-exists
 else
 	mkdir -p $(DOWNLOAD_DIR)
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt $(DOWNLOAD_DIR)
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep $(ARCH) $(DOWNLOAD_DIR)/latest-stage3.txt|grep -v multilib` $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep stage3 $(DOWNLOAD_DIR)/latest-stage3.txt| grep -v hardened| grep -v multilib|tail -n1` $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2
 	@./echo Using stage3 tarball
 	tar xjpf $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
