@@ -77,7 +77,7 @@ LOGGING = {
     },
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(message)s'
+            'format': '%(levelname)s:%(name):%(asctime)s %(message)s'
         }
     },
     'handlers': {
@@ -123,7 +123,11 @@ TEAMPLAYER = {
     'MPD_HOME': 'TP_DB/mpd',
     'MPD_LOG': '/dev/null',
     'UPLOADED_LIBRARY_DIR': 'TP_HOME/library',
-    'CROSSFADE': 2,
+    'CROSSFADE': 5,
+    'SHAKE_THINGS_UP': 25,
+    'ALWAYS_SHAKE_THINGS_UP': True,
+    'HTTP_PORT': 8000,
+    'IPC_PORT': 8080,
 }
 
 DATABASES = {
