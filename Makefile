@@ -113,16 +113,20 @@ mounts: stage3
 	fi
 	touch mounts
 
+portage-snapshot.tar.bz2:
+	@./echo You do not have a portage snapshot. Consider \"make sync_portage\"
+	@exit 1
+
+
 sync_portage:
 	@./echo Grabbing latest portage snapshot
-	mkdir -p $(DOWNLOAD_DIR)
-	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 $(DOWNLOAD_DIR)/portage-latest.tar.bz2
-	touch sync_portage
+	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-snapshot.tar.bz2
 
-portage: sync_portage stage3
+
+portage: portage-snapshot.tar.bz2 stage3
 	@./echo Unpacking portage snapshot
 	rm -rf $(CHROOT)/usr/portage
-	tar xjf $(DOWNLOAD_DIR)/portage-latest.tar.bz2 -C $(CHROOT)/usr
+	tar xjf portage-snapshot.tar.bz2 -C $(CHROOT)/usr
 ifeq ($(EMERGE_RSYNC),YES)
 	@./echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
@@ -386,6 +390,6 @@ realclean: clean
 distclean: 
 	rm -f *.qcow *.img *.vmdk
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
-	rm -f portage-latest.tar.bz2
+	rm -f portage-snapshot.tar.bz2
 
 .PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software
