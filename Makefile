@@ -142,17 +142,24 @@ preproot: stage3 mounts portage
 	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	touch preproot
 
-stage3: 
+stage3-$(ARCH)-latest.tar.bz2:
+	@./echo You do not have a portage stage3 tarball. Consider \"make sync_stage3\"
+	@exit 1
+
+sync_stage3:
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt latest-stage3.txt
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep stage3 latest-stage3.txt| grep -v hardened| grep -v multilib|tail -n1` stage3-$(ARCH)-latest.tar.bz2
+
+
+stage3: stage3-$(ARCH)-latest.tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
 	tar xapf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	mkdir -p $(DOWNLOAD_DIR)
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt $(DOWNLOAD_DIR)
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep stage3 $(DOWNLOAD_DIR)/latest-stage3.txt| grep -v hardened| grep -v multilib|tail -n1` $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2
 	@./echo Using stage3 tarball
-	tar xjpf $(DOWNLOAD_DIR)/stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
+	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
 	touch stage3
 
@@ -236,7 +243,7 @@ ifeq ($(DASH),YES)
 endif
 	touch systools
 
-grub: stage3 grub.conf kernel partitions
+grub: stage3 grub.conf kernel
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@./echo Installing Grub
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
@@ -255,10 +262,6 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(MAKE) -C $(APPLIANCE) preinstall
 	cp etc-update.conf $(CHROOT)/etc/
 	
-	# some packages, like, tar need xz-utils to unpack, but it not part of
-	# the stage3 so may not be installed yet
-	#$(inroot) $(EMERGE) -1n $(USEPKG) app-arch/xz-utils
-	
 	if test `stat -c "%s" $(WORLD)` -ne 0 ; then \
 		$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD); \
 		else \
@@ -268,8 +271,7 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	
 	@./echo Running revdep-rebuild
 	# Need gentoolkit to run revdep-rebuild
-	$(inroot) $(EMERGE) -1n $(USEPKG) app-portage/gentoolkit
-	$(inroot) revdep-rebuild -i
+	$(inroot) emerge $(USEPKG) @preserved-rebuild
 	
 	cp issue $(CHROOT)/etc/issue
 	$(gcc_config)
@@ -302,16 +304,11 @@ endif
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: kernel software device-map grub.shell grub dev.tar.bz2 motd.sh
+image: $(STAGE4_TARBALL) partitions device-map grub.shell dev.tar.bz2 motd.sh
 	@./echo Installing files to $(RAW_IMAGE) 
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
-	mkdir -p gentoo
-	mount -o bind $(CHROOT) gentoo
-	rsync -ax $(COPY_ARGS) gentoo/ loop/
-ifeq ($(PRUNE_CRITICAL),YES)
-	rsync -ax gentoo/usr/include/python* loop/usr/include/
-endif
+	tar -aSxf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C loop
 	./motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
@@ -322,22 +319,19 @@ ifeq ($(UDEV),NO)
 else
 	ln -sf /etc/init.d/udev loop/etc/runlevels/sysinit/udev
 endif
-	umount gentoo
-	rmdir gentoo
 	umount loop
 	sleep 3
 	rmdir loop
 	e2fsck -fyD $(NBD_DEV)p1 || true
 	qemu-nbd -d $(NBD_DEV)
-	touch image
 
-$(QCOW_IMAGE): $(RAW_IMAGE) image
+$(QCOW_IMAGE): image
 	@./echo Creating $(QCOW_IMAGE)
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
-$(XVA_IMAGE): $(RAW_IMAGE) image
+$(XVA_IMAGE): $(RAW_IMAGE)
 	@./echo Creating $(XVA_IMAGE)
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE)
@@ -345,13 +339,13 @@ $(XVA_IMAGE): $(RAW_IMAGE) image
 xva: $(XVA_IMAGE)
 
 
-$(VMDK_IMAGE): $(RAW_IMAGE) image
+$(VMDK_IMAGE): $(RAW_IMAGE) 
 	@./echo Creating $(VMDK_IMAGE)
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-$(STAGE4_TARBALL): software kernel rsync-excludes rsync-excludes-critical
+stage4: software kernel rsync-excludes rsync-excludes-critical grub
 	@./echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p stage4
 	mkdir -p gentoo
@@ -361,7 +355,8 @@ $(STAGE4_TARBALL): software kernel rsync-excludes rsync-excludes-critical
 	rmdir gentoo
 	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
 
-stage4: $(STAGE4_TARBALL)
+$(STAGE4_TARBALL):
+	stage4
 
 
 umount: 
@@ -376,7 +371,7 @@ endif
 
 remove_checkpoints:
 	rm -f mounts compile_options base_system portage sync_portage
-	rm -f parted kernel grub stage3 software preproot sysconfig systools image partitions device-map
+	rm -f parted kernel grub stage3 software preproot sysconfig systools partitions device-map
 
 clean: umount remove_checkpoints
 	rm -f umount
@@ -392,4 +387,4 @@ distclean:
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
 	rm -f portage-snapshot.tar.bz2
 
-.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software
+.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software image stage4
