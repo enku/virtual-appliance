@@ -319,10 +319,8 @@ ifeq ($(UDEV),NO)
 else
 	ln -sf /etc/init.d/udev loop/etc/runlevels/sysinit/udev
 endif
-	umount loop
-	sleep 3
+	umount -l loop
 	rmdir loop
-	e2fsck -fyD $(NBD_DEV)p1 || true
 	qemu-nbd -d $(NBD_DEV)
 
 $(QCOW_IMAGE): image
@@ -375,9 +373,9 @@ remove_checkpoints:
 
 clean: umount remove_checkpoints
 	rm -f umount
-	rm -rf loop gentoo
-	rm -rf gentoo
-	rm -rf $(CHROOT)
+	rm -rf --one-file-system loop 
+	rm -rf --one-file-system gentoo
+	rm -rf --one-file-system $(CHROOT)
 
 realclean: clean
 	${RM} $(RAW_IMAGE) $(QCOW_IMAGE) $(VMDK_IMAGE)
