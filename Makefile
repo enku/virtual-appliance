@@ -40,7 +40,6 @@ PACKAGE_FILES = $(wildcard $(APPLIANCE)/package.*)
 WORLD = $(APPLIANCE)/world
 EXTRA_WORLD =
 CRITICAL = $(APPLIANCE)/critical
-DOWNLOAD_DIR = .downloads
 
 # Allow appliance to override variables
 -include $(APPLIANCE)/$(APPLIANCE).cfg
@@ -157,7 +156,6 @@ ifdef stage4-exists
 	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
 	tar xapf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
-	mkdir -p $(DOWNLOAD_DIR)
 	@./echo Using stage3 tarball
 	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
