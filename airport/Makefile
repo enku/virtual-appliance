@@ -23,7 +23,7 @@ postinstall: airport.service settings.py airport.wsgi default_vhost.include firs
 	rm -rf $(CHROOT)/$(APP_ROOT)
 	hg clone $(AIRPORT_REPO) $(CHROOT)/$(APP_ROOT)
 	echo 'VERSION="'`date +1.%y%m%d.%H%m`'"' > $(CHROOT)/$(APP_ROOT)/djangoproject/airport/__init__.py
-	chroot $(CHROOT) virtualenv-2.7 $(APP_ROOT)
+	chroot $(CHROOT) virtualenv -p /usr/bin/python2.7 $(APP_ROOT)
 	$(inroot) bash -c ". $(APP_ROOT)/bin/activate ; pip install -r $(APP_ROOT)/requirements.txt"
 	$(inroot) bash -c ". $(APP_ROOT)/bin/activate ; pip install psycopg2"
 	mkdir -p $(CHROOT)/$(APP_ROOT)/etc
