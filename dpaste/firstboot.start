@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+[ -e /firstboot ] || exit 0
+
+echo 'Creating dpaste database'
+createuser -U postgres -D -S -R  dpaste
+createdb -U postgres dpaste
+
+. /opt/dpaste/bin/activate
+PYTHON=/opt/dpaste/bin/python
+PYTHONPATH=/opt/dpaste/dpaste ; export PYTHONPATH
+$PYTHON /opt/dpaste/manage.py syncdb --noinput
+$PYTHON /opt/dpaste/manage.py migrate --all
+rc-update add dpaste default
+/etc/init.d/dpaste start
+
+rm /firstboot

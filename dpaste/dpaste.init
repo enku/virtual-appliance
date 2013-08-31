@@ -1,0 +1,35 @@
+#!/sbin/runscript
+# Copyright 2013 Marduk Enterprises (marduk@python.net)
+# Distributed under the terms of the GNU General Public License v2
+
+description="GUnicorn server for the dpaste app"
+
+depend() {
+	need localmount
+    after nginx
+    after postgresql-9.2
+}
+
+
+start() {
+	ebegin "Starting dpaste"
+    . /opt/dpaste/bin/activate
+    export PYTHONPATH=/opt/dpaste/dpaste
+	start-stop-daemon --start --exec /opt/dpaste/bin/python -- /opt/dpaste/manage.py run_gunicorn \
+    --user=dpaste \
+    --daemon \
+    --group=dpaste \
+    --workers=2 \
+    --error-logfile=/opt/dpaste/var/gunicorn.error.log \
+    --pid=/opt/dpaste/var/gunicorn.pid \
+    --bind=unix:///opt/dpaste/var/dpaste.sock
+}
+
+
+stop() {
+	ebegin "Stopping dpaste"
+	start-stop-daemon --stop \
+		--pidfile /opt/dpaste/var/gunicorn.pid \
+		--exec /opt/dpaste/bin/python
+	eend $? "Failed to stop dpaste"
+}
