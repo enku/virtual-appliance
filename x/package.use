@@ -3,4 +3,4 @@ dev-libs/libxml2 python
 sys-apps/kmod tools
 sys-devel/gcc cxx nptl
 sys-libs/ncurses minimal
-x11-base/xorg-server xorg nptl
+x11-base/xorg-server minimal xorg nptl

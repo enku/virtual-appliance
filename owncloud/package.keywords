@@ -1,2 +1,3 @@
 sys-kernel/gentoo-sources ~amd64 ~x86
 www-apps/owncloud **
+app-admin/webapp-config ~amd64 ~x86

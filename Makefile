@@ -136,9 +136,11 @@ ifdef PKGDIR
 endif
 	touch portage
 
-preproot: stage3 mounts portage
+preproot: stage3 mounts portage fstab
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
 	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
+	cp fstab $(CHROOT)/etc/fstab
+	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
 	touch preproot
 
 stage3-$(ARCH)-latest.tar.bz2:
@@ -194,15 +196,13 @@ endif
 	touch kernel
 
 $(SWAP_FILE): preproot
+ifneq ($(SWAP_SIZE),0)
 	@./echo Creating swap file: $(SWAP_FILE)
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
-
-$(CHROOT)/etc/fstab: fstab preproot
-	cp fstab $(CHROOT)/etc/fstab
-
-$(CHROOT)/etc/conf.d/hostname: preproot
-	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
+else
+	sed -i '/swap/d' $(CHROOT)/etc/fstab
+endif
 
 sysconfig: preproot acpi.start $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
 	@echo $(VIRTIO)
@@ -278,6 +278,12 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	$(gcc_config)
 	EDITOR=/usr/bin/nano $(inroot) etc-update
 	$(MAKE) -C $(APPLIANCE) postinstall
+ifeq ($(UDEV),NO)
+	rm -f $(CHROOT)/etc/runlevels/sysinit/udev
+	$(inroot) $(EMERGE) -c sys-fs/udev
+else
+	ln -sf /etc/init.d/udev $(CHROOT)/etc/runlevels/sysinit/udev
+endif
 ifeq ($(ENABLE_SSHD),YES)
 	$(inroot) /sbin/rc-update add sshd default
 endif
@@ -302,7 +308,7 @@ endif
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: $(STAGE4_TARBALL) partitions device-map grub.shell dev.tar.bz2 motd.sh
+image: $(STAGE4_TARBALL) partitions device-map grub.shell motd.sh
 	@./echo Installing files to $(RAW_IMAGE) 
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
@@ -310,12 +316,6 @@ image: $(STAGE4_TARBALL) partitions device-map grub.shell dev.tar.bz2 motd.sh
 	./motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
-endif
-ifeq ($(UDEV),NO)
-	tar jxf dev.tar.bz2 -C loop/dev
-	rm -f loop/etc/runlevels/sysinit/udev
-else
-	ln -sf /etc/init.d/udev loop/etc/runlevels/sysinit/udev
 endif
 	umount -l loop
 	rmdir loop
@@ -358,11 +358,11 @@ $(STAGE4_TARBALL):
 umount: 
 	@./echo Attempting to unmount chroot mounts
 ifdef PKGDIR
-	umount $(CHROOT)/var/portage/packages
+	umount -l $(CHROOT)/var/portage/packages
 endif
-	umount  $(CHROOT)/var/tmp
-	umount  $(CHROOT)/dev
-	umount  $(CHROOT)/proc
+	umount -l $(CHROOT)/var/tmp
+	umount -l $(CHROOT)/dev
+	umount -l $(CHROOT)/proc
 	touch umount
 
 remove_checkpoints:
