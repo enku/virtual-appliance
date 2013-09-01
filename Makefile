@@ -136,9 +136,11 @@ ifdef PKGDIR
 endif
 	touch portage
 
-preproot: stage3 mounts portage
+preproot: stage3 mounts portage fstab
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
 	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
+	cp fstab $(CHROOT)/etc/fstab
+	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
 	touch preproot
 
 stage3-$(ARCH)-latest.tar.bz2:
@@ -194,15 +196,13 @@ endif
 	touch kernel
 
 $(SWAP_FILE): preproot
+ifneq ($(SWAP_SIZE),0)
 	@./echo Creating swap file: $(SWAP_FILE)
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
-
-$(CHROOT)/etc/fstab: fstab preproot
-	cp fstab $(CHROOT)/etc/fstab
-
-$(CHROOT)/etc/conf.d/hostname: preproot
-	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
+else
+	sed -i '/swap/d' $(CHROOT)/etc/fstab
+endif
 
 sysconfig: preproot acpi.start $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
 	@echo $(VIRTIO)
