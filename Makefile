@@ -358,11 +358,11 @@ $(STAGE4_TARBALL):
 umount: 
 	@./echo Attempting to unmount chroot mounts
 ifdef PKGDIR
-	umount $(CHROOT)/var/portage/packages
+	umount -l $(CHROOT)/var/portage/packages
 endif
-	umount  $(CHROOT)/var/tmp
-	umount  $(CHROOT)/dev
-	umount  $(CHROOT)/proc
+	umount -l $(CHROOT)/var/tmp
+	umount -l $(CHROOT)/dev
+	umount -l $(CHROOT)/proc
 	touch umount
 
 remove_checkpoints:
