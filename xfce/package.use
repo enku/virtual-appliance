@@ -6,6 +6,7 @@ media-libs/libpng apng
 media-libs/libvpx threads
 net-misc/dhcp client
 sys-apps/kmod tools
+sys-apps/portage python3 ipc
 sys-devel/gcc cxx nptl
 sys-fs/udev gudev
 sys-kernel/gentoo-sources symlink
