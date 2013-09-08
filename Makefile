@@ -141,6 +141,7 @@ preproot: stage3 mounts portage fstab
 	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp fstab $(CHROOT)/etc/fstab
 	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
+	echo $(HOSTNAME) > $(CHROOT)/etc/hostname
 	touch preproot
 
 stage3-$(ARCH)-latest.tar.bz2:
