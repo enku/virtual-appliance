@@ -384,4 +384,37 @@ distclean:
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
 	rm -f portage-snapshot.tar.bz2
 
-.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software image stage4
+help:
+	@./echo 'Help targets (this is not a comprehensive list)'
+	@echo
+	@echo 'sync_portage             - Download the latest portage snapshot'
+	@echo 'sync_stage3              - Download the latest stage3 tarball'
+	@echo 'stage4                   - Build a stage4 tarball'
+	@echo 'software                 - Build software into a chroot'
+	@echo 'clean                    - Unmount chroot and clean directory'
+	@echo 'realclean                - Clean and remove image files'
+	@./echo 'Images'
+	@echo 'image                    - Build a raw VM image from stage4'
+	@echo 'qcow                     - Build a qcow VM image from a raw image'
+	@echo 'vmdk                     - Build a vmdk image from a raw image'
+	@echo 'xva                      - Build an xva image from a raw image'
+	@./echo 'Variables'
+	@echo 'APPLIANCE=               - The appliance to build'
+	@echo 'HOSTNAME=                - Hostname to give appliance'
+	@echo 'TIMEZONE=                - Timezone to set for the appliance'
+	@echo 'CHROOT=                  - The directory to build the chroot'
+	@echo 'DISK_SIZE=               - Size of the disk image'
+	@echo 'SWAP_SIZE=               - Size of the swap file'
+	@echo 'ARCH=                    - Architecture to build for (x86 or amd64)'
+	@echo 'VIRTIO=YES               - Configure the stage2/image to use virtio'
+	@echo 'EXTERNAL_KERNEL=YES      - Do not build a kernel in the image'
+	@echo 'HEADLESS=YES             - Build a headless (serial console) image.'
+	@echo 'REMOVE_PORTAGE_TREE=NO   - Do not exclude the portage tree from the image'
+	@echo 'PKGDIR=                  - Directory to use/store binary packages'
+	@echo 'NBD_DEV=/dev/nbd0        - NBD device to use when manipulating images'
+	@echo 'ENABLE_SSHD=YES          - Enable sshd to start automatically in the image'
+	@echo
+	@./echo 'Example'
+	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
+
+.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software image stage4 help
