@@ -17,7 +17,6 @@ then
     exit
 fi
 
-${EMERGE} ${USEPKG} --oneshot --noreplace dev-lang/perl
 ${EMERGE} ${USEPKG} sys-kernel/${KERNEL}
 cp /root/kernel.config /usr/src/linux/.config
 gcc-config 1
