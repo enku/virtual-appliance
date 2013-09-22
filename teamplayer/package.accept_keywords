@@ -1,0 +1,5 @@
+dev-db/postgresql-base
+dev-db/postgresql-server
+dev-lang/python:2.7
+sys-kernel/gentoo-sources
+virtual/python-imaging

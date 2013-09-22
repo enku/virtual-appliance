@@ -2,7 +2,7 @@ TP_REPO ?= ../../teamplayer
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
-PGVER = 9.2
+PGVER = 9.3
 INSTALL = install
 AVAHI := NO
 
@@ -41,9 +41,9 @@ endif
 	mkdir -p $(CHROOT)/$(TP_HOME)
 	hg clone --pull $(TP_REPO) $(CHROOT)/$(TP_HOME)/teamplayer
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
-	$(inroot) virtualenv-2.7 $(TP_HOME)
+	$(inroot) virtualenv $(TP_HOME)
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install -e $(TP_HOME)/teamplayer"
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 flup 'Whoosh<2.5.0' setproctitle"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 flup Whoosh setproctitle"
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; django-admin.py startproject project $(TP_HOME)"
 	chmod +x $(CHROOT)/$(TP_HOME)/manage.py
 	$(inroot) ln -sf ../manage.py $(TP_HOME)/bin/manage
