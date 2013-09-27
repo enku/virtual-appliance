@@ -1,18 +1,13 @@
 APP_ROOT := /var/airport
 AIRPORT_REPO ?= https://bitbucket.org/marduk/airport
-PGVER := 9.2
+PGVER := 9.3
 
 rcdefault := /etc/runlevels/default
 
 preinstall:
-	$(inroot) $(EMERGE) -n $(USEPKG) python:2.7
-	$(inroot) eselect python set python2.7
-	$(inroot) python-updater
 
 
-postinstall: airport.service settings.py airport.wsgi default_vhost.include firstboot.start issue
-	sed -i 's/^APACHE2_OPTS=.*/APACHE2_OPTS="-D DEFAULT_VHOST -D INFO -D WSGI"/' $(CHROOT)/etc/conf.d/apache2
-	$(inroot) rc-update add apache2 default
+postinstall: airport.service settings.py firstboot.start zzairport.start issue nginx.conf
 	sed -i 's/^PG_INITDB_OPTS.*/PG_INITDB_OPTS="--locale=en_US.UTF-8"/' $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
@@ -23,24 +18,26 @@ postinstall: airport.service settings.py airport.wsgi default_vhost.include firs
 	rm -rf $(CHROOT)/$(APP_ROOT)
 	hg clone $(AIRPORT_REPO) $(CHROOT)/$(APP_ROOT)
 	echo 'VERSION="'`date +1.%y%m%d.%H%m`'"' > $(CHROOT)/$(APP_ROOT)/djangoproject/airport/__init__.py
-	chroot $(CHROOT) virtualenv -p /usr/bin/python2.7 $(APP_ROOT)
+	chroot $(CHROOT) virtualenv -p /usr/bin/python3.2 $(APP_ROOT)
 	$(inroot) bash -c ". $(APP_ROOT)/bin/activate ; pip install -r $(APP_ROOT)/requirements.txt"
-	$(inroot) bash -c ". $(APP_ROOT)/bin/activate ; pip install psycopg2"
+	$(inroot) bash -c ". $(APP_ROOT)/bin/activate ; pip install psycopg2 uwsgi"
 	mkdir -p $(CHROOT)/$(APP_ROOT)/etc
 	touch $(CHROOT)/$(APP_ROOT)/etc/__init__.py
 	cp settings.py $(CHROOT)/$(APP_ROOT)/etc
-	cp default_vhost.include $(CHROOT)/etc/apache2/vhosts.d
-	cp airport.wsgi $(CHROOT)/var/www/localhost
 	$(inroot) id -u airport >/dev/null || $(inroot) useradd -d $(APP_ROOT) -M -s /bin/false -U -G postgres airport
-	$(inroot) gpasswd -a apache postgres
+	$(inroot) chown -R airport:airport $(APP_ROOT)
 	cp firstboot.start $(CHROOT)/etc/local.d
+	cp zzairport.start $(CHROOT)/etc/local.d
 	cp issue $(CHROOT)/etc/issue
+	$(M4) -D HOSTNAME=$(HOSTNAME) nginx.conf > $(CHROOT)/etc/nginx/nginx.conf
+	$(inroot) ln -sf /etc/init.d/nginx $(rcdefault)/nginx
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
 	cp airport.service $(CHROOT)/etc/avahi/services
 	$(inroot) ln -sf /etc/init.d/avahi-daemon $(rcdefault)/avahi-daemon
 endif
+	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 
 
 clean:

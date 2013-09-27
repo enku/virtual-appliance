@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+PYTHONPATH=/var/airport ; export PYTHONPATH
+DJANGO_SETTINGS_MODULE="etc.settings" ; export DJANGO_SETTINGS_MODULE
+
+cd /var/airport
+. bin/activate
+cd djangoproject
+uwsgi --socket /var/airport/airport.sock \
+    -w djangoproject.wsgi \
+    --uid airport \
+    --gid airport \
+    --daemonize2 /var/airport/airport.log \
+    -T
+
+chown airport:nginx /var/airport/airport.sock
+chmod g+rw /var/airport/airport.sock

@@ -1,5 +1,2 @@
-dev-db/postgresql-server:9.2
-www-apache/mod_wsgi
-dev-python/django
-dev-python/psycopg
+dev-db/postgresql-server:9.3
 www-servers/nginx
