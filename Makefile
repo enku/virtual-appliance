@@ -328,7 +328,7 @@ $(QCOW_IMAGE): image
 
 qcow: $(QCOW_IMAGE)
 
-$(XVA_IMAGE): $(RAW_IMAGE)
+$(XVA_IMAGE): image
 	@./echo Creating $(XVA_IMAGE)
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE)
@@ -336,7 +336,7 @@ $(XVA_IMAGE): $(RAW_IMAGE)
 xva: $(XVA_IMAGE)
 
 
-$(VMDK_IMAGE): $(RAW_IMAGE) 
+$(VMDK_IMAGE): image
 	@./echo Creating $(VMDK_IMAGE)
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE)
 
