@@ -1,5 +1,6 @@
 APP_ROOT := /var/airport
 AIRPORT_REPO ?= https://bitbucket.org/marduk/airport
+AIRPORT_BRANCH ?= default
 PGVER := 9.3
 
 rcdefault := /etc/runlevels/default
@@ -16,7 +17,7 @@ postinstall: airport.service settings.py firstboot.start zzairport.start issue n
 	$(inroot) chsh -s /bin/sh postgres
 	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
 	rm -rf $(CHROOT)/$(APP_ROOT)
-	hg clone $(AIRPORT_REPO) $(CHROOT)/$(APP_ROOT)
+	hg clone -u $(AIRPORT_BRANCH) $(AIRPORT_REPO) $(CHROOT)/$(APP_ROOT)
 	echo 'VERSION="'`date +1.%y%m%d.%H%m`'"' > $(CHROOT)/$(APP_ROOT)/djangoproject/airport/__init__.py
 	chroot $(CHROOT) virtualenv -p /usr/bin/python3.2 $(APP_ROOT)
 	$(inroot) bash -c ". $(APP_ROOT)/bin/activate ; pip install -r $(APP_ROOT)/requirements.txt"
