@@ -205,7 +205,7 @@ else
 	sed -i '/swap/d' $(CHROOT)/etc/fstab
 endif
 
-sysconfig: preproot acpi.start $(SWAP_FILE) $(CHROOT)/etc/fstab $(CHROOT)/etc/conf.d/hostname
+sysconfig: preproot acpi.start $(SWAP_FILE)
 	@echo $(VIRTIO)
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
