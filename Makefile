@@ -125,7 +125,7 @@ sync_portage:
 portage: portage-snapshot.tar.bz2 stage3
 	@./echo Unpacking portage snapshot
 	rm -rf $(CHROOT)/usr/portage
-	tar xjf portage-snapshot.tar.bz2 -C $(CHROOT)/usr
+	tar xf portage-snapshot.tar.bz2 -C $(CHROOT)/usr
 ifeq ($(EMERGE_RSYNC),YES)
 	@./echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
@@ -157,10 +157,10 @@ stage3: stage3-$(ARCH)-latest.tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
-	tar xapf "$(STAGE4_TARBALL)" -C $(CHROOT)
+	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	@./echo Using stage3 tarball
-	tar xjpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
+	tar xpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
 	touch stage3
 
@@ -313,7 +313,7 @@ image: $(STAGE4_TARBALL) partitions device-map grub.shell motd.sh
 	@./echo Installing files to $(RAW_IMAGE) 
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
-	tar -aSxf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C loop
+	tar -Sxf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C loop
 	./motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
