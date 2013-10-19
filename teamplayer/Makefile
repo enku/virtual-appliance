@@ -1,4 +1,5 @@
-TP_REPO ?= ../../teamplayer
+TP_REPO ?= https://bitbucket.org/marduk/teamplayer
+TP_BRANCH ?= default
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
@@ -39,7 +40,7 @@ endif
 		$(inroot) useradd -c "Teamplayer Server" -G postgres -U -d $(TP_HOME) $(TP_USER)
 	rm -rf $(CHROOT)/$(TP_HOME)
 	mkdir -p $(CHROOT)/$(TP_HOME)
-	hg clone --pull $(TP_REPO) $(CHROOT)/$(TP_HOME)/teamplayer
+	hg clone -u $(TP_BRANCH) $(TP_REPO) $(CHROOT)/$(TP_HOME)/teamplayer
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) virtualenv $(TP_HOME)
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install -e $(TP_HOME)/teamplayer"
