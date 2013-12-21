@@ -150,7 +150,7 @@ stage3-$(ARCH)-latest.tar.bz2:
 
 sync_stage3:
 	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt latest-stage3.txt
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep stage3 latest-stage3.txt| grep -v hardened| grep -v multilib|tail -n1` stage3-$(ARCH)-latest.tar.bz2
+	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/`grep 'stage3-$(ARCH)-[1-9].*\.tar\.bz2' latest-stage3.txt` stage3-$(ARCH)-latest.tar.bz2
 
 
 stage3: stage3-$(ARCH)-latest.tar.bz2
