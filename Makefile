@@ -107,7 +107,7 @@ mounts: stage3
 	mkdir -p $(CHROOT)
 	if [ ! -e mounts ] ; then \
 		mount -t proc none $(CHROOT)/proc; \
-		mount -o bind /dev $(CHROOT)/dev; \
+		mount -o rbind /dev $(CHROOT)/dev; \
 		mount -o bind /var/tmp $(CHROOT)/var/tmp; \
 	fi
 	touch mounts

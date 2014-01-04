@@ -6,8 +6,10 @@ dev-php/pecl-apc lock_pthreadmutex php_targets_php5-3
 dev-php/pecl-uploadprogress php_targets_php5-3
 mail-mta/ssmtp mta ssl
 net-misc/dhcp client
-sys-apps/kmod tools
+sys-apps/kmod openrc tools
+sys-apps/openrc netifrc
 sys-devel/gcc cxx nptl
+sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-apps/drupal postgres -mysql

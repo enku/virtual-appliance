@@ -1,8 +1,10 @@
 app-editors/nano ncurses
 dev-lang/python ssl sqlite threads xml
-sys-apps/kmod tools
+sys-apps/kmod openrc tools
+sys-apps/openrc netifrc
 sys-apps/portage python3 ipc
 sys-devel/gcc cxx nptl
+sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 

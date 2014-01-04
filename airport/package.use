@@ -2,8 +2,10 @@ app-editors/nano ncurses
 dev-lang/python ssl threads xml
 dev-libs/libpcre cxx
 net-misc/dhcp client
-sys-apps/kmod tools
+sys-apps/kmod openrc tools
+sys-apps/openrc netifrc
 sys-devel/gcc cxx nptl
+sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 sys-apps/portage python3 ipc

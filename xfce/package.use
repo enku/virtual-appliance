@@ -5,10 +5,11 @@ dev-libs/libxml2 python
 media-libs/libpng apng
 media-libs/libvpx threads
 net-misc/dhcp client
-sys-apps/kmod tools
+sys-apps/kmod openrc tools
+sys-apps/openrc netifrc
 sys-apps/portage python3 ipc
 sys-devel/gcc cxx nptl
-sys-fs/udev gudev
+sys-fs/udev gudev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-client/firefox bindist

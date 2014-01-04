@@ -1,11 +1,13 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
 dev-libs/libpcre cxx
+dev-vcs/git curl
+net-misc/curl ssl curl_ssl_openssl
 net-misc/dhcp client
-sys-apps/kmod tools
+sys-apps/kmod openrc tools
+sys-apps/openrc netifrc
+sys-apps/portage python3 ipc
 sys-devel/gcc cxx nptl
+sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
-sys-apps/portage python3 ipc
-net-misc/curl ssl curl_ssl_openssl
-dev-vcs/git curl
