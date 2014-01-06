@@ -1,4 +1,4 @@
-from settings import *
+from .settings import *
 
 #############################################################################
 # Local Settings
@@ -127,7 +127,6 @@ TEAMPLAYER = {
     'SHAKE_THINGS_UP': 25,
     'ALWAYS_SHAKE_THINGS_UP': True,
     'HTTP_PORT': 8000,
-    'IPC_PORT': 8080,
 }
 
 DATABASES = {
@@ -136,7 +135,8 @@ DATABASES = {
         'NAME': 'teamplayer',
         'HOST': '',
         'PASSWORD': '',
-        'PORT': ''
+        'PORT': '',
+        'CONN_MAX_AGE': 300,
     }
 }
 

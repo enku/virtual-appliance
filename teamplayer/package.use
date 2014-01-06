@@ -2,8 +2,8 @@ app-editors/nano ncurses
 dev-db/sqlite extensions
 dev-lang/python sqlite ssl threads xml
 media-libs/flac ogg
-media-sound/mpd aac audiofile ffmpeg flac inotify id3tag lame network ogg vorbis mad sqlite 
-media-video/ffmpeg mmx mxext mp3 network x264 
+media-sound/mpd faad audiofile ffmpeg flac inotify id3tag lame network ogg vorbis mad soup sqlite  unicode 
+media-video/ffmpeg avx cpudetection mmx mmxext mp3 network ssse3 x264 
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
 sys-apps/portage python3 ipc
@@ -12,5 +12,4 @@ sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 virtual/ffmpeg x264 mp3
-virtual/python-imaging python_targets_python2_7
-www-servers/lighttpd fastcgi pcre
+www-servers/nginx http                                                               

@@ -2,6 +2,7 @@
 # this should be run as the TP_USER user
 
 PYTHON=python
+PYTHONPATH="$HOME" ; export PYTHONPATH
 DJANGO_SETTINGS_MODULE="project.settings_local" ; export DJANGO_SETTINGS_MODULE
 
 cd ~
@@ -12,11 +13,16 @@ if [ ! -f "/etc/firstboot" ] ; then
     $PYTHON manage.py collectstatic --noinput --verbosity=0
 fi
 
-# start the fastcgi daemon
-$PYTHON manage.py runfcgi daemonize=true protocol=fcgi maxrequest=20 \
-    pidfile="TP_DB/fcgi.pid" socket=TP_DB/teamplayer.sock umask=002 \
-    > "/var/log/teamplayer/teamplayer.log" 2>&1
+# start the uwsgi daemon
+uwsgi --socket TP_DB/teamplayer.sock \
+    --chmod=660 \
+    -w project.wsgi \
+    --uid teamplayer \
+    --gid teamplayer \
+    --pidfile TP_DB/uwsgi.pid \
+    --daemonize2 /var/log/teamplayer/teamplayer.log \
+    -T
 
 # Start the Spin Doctor
-$PYTHON manage.py spindoctor --verbosity=2 $@ > "/var/log/teamplayer/teamplayer.log" 2>&1 &
+$PYTHON manage.py spindoctor --verbosity=2 $@ >> "/var/log/teamplayer/teamplayer.log" 2>&1 &
 echo $! > "TP_DB/tps.pid"

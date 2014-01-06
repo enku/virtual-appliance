@@ -7,19 +7,16 @@ PGVER = 9.3
 INSTALL = install
 AVAHI := NO
 
-M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB) -D TP_HOSTNAME=$(HOSTNAME)
+M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB) -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 
 inroot := chroot $(CHROOT)
 rcdefault := /etc/runlevels/default
 
 post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
-post_files += local.start local.stop issue lighttpd.conf teamplayer.service
+post_files += local.start local.stop issue nginx.conf teamplayer.service
 
 preinstall:
-	$(inroot) $(EMERGE) --select -n $(USEPKG) dev-lang/python:2.7
-	$(inroot) eselect python set python2.7
-	$(inroot) python-updater
 
 postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
 	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql-server:$(PGVER)
@@ -44,7 +41,7 @@ endif
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) virtualenv $(TP_HOME)
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install -e $(TP_HOME)/teamplayer"
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 flup Whoosh setproctitle"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 uwsgi Whoosh setproctitle"
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; django-admin.py startproject project $(TP_HOME)"
 	chmod +x $(CHROOT)/$(TP_HOME)/manage.py
 	$(inroot) ln -sf ../manage.py $(TP_HOME)/bin/manage
@@ -69,10 +66,10 @@ endif
 	$(inroot) chmod +x /etc/local.d/teamplayer.start
 	$(inroot) chmod +x /etc/local.d/teamplayer.stop
 	cp issue $(CHROOT)/etc/issue
-	$(M4C) lighttpd.conf > $(CHROOT)/etc/lighttpd/lighttpd.conf
-	$(inroot) gpasswd -a lighttpd teamplayer
+	$(M4C) nginx.conf > $(CHROOT)/etc/nginx/nginx.conf
+	$(inroot) gpasswd -a nginx teamplayer
 
-	$(inroot) ln -sf /etc/init.d/lighttpd $(rcdefault)/lighttpd
+	$(inroot) ln -sf /etc/init.d/nginx $(rcdefault)/nginx
 	$(inroot) ln -sf /etc/init.d/ntpd $(rcdefault)/ntpd
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 
