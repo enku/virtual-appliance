@@ -124,7 +124,7 @@ TEAMPLAYER = {
     'MPD_LOG': '/dev/null',
     'UPLOADED_LIBRARY_DIR': 'TP_HOME/library',
     'CROSSFADE': 5,
-    'SHAKE_THINGS_UP': 25,
+    'SHAKE_THINGS_UP': 10,
     'ALWAYS_SHAKE_THINGS_UP': True,
     'HTTP_PORT': 8000,
 }
