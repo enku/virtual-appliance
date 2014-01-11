@@ -1,0 +1,13 @@
+#!/bin/sh
+# this should be run as the airport user
+
+PYTHON=python
+PYTHONPATH=/var/airport ; export PYTHONPATH
+DJANGO_SETTINGS_MODULE="etc.settings" ; export DJANGO_SETTINGS_MODULE
+
+game_id=$1
+cd ~
+. bin/activate
+cd djangoproject
+
+$PYTHON manage.py gameserver --forcequit $1

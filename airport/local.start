@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+if [ ! -f /etc/firstboot ] ; then
+    echo Creating Airport database...
+    createuser -U postgres -D -l -R -S airport
+    createdb -U postgres -E utf8 -O airport airport
+fi
+
+su -c "/var/airport/bin/start-airport" airport
+
+touch /etc/firstboot

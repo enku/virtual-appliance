@@ -1,0 +1,29 @@
+#!/bin/sh
+# this should be run as the airport user
+
+PYTHON=python
+PYTHONPATH=/var/airport ; export PYTHONPATH
+DJANGO_SETTINGS_MODULE="etc.settings" ; export DJANGO_SETTINGS_MODULE
+
+cd ~
+. bin/activate
+cd djangoproject
+
+if [ ! -f "/etc/firstboot" ] ; then
+    $PYTHON manage.py syncdb --noinput --verbosity=0
+    $PYTHON manage.py collectstatic --noinput --verbosity=0
+fi
+
+# start the uwsgi daemon
+uwsgi --socket /var/airport/airport.sock \
+    --chmod=660 \
+    -w djangoproject.wsgi \
+    --uid airport \
+    --gid airport \
+    --pidfile /var/airport/uwsgi.pid \
+    --daemonize2 /var/airport/airport.log \
+    -T
+
+# Start the Game Server
+$PYTHON manage.py gameserver --verbosity=2 $@ > "/var/airport/gameserver.log" 2>&1 &
+echo $! > "/var/airport/gameserver.pid"

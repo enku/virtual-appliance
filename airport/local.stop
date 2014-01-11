@@ -1,0 +1,3 @@
+#!/bin/sh
+
+su -c "/var/airport/bin/stop-airport" airport

@@ -9,5 +9,6 @@ sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 sys-apps/portage python3 ipc
+sys-apps/openrc netifrc
 
 www-servers/nginx http                                                               
