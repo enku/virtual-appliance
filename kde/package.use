@@ -15,7 +15,7 @@ sys-libs/ncurses minimal
 app-misc/strigi dbus qt4
 app-text/poppler utils
 dev-libs/libxml2 python
-dev-libs/soprano raptor redland
+dev-libs/soprano dbus raptor redland virtuoso
 dev-libs/xmlrpc-c curl
 media-libs/phonon gstreamer
 media-libs/xine-lib vorbis xcb 
@@ -36,7 +36,7 @@ dev-qt/qtsql qt3support mysql
 dev-qt/qtsvg accessibility
 x11-libs/qt-webkit kde
 kde-base/kwin opengl
-kde-base/kdelibs opengl
+kde-base/kdelibs opengl semantic-desktop
 media-libs/gd png
 app-text/poppler qt4
 net-print/cups dbus
@@ -47,3 +47,6 @@ app-crypt/pinentry qt4
 media-libs/mesa python_targets_python2_7 python_single_target_python2_7
 kde-base/superkaramba python_targets_python2_7 python_single_target_python2_7
 dev-libs/boost threads
+sys-libs/zlib minizip
+app-office/akonadi-server sqlite
+kde-base/kig  python_targets_python2_7 python_single_target_python2_7

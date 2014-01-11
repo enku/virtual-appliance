@@ -1,7 +1,8 @@
 preinstall:
 
 postinstall: layman.cfg
-	PYTHON_TARGETS="python2_7" $(inroot) $(EMERGE) $(USEPKG) -1n layman git
+	PYTHON_TARGETS="python2_7 python3_3" $(inroot) $(EMERGE) $(USEPKG) -1n sys-apps/portage
+	PYTHON_TARGETS="python2_7" $(inroot) $(EMERGE) $(USEPKG) -1n app-portage/layman dev-vcs/git
 	cp layman.cfg "$(CHROOT)/etc/layman/layman.cfg"
 	grep layman $(CHROOT)/etc/portage/make.conf || \
 		echo "source /var/lib/layman/make.conf" >> $(CHROOT)/etc/portage/make.conf
