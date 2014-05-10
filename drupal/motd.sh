@@ -8,14 +8,14 @@ UDEV=$5
 DASH=$6
 ARCH=$7
 
-DPVER=7.10
+DPVER=7.27
 
 TZ=$TIMEZONE ; export TZ
 
 cat << EOF
 
  Before using this appliance, you must first configure Drupal, point your
- browser at http://${HOSTNAME}/ to configure.  The database name is "drupal"
- and the username is "drupal".  The DBMS is on localhost and requires no
- password. 
+ browser at http://${HOSTNAME}/ to configure.  The database name is
+ "drupal" and the username is "drupal".  The DBMS is on localhost and
+ requires no password. 
 EOF

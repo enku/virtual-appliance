@@ -1,4 +1,4 @@
-dev-db/postgresql-server:9.2
+dev-db/postgresql-server:9.3
 dev-php/pecl-uploadprogress
 mail-mta/ssmtp
 www-apps/drupal
