@@ -1,5 +1,5 @@
 #!/sbin/runscript
-# Copyright 2013 Marduk Enterprises (marduk@python.net)
+# Copyright 2013-2014 Marduk Enterprises (marduk@python.net)
 # Distributed under the terms of the GNU General Public License v2
 
 description="GUnicorn server for the dpaste app"
@@ -7,7 +7,7 @@ description="GUnicorn server for the dpaste app"
 depend() {
 	need localmount
     after nginx
-    after postgresql-9.2
+    after postgresql-9.3
 }
 
 

@@ -1,4 +1,4 @@
-PGVER = 9.2
+PGVER = 9.3
 DPASTE_USER = dpaste
 DPASTE_HOME = /opt/dpaste
 PIP = $(DPASTE_HOME)/bin/pip
