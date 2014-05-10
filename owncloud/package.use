@@ -1,6 +1,7 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
 net-misc/dhcp client
+sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
 sys-apps/portage python3 ipc

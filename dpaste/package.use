@@ -4,6 +4,7 @@ dev-libs/libpcre cxx
 dev-vcs/git curl
 net-misc/curl ssl curl_ssl_openssl
 net-misc/dhcp client
+sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
 sys-apps/portage python3 ipc

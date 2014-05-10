@@ -3,6 +3,7 @@ dev-lang/python ssl threads xml
 dev-libs/libpcre cxx
 net-misc/dhcp client
 net-misc/wget ssl
+sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
 sys-apps/portage python3 ipc

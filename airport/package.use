@@ -2,6 +2,7 @@ app-editors/nano ncurses
 dev-lang/python ssl threads xml
 dev-libs/libpcre cxx
 net-misc/dhcp client
+sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
 sys-devel/gcc cxx nptl

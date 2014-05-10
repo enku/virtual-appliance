@@ -3,6 +3,7 @@ dev-db/sqlite extensions
 dev-lang/python ssl sqlite threads xml
 dev-vcs/git curl
 net-misc/curl ssl threads curl_ssl_openssl
+sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/openrc netifrc
 sys-apps/portage python2
