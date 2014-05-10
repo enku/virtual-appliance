@@ -3,6 +3,7 @@ dev-db/mongodb v8
 dev-lang/python ssl threads xml
 dev-libs/boost threads
 dev-libs/libpcre cxx
+dev-util/scons python_targets_python2_7
 net-misc/dhcp client
 sys-apps/hwids udev
 sys-apps/kmod openrc tools
