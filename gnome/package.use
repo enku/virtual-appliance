@@ -4,40 +4,71 @@ sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
 sys-apps/portage python3 ipc
+sys-apps/systemd gudev kmod
 sys-devel/gcc cxx nptl
 sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
+virtual/udev gudev kmod
 
 # for gnome
+app-crypt/gcr gtk vala
+app-crypt/libsecret crypt  # wtf?
 app-crypt/pinentry gtk
 app-text/enchant hunspell
 app-text/poppler cairo
+dev-cpp/gtkmm X
 dev-db/sqlite extensions
+dev-lang/vala vapigen
+dev-libs/folks eds telepathy
+dev-libs/gjs cairo
+dev-libs/libpeas gtk
 dev-libs/libxml2 python
 dev-python/pygobject threads
-gnome-base/gconf gtk
+gnome-base/gconf gtk policykit
+gnome-base/gnome extras
 gnome-base/gnome-menus python
 gnome-base/gnome-panel bonobo
-gnome-base/gvfs cdda gdu udev
-gnome-extra/evolution-data-server ssl weather
+gnome-base/gnome-settings-daemon policykit udev
+gnome-base/gvfs cdda gdu gtk http udev udisks
+gnome-base/librsvg gtk
+gnome-extra/evolution-data-server gnome-online-accounts ssl vala weather
 mail-client/evolution ssl
-media-libs/libcanberra gtk
+media-libs/clutter gtk
+media-libs/cogl glib opengl pango
+media-libs/gst-plugins-base X pango
+media-libs/gst-plugins-base ogg theora vorbis
+media-libs/harfbuzz glib icu truetype
+media-libs/libcanberra gtk gtk3
 media-libs/libtheora encode
+media-libs/mesa gallium egl gles2 llvm nptl
 media-libs/swfdec gtk
+media-sound/pulseaudio glib udev
+net-dialup/ppp ipv6
+net-dns/avahi dbus
 net-libs/glib-networking ssl
+net-libs/gtk-vnc gtk3
 net-libs/libsoup gnome ssl
+net-libs/telepathy-glib vala
+net-libs/webkit-gtk gstreamer jit opengl webgl
 net-misc/curl ssl
+net-misc/dhcp client
+net-misc/networkmanager dhclient gnutls modemmanager ppp
+net-misc/vino avahi zlib
 net-print/cups dbus gnutls
 sys-apps/dbus X
 sys-apps/hwids udev
+sys-apps/systemd policykit
 sys-auth/consolekit policykit
 sys-auth/pambase consolekit
 sys-block/parted device-mapper
 sys-fs/udev gudev hwdb
 sys-power/upower deprecated
 virtual/udev gudev hwdb
-x11-libs/cairo glib svg X
+x11-apps/xinit minimal
+x11-base/xorg-server minimal nptl
+x11-libs/cairo glib svg X opengl
 x11-libs/gdk-pixbuf X jpeg
 x11-libs/gtk+ jpeg X
 x11-libs/pango X
+x11-themes/gnome-themes-standard gtk
