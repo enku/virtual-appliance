@@ -44,9 +44,6 @@ dev-python/PyQt4 X dbus declarative sql svg webkit
 sys-fs/udev hwdb gudev
 virtual/udev hwdb gudev
 app-crypt/pinentry qt4
-media-libs/mesa python_targets_python2_7 python_single_target_python2_7
-kde-base/superkaramba python_targets_python2_7 python_single_target_python2_7
 dev-libs/boost threads
 sys-libs/zlib minizip
 app-office/akonadi-server sqlite
-kde-base/kig  python_targets_python2_7 python_single_target_python2_7
