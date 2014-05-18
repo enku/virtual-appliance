@@ -1,9 +1,10 @@
 app-editors/nano ncurses
-dev-db/mongodb v8
+dev-db/mongodb ssl
 dev-lang/python ssl threads xml
 dev-libs/boost threads
 dev-libs/libpcre cxx
 dev-util/scons python_targets_python2_7
+net-misc/curl ssl
 net-misc/dhcp client
 sys-apps/hwids udev
 sys-apps/kmod openrc tools

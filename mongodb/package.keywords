@@ -2,4 +2,5 @@ app-arch/snappy **
 dev-db/mongodb **
 dev-libs/boost ~amd64 ~x86
 dev-util/boost-build ~amd64 ~x86
+dev-libs/snowball-stemmer ~amd64 ~x86
 sys-kernel/gentoo-sources ~amd64 ~x86
