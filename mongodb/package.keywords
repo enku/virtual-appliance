@@ -1,5 +1,5 @@
 app-arch/snappy **
 dev-db/mongodb **
-=dev-libs/boost-1.53* ~amd64 ~x86
-=dev-util/boost-build-1.53* ~amd64 ~x86
+dev-libs/boost ~amd64 ~x86
+dev-util/boost-build ~amd64 ~x86
 sys-kernel/gentoo-sources ~amd64 ~x86
