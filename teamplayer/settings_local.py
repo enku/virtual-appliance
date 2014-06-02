@@ -43,6 +43,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'teamplayer.middleware.TeamPlayerMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
