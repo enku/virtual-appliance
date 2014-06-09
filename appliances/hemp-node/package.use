@@ -2,6 +2,7 @@ app-editors/nano ncurses
 dev-db/sqlite extensions
 dev-lang/python ssl sqlite threads xml
 dev-vcs/git curl
+dev-vcs/mercurial python_targets_python2_7
 net-misc/curl ssl threads curl_ssl_openssl
 sys-apps/hwids udev
 sys-apps/kmod tools

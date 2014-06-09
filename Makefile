@@ -13,7 +13,7 @@ DISK_SIZE = 6.0G
 SWAP_SIZE = 30
 SWAP_FILE = $(CHROOT)/.swap
 ARCH = amd64
-KERNEL_CONFIG = kernel.config.$(ARCH)
+KERNEL_CONFIG = configs/kernel.config.$(ARCH)
 MAKEOPTS = -j10 -l10
 PRUNE_CRITICAL = NO
 REMOVE_PORTAGE_TREE = YES
@@ -36,13 +36,13 @@ USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 EMERGE_RSYNC = NO
 KERNEL = gentoo-sources
-PACKAGE_FILES = $(wildcard $(APPLIANCE)/package.*)
-WORLD = $(APPLIANCE)/world
+PACKAGE_FILES = $(wildcard appliances/$(APPLIANCE)/package.*)
+WORLD = appliances/$(APPLIANCE)/world
 EXTRA_WORLD =
-CRITICAL = $(APPLIANCE)/critical
+CRITICAL = appliances/$(APPLIANCE)/critical
 
 # Allow appliance to override variables
--include $(APPLIANCE)/$(APPLIANCE).cfg
+-include appliance/$(APPLIANCE)/$(APPLIANCE).cfg
 
 # Allow user to override variables
 -include $(profile).cfg
@@ -61,10 +61,10 @@ endif
 
 
 ifeq ($(PRUNE_CRITICAL),YES)
-	COPY_ARGS = --exclude-from=rsync-excludes \
-		--exclude-from=rsync-excludes-critical
+	COPY_ARGS = --exclude-from=configs/rsync-excludes \
+		--exclude-from=configs/rsync-excludes-critical
 else
-	COPY_ARGS = --exclude-from=rsync-excludes
+	COPY_ARGS = --exclude-from=configs/rsync-excludes
 endif
 
 ifeq ($(REMOVE_PORTAGE_TREE),YES)
@@ -92,7 +92,7 @@ $(RAW_IMAGE):
 	qemu-img create -f raw $(RAW_IMAGE) $(DISK_SIZE)
 
 partitions: $(RAW_IMAGE)
-	@./echo Creating partition layout
+	@scripts/echo Creating partition layout
 	parted -s $(RAW_IMAGE) mklabel gpt
 	parted -s $(RAW_IMAGE) mkpart primary 1 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE) set 1 boot on
@@ -103,7 +103,7 @@ partitions: $(RAW_IMAGE)
 	touch partitions
 
 mounts: stage3
-	@./echo Creating chroot in $(CHROOT)
+	@scripts/echo Creating chroot in $(CHROOT)
 	mkdir -p $(CHROOT)
 	if [ ! -e mounts ] ; then \
 		mount -t proc none $(CHROOT)/proc; \
@@ -113,21 +113,21 @@ mounts: stage3
 	touch mounts
 
 portage-snapshot.tar.bz2:
-	@./echo You do not have a portage snapshot. Consider \"make sync_portage\"
+	@scripts/echo You do not have a portage snapshot. Consider \"make sync_portage\"
 	@exit 1
 
 
 sync_portage:
-	@./echo Grabbing latest portage snapshot
+	@scripts/echo Grabbing latest portage snapshot
 	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-snapshot.tar.bz2
 
 
 portage: portage-snapshot.tar.bz2 stage3
-	@./echo Unpacking portage snapshot
+	@scripts/echo Unpacking portage snapshot
 	rm -rf $(CHROOT)/usr/portage
 	tar xf portage-snapshot.tar.bz2 -C $(CHROOT)/usr
 ifeq ($(EMERGE_RSYNC),YES)
-	@./echo Syncing portage tree
+	@scripts/echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
 endif
 ifdef PKGDIR
@@ -136,16 +136,16 @@ ifdef PKGDIR
 endif
 	touch portage
 
-preproot: stage3 mounts portage fstab
+preproot: stage3 mounts portage configs/fstab
 	cp -L /etc/resolv.conf $(CHROOT)/etc/
 	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
-	cp fstab $(CHROOT)/etc/fstab
+	cp configs/fstab $(CHROOT)/etc/fstab
 	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
 	echo $(HOSTNAME) > $(CHROOT)/etc/hostname
 	touch preproot
 
 stage3-$(ARCH)-latest.tar.bz2:
-	@./echo You do not have a portage stage3 tarball. Consider \"make sync_stage3\"
+	@scripts/echo You do not have a portage stage3 tarball. Consider \"make sync_stage3\"
 	@exit 1
 
 sync_stage3:
@@ -156,23 +156,23 @@ sync_stage3:
 stage3: stage3-$(ARCH)-latest.tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
-	@./echo Using stage4 tarball: $(STAGE4_TARBALL)
+	@scripts/echo Using stage4 tarball: $(STAGE4_TARBALL)
 	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
-	@./echo Using stage3 tarball
+	@scripts/echo Using stage3 tarball
 	tar xpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
 	touch stage3
 
-compile_options: portage make.conf.$(ARCH) locale.gen $(PACKAGE_FILES)
-	cp make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
+compile_options: portage configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
+	cp configs/make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
 ifdef PKGDIR
 	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/portage/make.conf
 endif
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
-	-[ -f "$(APPLIANCE)/make.conf" ] && cat "$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
+	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
 	$(inroot) eselect profile set 1
-	cp locale.gen $(CHROOT)/etc/locale.gen
+	cp configs/locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
 	mkdir -p $(CHROOT)/etc/portage
 ifdef PACKAGE_FILES
@@ -183,13 +183,13 @@ endif
 base_system: mounts compile_options
 	touch base_system
 
-kernel: base_system $(KERNEL_CONFIG) kernel.sh
+kernel: base_system $(KERNEL_CONFIG) scripts/kernel.sh
 	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
 	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
 ifneq ($(EXTERNAL_KERNEL),YES)
-	@./echo Configuring kernel
+	@scripts/echo Configuring kernel
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
-	cp kernel.sh $(CHROOT)/tmp/kernel.sh
+	cp scripts/kernel.sh $(CHROOT)/tmp/kernel.sh
 	KERNEL=$(KERNEL) EMERGE="$(EMERGE)" USEPKG="$(USEPKG)" MAKEOPTS="$(MAKEOPTS)" \
 	   $(inroot) /bin/sh /tmp/kernel.sh
 	rm -f $(CHROOT)/tmp/kernel.sh
@@ -198,20 +198,18 @@ endif
 
 $(SWAP_FILE): preproot
 ifneq ($(SWAP_SIZE),0)
-	@./echo Creating swap file: $(SWAP_FILE)
+	@scripts/echo Creating swap file: $(SWAP_FILE)
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
 else
 	sed -i '/swap/d' $(CHROOT)/etc/fstab
 endif
 
-sysconfig: preproot acpi.start $(SWAP_FILE)
+sysconfig: preproot scripts/acpi.start $(SWAP_FILE)
 	@echo $(VIRTIO)
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
 	sed -i 's:clock_hctosys="YES":clock_hctosys="NO":g' "$(CHROOT)/etc/conf.d/hwclock"
-	sed -i '/^rc_sys=/d' "$(CHROOT)/etc/rc.conf"
-	echo 'rc_sys=""' >> "$(CHROOT)/etc/rc.conf"
 endif
 ifeq ($(HEADLESS),YES)
 	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
@@ -225,11 +223,11 @@ endif
 	$(inroot) ln -nsf net.lo /etc/init.d/net.eth0
 	$(inroot) ln -nsf /etc/init.d/net.eth0 /etc/runlevels/default/net.eth0
 	$(inroot) rm -f /etc/runlevels/boot/consolefont
-	cp -a acpi.start $(CHROOT)/etc/local.d
+	cp -a scripts/acpi.start $(CHROOT)/etc/local.d
 	touch sysconfig
 
 systools: sysconfig compile_options
-	@./echo Installing standard system tools
+	@scripts/echo Installing standard system tools
 	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/metalog
 	$(inroot) /sbin/rc-update add metalog default
 ifeq ($(DASH),YES)
@@ -242,24 +240,24 @@ ifeq ($(DASH),YES)
 endif
 	touch systools
 
-grub: stage3 grub.conf kernel
+grub: stage3 configs/grub.conf kernel scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
-	@./echo Installing Grub
+	@scripts/echo Installing Grub
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
-	cp grub.conf $(CHROOT)/boot/grub/grub.conf
+	cp configs/grub.conf $(CHROOT)/boot/grub/grub.conf
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.conf
 endif
 ifeq ($(HEADLESS),YES)
-	sed -i -f grub-headless.sed $(CHROOT)/boot/grub/grub.conf
+	sed -i -f scripts/grub-headless.sed $(CHROOT)/boot/grub/grub.conf
 endif
 endif
 	touch grub
 
-build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
-	@./echo Building $(APPLIANCE)-specific software
-	$(MAKE) -C $(APPLIANCE) preinstall
-	cp etc-update.conf $(CHROOT)/etc/
+build-software: systools configs/issue configs/etc-update.conf $(CRITICAL) $(WORLD)
+	@scripts/echo Building $(APPLIANCE)-specific software
+	$(MAKE) -C appliances/$(APPLIANCE) preinstall
+	cp configs/etc-update.conf $(CHROOT)/etc/
 	
 	if test `stat -c "%s" $(WORLD)` -ne 0 ; then \
 		$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD); \
@@ -268,17 +266,17 @@ build-software: systools issue etc-update.conf $(CRITICAL) $(WORLD)
 	fi
 	$(gcc_config)
 	
-	@./echo Running revdep-rebuild
+	@scripts/echo Running revdep-rebuild
 	# Need gentoolkit to run revdep-rebuild
 	$(inroot) emerge $(USEPKG) @preserved-rebuild
 	
-	cp issue $(CHROOT)/etc/issue
+	cp configs/issue $(CHROOT)/etc/issue
 	$(gcc_config)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	$(gcc_config)
 	EDITOR=/usr/bin/nano $(inroot) etc-update
-	$(MAKE) -C $(APPLIANCE) postinstall
+	$(MAKE) -C appliances/$(APPLIANCE) postinstall
 ifeq ($(UDEV),NO)
 	rm -f $(CHROOT)/etc/runlevels/sysinit/udev
 	$(inroot) $(EMERGE) -c sys-fs/udev
@@ -309,27 +307,27 @@ endif
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: $(STAGE4_TARBALL) partitions device-map grub.shell motd.sh
-	@./echo Installing files to $(RAW_IMAGE) 
+image: $(STAGE4_TARBALL) partitions device-map scripts/grub.shell scripts/motd.sh
+	@scripts/echo Installing files to $(RAW_IMAGE) 
 	mkdir -p loop
 	mount -o noatime $(NBD_DEV)p1 loop
 	tar -Sxf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C loop
-	./motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
+	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
-	loop/sbin/grub --device-map=device-map --no-floppy --batch < grub.shell
+	loop/sbin/grub --device-map=device-map --no-floppy --batch < scripts/grub.shell
 endif
 	umount -l loop
 	rmdir loop
 	qemu-nbd -d $(NBD_DEV)
 
 $(QCOW_IMAGE): image
-	@./echo Creating $(QCOW_IMAGE)
+	@scripts/echo Creating $(QCOW_IMAGE)
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
 $(XVA_IMAGE): image
-	@./echo Creating $(XVA_IMAGE)
+	@scripts/echo Creating $(XVA_IMAGE)
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE)
 
@@ -337,13 +335,13 @@ xva: $(XVA_IMAGE)
 
 
 $(VMDK_IMAGE): image
-	@./echo Creating $(VMDK_IMAGE)
+	@scripts/echo Creating $(VMDK_IMAGE)
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-stage4: software kernel rsync-excludes rsync-excludes-critical grub
-	@./echo Creating stage4 tarball: $(STAGE4_TARBALL)
+stage4: software kernel configs/rsync-excludes configs/rsync-excludes-critical grub
+	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p stage4
 	mkdir -p gentoo
 	mount -o bind $(CHROOT) gentoo
@@ -357,7 +355,7 @@ $(STAGE4_TARBALL):
 
 
 umount: 
-	@./echo Attempting to unmount chroot mounts
+	@scripts/echo Attempting to unmount chroot mounts
 ifdef PKGDIR
 	umount -l $(CHROOT)/var/portage/packages
 endif
@@ -384,8 +382,12 @@ distclean:
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
 	rm -f portage-snapshot.tar.bz2
 
+appliance-list:
+	@scripts/echo 'Available appliances:'
+	@/bin/ls appliances
+
 help:
-	@./echo 'Help targets (this is not a comprehensive list)'
+	@scripts/echo 'Help targets (this is not a comprehensive list)'
 	@echo
 	@echo 'sync_portage             - Download the latest portage snapshot'
 	@echo 'sync_stage3              - Download the latest stage3 tarball'
@@ -393,12 +395,14 @@ help:
 	@echo 'software                 - Build software into a chroot'
 	@echo 'clean                    - Unmount chroot and clean directory'
 	@echo 'realclean                - Clean and remove image files'
-	@./echo 'Images'
+	@scripts/echo 'Images'
 	@echo 'image                    - Build a raw VM image from stage4'
 	@echo 'qcow                     - Build a qcow VM image from a raw image'
 	@echo 'vmdk                     - Build a vmdk image from a raw image'
 	@echo 'xva                      - Build an xva image from a raw image'
-	@./echo 'Variables'
+	@echo 'appliance-list           - List built-in appliances'
+	@echo 'help                     - Show this help'
+	@scripts/echo 'Variables'
 	@echo 'APPLIANCE=               - The appliance to build'
 	@echo 'HOSTNAME=                - Hostname to give appliance'
 	@echo 'TIMEZONE=                - Timezone to set for the appliance'
@@ -414,7 +418,7 @@ help:
 	@echo 'NBD_DEV=/dev/nbd0        - NBD device to use when manipulating images'
 	@echo 'ENABLE_SSHD=YES          - Enable sshd to start automatically in the image'
 	@echo
-	@./echo 'Example'
+	@scripts/echo 'Example'
 	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
 
-.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software image stage4 help
+.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software image stage4 help appliance-list
