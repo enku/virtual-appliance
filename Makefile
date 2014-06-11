@@ -31,7 +31,6 @@ M4 = m4
 EMERGE = /usr/bin/emerge --jobs=4
 M4_DEFS = -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
-NBD_DEV = /dev/nbd0
 USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 EMERGE_RSYNC = NO
@@ -84,7 +83,7 @@ gcc_config = $(inroot) gcc-config 1
 export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C inroot
 export HOSTNAME MAKEOPTS PRUNE_CRITICAL TIMEZONE USEPKG WORLD OVERLAY
 
-unexport PKGDIR ARCH NBD_DEV 
+unexport PKGDIR ARCH 
 
 all: image
 
@@ -97,10 +96,10 @@ partitions: $(RAW_IMAGE)
 	parted -s $(RAW_IMAGE) mkpart primary 1 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE) set 1 boot on
 
-	qemu-nbd -c $(NBD_DEV) "`realpath $(RAW_IMAGE)`"
-	sleep 3
-	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root -m 0 $(NBD_DEV)p1
-	touch partitions
+	losetup --show --find --partscan $(RAW_IMAGE) > partitions.tmp
+	mv partitions.tmp partitions
+	sync
+	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root -m 0 `cat partitions`p1
 
 mounts: stage3
 	@scripts/echo Creating chroot in $(CHROOT)
@@ -310,7 +309,7 @@ device-map: $(RAW_IMAGE)
 image: $(STAGE4_TARBALL) partitions device-map scripts/grub.shell scripts/motd.sh
 	@scripts/echo Installing files to $(RAW_IMAGE) 
 	mkdir -p loop
-	mount -o noatime $(NBD_DEV)p1 loop
+	mount -o noatime `cat partitions`p1 loop
 	tar -Sxf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C loop
 	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
@@ -318,7 +317,8 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 endif
 	umount -l loop
 	rmdir loop
-	qemu-nbd -d $(NBD_DEV)
+	sync
+	losetup --detach `cat partitions`
 
 $(QCOW_IMAGE): image
 	@scripts/echo Creating $(QCOW_IMAGE)
@@ -415,7 +415,6 @@ help:
 	@echo 'HEADLESS=YES             - Build a headless (serial console) image.'
 	@echo 'REMOVE_PORTAGE_TREE=NO   - Do not exclude the portage tree from the image'
 	@echo 'PKGDIR=                  - Directory to use/store binary packages'
-	@echo 'NBD_DEV=/dev/nbd0        - NBD device to use when manipulating images'
 	@echo 'ENABLE_SSHD=YES          - Enable sshd to start automatically in the image'
 	@echo
 	@scripts/echo 'Example'
