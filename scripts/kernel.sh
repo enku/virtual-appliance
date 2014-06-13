@@ -27,6 +27,7 @@ rm -rf /lib/modules/*
 make ${MAKEOPTS} modules_install
 rm -f /boot/vmlinuz*
 make ${MAKEOPTS} install
+make ${MAKEOPTS} mrproper
 cd /boot
 k=`/bin/ls -1 vmlinuz-*`
 ln -nsf $k vmlinuz
