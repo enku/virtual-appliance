@@ -17,7 +17,7 @@ then
     exit
 fi
 
-${EMERGE} ${USEPKG} sys-kernel/${KERNEL}
+${EMERGE} ${USEPKG} -Nn sys-kernel/${KERNEL}
 cp /root/kernel.config /usr/src/linux/.config
 gcc-config 1
 cd /usr/src/linux
