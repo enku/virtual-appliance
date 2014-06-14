@@ -27,9 +27,9 @@ rm -rf /lib/modules/*
 make ${MAKEOPTS} modules_install
 rm -f /boot/vmlinuz*
 make ${MAKEOPTS} install
+cp -a /usr/src/linux/.config /root/kernel.config
 make ${MAKEOPTS} mrproper
 cd /boot
 k=`/bin/ls -1 vmlinuz-*`
 ln -nsf $k vmlinuz
-cp -a /usr/src/linux/.config /root/kernel.config
 ${EMERGE} --depclean
