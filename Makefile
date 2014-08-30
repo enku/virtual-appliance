@@ -319,6 +319,7 @@ endif
 	rmdir loop
 	sync
 	losetup --detach `cat partitions`
+	rm -f partitions device-map
 
 $(QCOW_IMAGE): image
 	@scripts/echo Creating $(QCOW_IMAGE)
@@ -340,7 +341,7 @@ $(VMDK_IMAGE): image
 
 vmdk: $(VMDK_IMAGE)
 
-stage4: software kernel configs/rsync-excludes configs/rsync-excludes-critical grub
+build_stage4: software kernel configs/rsync-excludes configs/rsync-excludes-critical grub
 	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p stage4
 	mkdir -p gentoo
@@ -349,6 +350,9 @@ stage4: software kernel configs/rsync-excludes configs/rsync-excludes-critical g
 	umount gentoo
 	rmdir gentoo
 	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
+
+stage4: build_stage4 clean
+
 
 $(STAGE4_TARBALL):
 	stage4
@@ -366,7 +370,7 @@ endif
 
 remove_checkpoints:
 	rm -f mounts compile_options base_system portage sync_portage
-	rm -f parted kernel grub stage3 software preproot sysconfig systools partitions device-map
+	rm -f parted kernel grub stage3 software preproot sysconfig systools
 
 clean: umount remove_checkpoints
 	rm -f umount
