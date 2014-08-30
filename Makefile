@@ -267,8 +267,7 @@ build-software: systools configs/issue configs/etc-update.conf $(CRITICAL) $(WOR
 	$(gcc_config)
 	
 	@scripts/echo Running revdep-rebuild
-	# Need gentoolkit to run revdep-rebuild
-	$(inroot) emerge $(USEPKG) @preserved-rebuild
+	$(inroot) emerge @preserved-rebuild
 	
 	cp configs/issue $(CHROOT)/etc/issue
 	$(gcc_config)
