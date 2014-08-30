@@ -1,6 +1,7 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
 dev-libs/libpcre cxx
+dev-util/pkgconfig internal-glib
 dev-vcs/git curl
 net-misc/curl ssl curl_ssl_openssl
 net-misc/dhcp client

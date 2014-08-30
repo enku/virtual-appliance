@@ -1,5 +1,6 @@
 app-editors/nano ncurses
 dev-lang/python ssl threads xml
+dev-util/pkgconfig internal-glib
 net-misc/dhcp client
 sys-apps/hwids udev
 sys-apps/kmod openrc tools

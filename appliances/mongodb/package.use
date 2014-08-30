@@ -3,6 +3,7 @@ dev-db/mongodb ssl
 dev-lang/python ssl threads xml
 dev-libs/boost threads
 dev-libs/libpcre cxx
+dev-util/pkgconfig internal-glib
 dev-util/scons python_targets_python2_7
 net-misc/curl ssl
 net-misc/dhcp client

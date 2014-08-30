@@ -1,5 +1,6 @@
 dev-lang/python ssl xml
 dev-libs/libxml2 python
+dev-util/pkgconfig internal-glib
 sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc

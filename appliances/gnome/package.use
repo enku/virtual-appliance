@@ -1,5 +1,6 @@
 app-editors/nano ncurses
 dev-lang/python ssl sqlite threads xml
+dev-util/pkgconfig internal-glib
 sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc

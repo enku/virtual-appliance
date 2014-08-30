@@ -2,6 +2,7 @@ app-editors/nano ncurses
 dev-db/sqlite extensions
 dev-lang/python ssl sqlite threads xml
 dev-libs/libxml2 python
+dev-util/pkgconfig internal-glib
 media-libs/harfbuzz glib truetype
 media-libs/libpng apng
 media-libs/libvpx threads
