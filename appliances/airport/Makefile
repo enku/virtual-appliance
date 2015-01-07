@@ -1,7 +1,7 @@
 APP_ROOT := /var/airport
 AIRPORT_REPO ?= https://bitbucket.org/marduk/airport
 AIRPORT_BRANCH ?= default
-PGVER := 9.3
+PGVER := 9.4
 
 rcdefault := /etc/runlevels/default
 
@@ -12,7 +12,7 @@ postinstall: airport.service settings.py local.start local.stop issue nginx.conf
 	sed -i 's/^PG_INITDB_OPTS.*/PG_INITDB_OPTS="--locale=en_US.UTF-8"/' $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
-	yes | $(inroot) $(EMERGE) --config postgresql-server:$(PGVER)
+	yes | $(inroot) $(EMERGE) --config postgresql:$(PGVER)
 	$(inroot) rc-update add postgresql-$(PGVER) default
 	$(inroot) chsh -s /bin/sh postgres
 	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv

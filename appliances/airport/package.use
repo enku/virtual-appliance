@@ -13,4 +13,5 @@ sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 
+dev-db/postgresql server
 www-servers/nginx http                                                               
