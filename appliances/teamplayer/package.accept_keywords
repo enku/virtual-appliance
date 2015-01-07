@@ -1,4 +1,4 @@
-dev-db/postgresql-base
-dev-db/postgresql-server
+dev-db/postgresql
+dev-python/virtualenv
 sys-kernel/gentoo-sources
 virtual/python-imaging

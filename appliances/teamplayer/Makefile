@@ -3,7 +3,7 @@ TP_BRANCH ?= default
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
-PGVER = 9.3
+PGVER = 9.4
 INSTALL = install
 AVAHI := NO
 
@@ -19,12 +19,12 @@ post_files += local.start local.stop issue nginx.conf teamplayer.service
 preinstall:
 
 postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
-	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql-server:$(PGVER)
+	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql:$(PGVER)
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
-	yes | $(inroot) $(EMERGE) --config postgresql-server:$(PGVER)
+	yes | $(inroot) $(EMERGE) --config postgresql:$(PGVER)
 	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
