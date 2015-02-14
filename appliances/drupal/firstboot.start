@@ -1,9 +1,0 @@
-#!/bin/sh
-
-DPVER=7.27
-
-echo Configuring Postgres for Drupal
-createuser --no-adduser --no-createdb --no-createrole -U postgres drupal
-createdb --encoding=UNICODE --owner=drupal -U postgres drupal
-
-mv /etc/local.d/firstboot.start /etc/local.d/firstboot.start.disabled
