@@ -11,7 +11,7 @@ latest=/releases/${g_arch}/autobuilds/latest-stage3.txt
 
 ${rsync} ${RSYNC_MIRROR}${latest} latest-stage3.txt
 file=$(egrep -v 'nomultilib|hardened|uclibc|^#' latest-stage3.txt \
-       | grep ${arch}|head -n 1 \
+       | grep -E ${arch}\|i686 |head -n 1 \
        | cut -d ' ' -f 1)
 
 file=/releases/${g_arch}/autobuilds/${file}
