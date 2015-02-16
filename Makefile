@@ -149,8 +149,7 @@ stage3-$(ARCH)-latest.tar.bz2:
 	@exit 1
 
 sync_stage3:
-	rsync --no-motd $(RSYNC_MIRROR)/releases/`echo $(ARCH)|sed 's/i.86/x86/'`/autobuilds/latest-stage3.txt latest-stage3.txt
-	rsync --no-motd $(RSYNC_MIRROR)/releases/$(ARCH)/autobuilds/$$(grep stage3-$$(echo $(ARCH)|sed 's/x86/i686/')-[0-9]*\.tar\.bz2 latest-stage3.txt) stage3-$(ARCH)-latest.tar.bz2
+	./scripts/sync-stage3.sh $(ARCH)
 
 
 stage3: stage3-$(ARCH)-latest.tar.bz2
