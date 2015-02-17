@@ -9,7 +9,7 @@ media-video/ffmpeg avx cpudetection mmx mmxext mp3 network ssse3 x264
 sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc
-sys-apps/portage python3 ipc
+sys-apps/portage ipc
 sys-devel/gcc cxx nptl
 sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
