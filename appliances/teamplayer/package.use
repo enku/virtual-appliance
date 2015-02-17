@@ -16,3 +16,6 @@ sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 virtual/ffmpeg x264 mp3
 www-servers/nginx http                                                               
+
+# needed by ntp (bug #533548)
+dev-libs/libevent threads
