@@ -127,6 +127,7 @@ TEAMPLAYER = {
     'CROSSFADE': 5,
     'SHAKE_THINGS_UP': 10,
     'ALWAYS_SHAKE_THINGS_UP': True,
+    'AUTOFILL_STRATEGY': 'mood',
     'HTTP_PORT': 8000,
 }
 
