@@ -1,6 +1,6 @@
 app-editors/leafpad
 app-office/orage
-www-client/firefox
+www-client/firefox-bin
 x11-apps/xdm
 x11-apps/xrandr
 x11-terms/xfce4-terminal
