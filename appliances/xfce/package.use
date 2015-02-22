@@ -3,16 +3,16 @@ dev-db/sqlite extensions
 dev-lang/python ssl sqlite threads xml
 dev-libs/libxml2 python
 dev-util/pkgconfig internal-glib
+gnome-base/gvfs udev udisks
 media-libs/harfbuzz glib truetype
 media-libs/libpng apng
 media-libs/libvpx threads
-net-misc/dhcp client
 sys-apps/hwids udev
-sys-apps/kmod openrc tools
-sys-apps/openrc netifrc
+sys-apps/kmod tools
 sys-apps/portage python3 ipc
+sys-apps/systemd gudev
 sys-devel/gcc cxx nptl
-sys-fs/udev gudev openrc
+sys-fs/udev gudev
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 www-client/firefox bindist

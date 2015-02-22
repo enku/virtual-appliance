@@ -10,7 +10,6 @@ AVAHI := NO
 M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB) -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 
-inroot := chroot $(CHROOT)
 rcdefault := /etc/runlevels/default
 
 post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
@@ -24,13 +23,13 @@ postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
-	yes | $(inroot) $(EMERGE) --config postgresql:$(PGVER)
-	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
+	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
+	$(inroot) systemctl enable postgresql-$(PGVER).service
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
 	cp teamplayer.service $(CHROOT)/etc/avahi/services
-	$(inroot) ln -sf /etc/init.d/avahi-daemon $(rcdefault)/avahi-daemon
+	$(inroot) systemctl enable avahi-daemon.service
 endif
 	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
 	$(inroot) getent passwd $(TP_USER) || \
@@ -69,8 +68,8 @@ endif
 	$(M4C) nginx.conf > $(CHROOT)/etc/nginx/nginx.conf
 	$(inroot) gpasswd -a nginx teamplayer
 
-	$(inroot) ln -sf /etc/init.d/nginx $(rcdefault)/nginx
-	$(inroot) ln -sf /etc/init.d/ntpd $(rcdefault)/ntpd
+	$(inroot) systemctl enable nginx.service
+	#$(inroot) ln -sf /etc/init.d/ntpd $(rcdefault)/ntpd
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 
 clean:

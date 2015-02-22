@@ -12,8 +12,8 @@ postinstall: airport.service settings.py local.start local.stop issue nginx.conf
 	sed -i 's/^PG_INITDB_OPTS.*/PG_INITDB_OPTS="--locale=en_US.UTF-8"/' $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
-	yes | $(inroot) $(EMERGE) --config postgresql:$(PGVER)
-	$(inroot) rc-update add postgresql-$(PGVER) default
+	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
+	$(inroot) systemctl enable postgresql-$(PGVER)
 	$(inroot) chsh -s /bin/sh postgres
 	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
 	rm -rf $(CHROOT)/$(APP_ROOT)
@@ -40,12 +40,12 @@ endif
 	cp issue $(CHROOT)/etc/issue
 	$(M4) -D HOSTNAME=$(HOSTNAME) nginx.conf > $(CHROOT)/etc/nginx/nginx.conf
 	$(inroot) gpasswd -a nginx airport
-	$(inroot) ln -sf /etc/init.d/nginx $(rcdefault)/nginx
+	$(inroot) systemctl enable nginx
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
 	cp airport.service $(CHROOT)/etc/avahi/services
-	$(inroot) ln -sf /etc/init.d/avahi-daemon $(rcdefault)/avahi-daemon
+	$(inroot) systemctl enable avahi-daemon
 endif
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 

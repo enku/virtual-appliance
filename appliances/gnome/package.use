@@ -2,12 +2,10 @@ app-editors/nano ncurses
 dev-lang/python ssl sqlite threads xml
 dev-util/pkgconfig internal-glib
 sys-apps/hwids udev
-sys-apps/kmod openrc tools
-sys-apps/openrc netifrc
+sys-apps/kmod tools
 sys-apps/portage python3 ipc
 sys-apps/systemd gudev kmod
 sys-devel/gcc cxx nptl
-sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 sys-libs/ncurses minimal
 virtual/udev gudev kmod
@@ -25,6 +23,7 @@ dev-libs/folks eds telepathy
 dev-libs/gjs cairo
 dev-libs/libpeas gtk
 dev-libs/libxml2 python
+dev-libs/nettle gmp
 dev-python/pygobject threads
 gnome-base/gconf gtk policykit
 gnome-base/gnome extras
@@ -37,6 +36,7 @@ gnome-extra/evolution-data-server gnome-online-accounts ssl vala weather
 mail-client/evolution ssl
 media-libs/clutter gtk
 media-libs/cogl glib opengl pango
+media-libs/grilo network playlist
 media-libs/gst-plugins-base X pango
 media-libs/gst-plugins-base ogg theora vorbis
 media-libs/harfbuzz glib icu truetype
@@ -47,14 +47,15 @@ media-libs/swfdec gtk
 media-sound/pulseaudio glib udev
 net-dialup/ppp ipv6
 net-dns/avahi dbus
+net-misc/dhcp client
 net-libs/glib-networking ssl
 net-libs/gtk-vnc gtk3
+net-libs/liboauth nss
 net-libs/libsoup gnome ssl
 net-libs/telepathy-glib vala
-net-libs/webkit-gtk gstreamer jit opengl webgl
+net-libs/webkit-gtk X gstreamer jit opengl webgl
 net-misc/curl ssl
-net-misc/dhcp client
-net-misc/networkmanager dhclient gnutls modemmanager ppp
+net-misc/networkmanager dhclient modemmanager nss ppp
 net-misc/vino avahi zlib
 net-print/cups dbus gnutls
 sys-apps/dbus X

@@ -1,11 +1,11 @@
-vabuild\/.*
+build\/.*
 loop\/.*
-^stage4
-.*\.swp$
+packages\/.*
+portage\/.*
+distfiles\/.*
+^images\/.*
 .*\.cfg
 latest-stage3\.txt
 portage-snapshot\.tar\.bz2
 stage3-.*-latest\.tar\.bz2
 \.lst$
-.*\.qcow
-.*\.vmdk.bz2

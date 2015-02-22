@@ -1,12 +1,16 @@
-CHROOT = $(CURDIR)/vabuild
 APPLIANCE ?= base
+CHROOT = $(CURDIR)/build
+PKGDIR = $(CURDIR)/packages
+DISTDIR = $(CURDIR)/distfiles
+PORTAGE_DIR = $(CURDIR)/portage
 HOSTNAME = $(APPLIANCE)
-RAW_IMAGE = $(APPLIANCE).img
-QCOW_IMAGE = $(APPLIANCE).qcow
-VMDK_IMAGE = $(APPLIANCE).vmdk
-XVA_IMAGE = $(APPLIANCE).xva
-LST_FILE = $(APPLIANCE)-packages.lst
-STAGE4_TARBALL = stage4/$(APPLIANCE).tar.xz
+IMAGES = $(CURDIR)/images
+RAW_IMAGE = $(IMAGES)/$(APPLIANCE).img
+QCOW_IMAGE = $(IMAGES)/$(APPLIANCE).qcow
+VMDK_IMAGE = $(IMAGES)/$(APPLIANCE).vmdk
+XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
+LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
+STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
 DISK_SIZE = 6.0G
@@ -14,14 +18,11 @@ SWAP_SIZE = 30
 SWAP_FILE = $(CHROOT)/.swap
 ARCH = amd64
 KERNEL_CONFIG = configs/kernel.config.$(ARCH)
-MAKEOPTS = -j10 -l10
-PRUNE_CRITICAL = NO
-REMOVE_PORTAGE_TREE = YES
+MAKEOPTS = -j5 -l5.64
 ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
 HEADLESS = NO
 EXTERNAL_KERNEL = NO
-UDEV = YES
 SOFTWARE = 1
 PKGLIST = 0
 ACCEPT_KEYWORDS = amd64
@@ -38,7 +39,6 @@ KERNEL = gentoo-sources
 PACKAGE_FILES = $(wildcard appliances/$(APPLIANCE)/package.*)
 WORLD = appliances/$(APPLIANCE)/world
 EXTRA_WORLD =
-CRITICAL = appliances/$(APPLIANCE)/critical
 
 # Allow appliance to override variables
 -include appliance/$(APPLIANCE)/$(APPLIANCE).cfg
@@ -46,7 +46,13 @@ CRITICAL = appliances/$(APPLIANCE)/critical
 # Allow user to override variables
 -include $(profile).cfg
 
-inroot := chroot $(CHROOT)
+inroot := systemd-nspawn --quiet \
+	--directory=$(CHROOT) \
+	--machine=$(APPLIANCE)-build \
+	--bind=$(PORTAGE_DIR):/usr/portage \
+	--bind=$(PKGDIR):/usr/portage/packages \
+	--bind=$(DISTDIR):/usr/portage/distfiles 
+
 ifeq ($(ARCH),x86)
 	inroot := linux32 $(inroot)
 endif
@@ -59,16 +65,7 @@ ifneq ($(SOFTWARE),0)
 endif
 
 
-ifeq ($(PRUNE_CRITICAL),YES)
-	COPY_ARGS = --exclude-from=configs/rsync-excludes \
-		--exclude-from=configs/rsync-excludes-critical
-else
-	COPY_ARGS = --exclude-from=configs/rsync-excludes
-endif
-
-ifeq ($(REMOVE_PORTAGE_TREE),YES)
-	COPY_ARGS += --exclude=usr/portage
-endif
+COPY_ARGS = --exclude-from=configs/rsync-excludes
 
 ifeq ($(CHANGE_PASSWORD),YES)
 	ifdef ROOT_PASSWORD
@@ -81,7 +78,7 @@ endif
 gcc_config = $(inroot) gcc-config 1
 
 export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C inroot
-export HOSTNAME MAKEOPTS PRUNE_CRITICAL TIMEZONE USEPKG WORLD OVERLAY
+export HOSTNAME MAKEOPTS TIMEZONE USEPKG WORLD 
 export USEPKG RSYNC_MIRROR
 
 unexport PKGDIR ARCH 
@@ -89,7 +86,8 @@ unexport PKGDIR ARCH
 all: image
 
 $(RAW_IMAGE):
-	qemu-img create -f raw $(RAW_IMAGE) $(DISK_SIZE)
+	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
+	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
 
 partitions: $(RAW_IMAGE)
 	@scripts/echo Creating partition layout
@@ -102,16 +100,6 @@ partitions: $(RAW_IMAGE)
 	sync
 	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root -m 0 `cat partitions`p1
 
-mounts: stage3
-	@scripts/echo Creating chroot in $(CHROOT)
-	mkdir -p $(CHROOT)
-	if [ ! -e mounts ] ; then \
-		mount -t proc none $(CHROOT)/proc; \
-		mount -o rbind /dev $(CHROOT)/dev; \
-		mount -o bind /var/tmp $(CHROOT)/var/tmp; \
-	fi
-	touch mounts
-
 portage-snapshot.tar.bz2:
 	@scripts/echo You do not have a portage snapshot. Consider \"make sync_portage\"
 	@exit 1
@@ -122,30 +110,24 @@ sync_portage:
 	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-snapshot.tar.bz2
 
 
-portage: portage-snapshot.tar.bz2 stage3
+$(PORTAGE_DIR): portage-snapshot.tar.bz2
 	@scripts/echo Unpacking portage snapshot
-	rm -rf $(CHROOT)/usr/portage
-	tar xf portage-snapshot.tar.bz2 -C $(CHROOT)/usr
+	rm -rf $(PORTAGE_DIR)
+	mkdir $(PORTAGE_DIR)
+	tar xf portage-snapshot.tar.bz2 -C $(PORTAGE_DIR)/..
 ifeq ($(EMERGE_RSYNC),YES)
 	@scripts/echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
 endif
-ifdef PKGDIR
-	mkdir -p $(CHROOT)/var/portage/packages
-	mount -o bind "$(PKGDIR)" $(CHROOT)/var/portage/packages
-endif
-	touch portage
 
-preproot: stage3 mounts portage configs/fstab
-	cp -L /etc/resolv.conf $(CHROOT)/etc/
-	$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
+preproot: stage3 $(PORTAGE_DIR) configs/fstab
+	mkdir -p $(PKGDIR) $(DISTDIR)
+	#$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp configs/fstab $(CHROOT)/etc/fstab
-	echo hostname=\"$(HOSTNAME)\" > $(CHROOT)/etc/conf.d/hostname
-	echo $(HOSTNAME) > $(CHROOT)/etc/hostname
 	touch preproot
 
 stage3-$(ARCH)-latest.tar.bz2:
-	@scripts/echo You do not have a portage stage3 tarball. Consider \"make sync_stage3\"
+	@scripts/echo You do not have a stage3 tarball. Consider \"make sync_stage3\"
 	@exit 1
 
 sync_stage3:
@@ -161,13 +143,11 @@ else
 	@scripts/echo Using stage3 tarball
 	tar xpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
+	rm -f $(CHROOT)/etc/localtime
 	touch stage3
 
-compile_options: portage configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
+compile_options: stage3 $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
 	cp configs/make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
-ifdef PKGDIR
-	echo PKGDIR="/var/portage/packages" >> $(CHROOT)/etc/portage/make.conf
-endif
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
 	$(inroot) eselect profile set 1
@@ -179,19 +159,17 @@ ifdef PACKAGE_FILES
 endif
 	touch compile_options
 
-base_system: mounts compile_options
-	touch base_system
-
-kernel: base_system $(KERNEL_CONFIG) scripts/kernel.sh
-	$(inroot) cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime
-	echo $(TIMEZONE) > "$(CHROOT)"/etc/timezone
+kernel: compile_options $(KERNEL_CONFIG) scripts/kernel.sh
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Configuring kernel
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
-	cp scripts/kernel.sh $(CHROOT)/tmp/kernel.sh
-	KERNEL=$(KERNEL) EMERGE="$(EMERGE)" USEPKG="$(USEPKG)" MAKEOPTS="$(MAKEOPTS)" \
-	   $(inroot) /bin/sh /tmp/kernel.sh
-	rm -f $(CHROOT)/tmp/kernel.sh
+	cp scripts/kernel.sh $(CHROOT)/root/kernel.sh
+	$(inroot) --setenv=KERNEL=$(KERNEL) \
+		      --setenv=EMERGE="$(EMERGE)" \
+	          --setenv=USEPKG="$(USEPKG)" \
+			  --setenv=MAKEOPTS="$(MAKEOPTS)" \
+	          /bin/sh /root/kernel.sh
+	rm -f $(CHROOT)/root/kernel.sh
 endif
 	touch kernel
 
@@ -204,31 +182,21 @@ else
 	sed -i '/swap/d' $(CHROOT)/etc/fstab
 endif
 
-sysconfig: preproot scripts/acpi.start $(SWAP_FILE)
+sysconfig: preproot $(SWAP_FILE)
 	@echo $(VIRTIO)
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
-	sed -i 's:clock_hctosys="YES":clock_hctosys="NO":g' "$(CHROOT)/etc/conf.d/hwclock"
 endif
-ifeq ($(HEADLESS),YES)
-	sed -i 's/^#s0:/s0:/' $(CHROOT)/etc/inittab
-	sed -ri 's/^(c[0-9]:)/\#\1/' $(CHROOT)/etc/inittab
-	rm -f $(CHROOT)/etc/runlevels/boot/termencoding
-	rm -f $(CHROOT)/etc/runlevels/boot/keymaps
-endif
-	echo 'modules="dhclient"' > $(CHROOT)/etc/conf.d/net
-	echo 'config_eth0="udhcpc"' >> $(CHROOT)/etc/conf.d/net
-	echo 'dhcp_eth0="release"' >> $(CHROOT)/etc/conf.d/net
-	$(inroot) ln -nsf net.lo /etc/init.d/net.eth0
-	$(inroot) ln -nsf /etc/init.d/net.eth0 /etc/runlevels/default/net.eth0
-	$(inroot) rm -f /etc/runlevels/boot/consolefont
-	cp -a scripts/acpi.start $(CHROOT)/etc/local.d
 	touch sysconfig
 
 systools: sysconfig compile_options
 	@scripts/echo Installing standard system tools
-	$(inroot) $(EMERGE) -n $(USEPKG) app-admin/metalog
-	$(inroot) /sbin/rc-update add metalog default
+	-$(inroot) $(EMERGE) --unmerge sys-fs/udev
+	$(inroot) $(EMERGE) $(USEPKG) -n1 sys-apps/systemd
+	$(inroot) systemd-firstboot \
+		--timezone=$(TIMEZONE) \
+		--hostname=$(HOSTNAME) \
+		--root-password=
 ifeq ($(DASH),YES)
 	if ! test -e "$(STAGE4_TARBALL)";  \
 	then $(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash; \
@@ -251,45 +219,39 @@ ifeq ($(HEADLESS),YES)
 	sed -i -f scripts/grub-headless.sed $(CHROOT)/boot/grub/grub.conf
 endif
 endif
+	$(inroot) ln -nsf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 	touch grub
 
-build-software: systools configs/issue configs/etc-update.conf $(CRITICAL) $(WORLD)
+build-software: systools configs/eth.network configs/issue $(WORLD)
 	@scripts/echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
-	cp configs/etc-update.conf $(CHROOT)/etc/
 	
 	if test `stat -c "%s" $(WORLD)` -ne 0 ; then \
 		$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD); \
 		else \
 		true; \
 	fi
-	$(gcc_config)
+	-$(gcc_config)
 	
-	@scripts/echo Running revdep-rebuild
-	$(inroot) emerge @preserved-rebuild
+	@scripts/echo Running @preserved-rebuild
+	$(inroot) $(EMERGE) --usepkg=n @preserved-rebuild
 	
 	cp configs/issue $(CHROOT)/etc/issue
-	$(gcc_config)
+	-$(gcc_config)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
-	$(gcc_config)
+	-$(gcc_config)
 	EDITOR=/usr/bin/nano $(inroot) etc-update
 	$(MAKE) -C appliances/$(APPLIANCE) postinstall
-ifeq ($(UDEV),NO)
-	rm -f $(CHROOT)/etc/runlevels/sysinit/udev
-	$(inroot) $(EMERGE) -c sys-fs/udev
-else
-	ln -sf /etc/init.d/udev $(CHROOT)/etc/runlevels/sysinit/udev
-endif
+	cp configs/eth.network $(CHROOT)/etc/systemd/network/eth.network
+	$(inroot) systemctl enable systemd-networkd.service
+	$(inroot) systemctl enable systemd-resolved.service
 ifeq ($(ENABLE_SSHD),YES)
-	$(inroot) /sbin/rc-update add sshd default
+	$(inroot) systemctl enable sshd.service
 endif
 	$(change_password)
-ifeq ($(PRUNE_CRITICAL),YES)
-	$(inroot) $(EMERGE) -C `cat $(CRITICAL)`
 ifeq ($(DASH),YES)
 	$(inroot) $(EMERGE) -c app-shells/bash
-endif
 endif
 
 software: $(software-deps)
@@ -307,81 +269,71 @@ device-map: $(RAW_IMAGE)
 
 image: $(STAGE4_TARBALL) partitions device-map scripts/grub.shell scripts/motd.sh
 	@scripts/echo Installing files to $(RAW_IMAGE) 
-	mkdir -p loop
-	mount -o noatime `cat partitions`p1 loop
-	tar -Sxf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C loop
-	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(UDEV) $(DASH) $(ARCH) > loop/etc/motd
+	mkdir $(CHROOT)
+	mount -o noatime `cat partitions`p1 $(CHROOT)
+	tar -xf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C $(CHROOT)
+	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(ARCH) > $(CHROOT)/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
-	loop/sbin/grub --device-map=device-map --no-floppy --batch < scripts/grub.shell
+	$(CHROOT)/sbin/grub --device-map=device-map --no-floppy --batch < scripts/grub.shell
 endif
-	umount -l loop
-	rmdir loop
+	umount -l $(CHROOT)
+	rmdir $(CHROOT)
 	sync
 	losetup --detach `cat partitions`
 	rm -f partitions device-map
 
 $(QCOW_IMAGE): image
 	@scripts/echo Creating $(QCOW_IMAGE)
-	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE)
+	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE).tmp
+	mv $(QCOW_IMAGE).tmp $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
 $(XVA_IMAGE): image
 	@scripts/echo Creating $(XVA_IMAGE)
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
-		--filename=$(XVA_IMAGE)
+		--filename=$(XVA_IMAGE).tmp
+	mv $(XVA_IMAGE).tmp $(XVA_IMAGE)
 
 xva: $(XVA_IMAGE)
 
 
 $(VMDK_IMAGE): image
 	@scripts/echo Creating $(VMDK_IMAGE)
-	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE)
+	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE).tmp
+	mv $(VMDK_IMAGE).tmp $(VMDK_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-build_stage4: software kernel configs/rsync-excludes configs/rsync-excludes-critical grub
+build_stage4: software kernel configs/rsync-excludes grub
 	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
-	mkdir -p stage4
-	mkdir -p gentoo
-	mount -o bind $(CHROOT) gentoo
-	tar -aScf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C gentoo --one-file-system .
-	umount gentoo
-	rmdir gentoo
+	mkdir -p $(IMAGES)
+	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
 	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
 
 stage4: build_stage4 clean
 
 
-$(STAGE4_TARBALL):
-	stage4
+$(STAGE4_TARBALL): stage4
 
 
-umount: 
-	@scripts/echo Attempting to unmount chroot mounts
-ifdef PKGDIR
-	umount -l $(CHROOT)/var/portage/packages
-endif
-	umount -l $(CHROOT)/var/tmp
-	umount -l $(CHROOT)/dev
-	umount -l $(CHROOT)/proc
-	touch umount
+eclean: compile_options
+	$(inroot) $(EMERGE) $(USEPKG) -1 --noreplace app-portage/gentoolkit
+	$(inroot) eclean-pkg
+	$(inroot) eclean-dist
+	$(inroot) $(EMERGE) --depclean app-portage/gentoolkit
+	$(MAKE) clean
 
-remove_checkpoints:
-	rm -f mounts compile_options base_system portage sync_portage
-	rm -f parted kernel grub stage3 software preproot sysconfig systools
 
-clean: umount remove_checkpoints
-	rm -f umount
-	rm -rf --one-file-system loop 
-	rm -rf --one-file-system gentoo
-	rm -rf --one-file-system $(CHROOT)
+clean:
+	rm -f compile_options kernel grub stage3 software preproot sysconfig systools
+	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
 	${RM} $(RAW_IMAGE) $(QCOW_IMAGE) $(VMDK_IMAGE)
 
 distclean: 
-	rm -f *.qcow *.img *.vmdk
+	rm -f -- *.qcow *.img *.vmdk
 	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
 	rm -f portage-snapshot.tar.bz2
 
@@ -397,6 +349,7 @@ help:
 	@echo 'stage4                   - Build a stage4 tarball'
 	@echo 'software                 - Build software into a chroot'
 	@echo 'clean                    - Unmount chroot and clean directory'
+	@echo 'eclean                   - Clean outdated packages and distfiles
 	@echo 'realclean                - Clean and remove image files'
 	@scripts/echo 'Images'
 	@echo 'image                    - Build a raw VM image from stage4'
@@ -416,11 +369,9 @@ help:
 	@echo 'VIRTIO=YES               - Configure the stage2/image to use virtio'
 	@echo 'EXTERNAL_KERNEL=YES      - Do not build a kernel in the image'
 	@echo 'HEADLESS=YES             - Build a headless (serial console) image.'
-	@echo 'REMOVE_PORTAGE_TREE=NO   - Do not exclude the portage tree from the image'
-	@echo 'PKGDIR=                  - Directory to use/store binary packages'
 	@echo 'ENABLE_SSHD=YES          - Enable sshd to start automatically in the image'
 	@echo
 	@scripts/echo 'Example'
 	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
 
-.PHONY: qcow vmdk clean realclean distclean remove_checkpoints stage4 build-software image stage4 help appliance-list
+.PHONY: qcow vmdk clean realclean distclean stage4 build-software image stage4 help appliance-list eclean sync_portage

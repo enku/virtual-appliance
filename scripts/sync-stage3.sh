@@ -17,3 +17,4 @@ file=$(egrep -v 'nomultilib|hardened|uclibc|^#' latest-stage3.txt \
 file=/releases/${g_arch}/autobuilds/${file}
 echo ${file}
 ${rsync} ${RSYNC_MIRROR}${file} stage3-${arch}-latest.tar.bz2
+rm -f latest-stage3.txt

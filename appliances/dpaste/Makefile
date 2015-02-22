@@ -10,12 +10,12 @@ preinstall:
 
 postinstall: bash_profile nginx.conf dpaste.init settings.py firstboot.start
 	$(inroot) $(EMERGE) $(USEPKG) -1n dev-vcs/git
-	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql-server:$(PGVER)
+	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql:$(PGVER)
 	$(inroot) passwd -d postgres
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
-	yes | $(inroot) $(EMERGE) --config postgresql-server:$(PGVER)
-	$(inroot) ln -sf /etc/init.d/postgresql-$(PGVER) $(rcdefault)/postgresql-$(PGVER)
+	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
+	$(inroot) systemctl enable postgresql-$(PGVER)
 	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
 	$(inroot) getent passwd $(DPASTE_USER) || \
 		$(inroot) useradd -c "Dpaste Server" -G postgres -U -d $(DPASTE_HOME) $(DPASTE_USER)
@@ -38,7 +38,7 @@ postinstall: bash_profile nginx.conf dpaste.init settings.py firstboot.start
 	cp dpaste.init $(CHROOT)/etc/init.d/dpaste
 	cp firstboot.start $(CHROOT)/etc/local.d/firstboot.start
 	touch $(CHROOT)/firstboot
-	ln -sf /etc/init.d/nginx $(CHROOT)/$(rcdefault)/nginx
+	$(inroot) systemctl enable nginx
 	$(inroot) ln -sf ../manage.py $(DPASTE_HOME)/bin/manage
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 

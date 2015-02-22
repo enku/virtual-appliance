@@ -37,7 +37,7 @@ dev-qt/qtsql qt3support mysql
 dev-qt/qtsvg accessibility
 x11-libs/qt-webkit kde
 kde-base/kwin opengl
-kde-base/kdelibs opengl semantic-desktop
+kde-base/kdelibs crypt opengl semantic-desktop
 media-libs/gd png
 app-text/poppler qt4
 net-print/cups dbus
@@ -47,4 +47,4 @@ virtual/udev hwdb gudev
 app-crypt/pinentry qt4
 dev-libs/boost threads
 sys-libs/zlib minizip
-app-office/akonadi-server sqlite
+app-office/akonadi-server soprano sqlite
