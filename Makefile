@@ -13,6 +13,7 @@ LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
 STAGE3 = $(CHROOT)/tmp/stage3
 COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
 KERNEL = $(CHROOT)/tmp/kernel
+GRUB = $(CHROOT)/tmp/grub
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -213,7 +214,7 @@ ifeq ($(DASH),YES)
 endif
 	touch systools
 
-grub: preproot configs/grub.conf $(KERNEL) scripts/grub-headless.sed
+$(GRUB): preproot configs/grub.conf $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Installing Grub
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
@@ -226,7 +227,7 @@ ifeq ($(HEADLESS),YES)
 endif
 endif
 	$(inroot) ln -nsf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-	touch grub
+	touch $(GRUB)
 
 build-software: systools configs/eth.network configs/issue $(WORLD)
 	@scripts/echo Building $(APPLIANCE)-specific software
@@ -311,7 +312,7 @@ $(VMDK_IMAGE): image
 
 vmdk: $(VMDK_IMAGE)
 
-build_stage4: software $(KERNEL) configs/rsync-excludes grub
+build_stage4: software $(KERNEL) configs/rsync-excludes $(GRUB)
 	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
@@ -332,7 +333,7 @@ eclean: $(COMPILE_OPTIONS)
 
 
 clean:
-	rm -f kernel grub software preproot sysconfig systools
+	rm -f software preproot sysconfig systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
