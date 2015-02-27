@@ -17,6 +17,7 @@ KERNEL = $(CHROOT)/tmp/kernel
 GRUB = $(CHROOT)/tmp/grub
 PREPROOT = $(CHROOT)/tmp/preproot
 SYSCONFIG = $(CHROOT)/tmp/sysconfig
+SYSTOOLS = $(CHROOT)/tmp/systools
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -199,7 +200,7 @@ ifeq ($(VIRTIO),YES)
 endif
 	touch $(SYSCONFIG)
 
-systools: $(SYSCONFIG) $(COMPILE_OPTIONS)
+$(SYSTOOLS): $(SYSCONFIG) $(COMPILE_OPTIONS)
 	@scripts/echo Installing standard system tools
 	-$(inroot) $(EMERGE) --unmerge sys-fs/udev
 	$(inroot) $(EMERGE) $(USEPKG) -n1 sys-apps/systemd
@@ -215,7 +216,7 @@ ifeq ($(DASH),YES)
 	fi
 	$(inroot) ln -sf dash /bin/sh
 endif
-	touch systools
+	touch $(SYSTOOLS)
 
 $(GRUB): $(PREPROOT) configs/grub.conf $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
@@ -232,7 +233,7 @@ endif
 	$(inroot) ln -nsf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 	touch $(GRUB)
 
-build-software: systools configs/eth.network configs/issue $(WORLD)
+build-software: $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 	@scripts/echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
@@ -336,7 +337,6 @@ eclean: $(COMPILE_OPTIONS)
 
 
 clean:
-	rm -f systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
