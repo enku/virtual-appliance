@@ -12,6 +12,7 @@ XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
 STAGE3 = $(CHROOT)/tmp/stage3
 COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
+SOFTWARE = $(CHROOT)/tmp/software
 KERNEL = $(CHROOT)/tmp/kernel
 GRUB = $(CHROOT)/tmp/grub
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
@@ -27,7 +28,7 @@ ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
 HEADLESS = NO
 EXTERNAL_KERNEL = NO
-SOFTWARE = 1
+BUILD_SOFTWARE = 1
 PKGLIST = 0
 ACCEPT_KEYWORDS = amd64
 DASH = NO
@@ -64,7 +65,7 @@ endif
 stage4-exists := $(wildcard $(STAGE4_TARBALL))
 software-deps := $(STAGE3)
 
-ifneq ($(SOFTWARE),0)
+ifneq ($(BUILD_SOFTWARE),0)
 	software-deps += build-software
 endif
 
@@ -261,7 +262,7 @@ ifeq ($(DASH),YES)
 	$(inroot) $(EMERGE) -c app-shells/bash
 endif
 
-software: $(software-deps)
+$(SOFTWARE): $(software-deps)
 ifneq ($(PKGLIST),0)
 	echo \# > $(LST_FILE)
 	echo \# Gentoo Virtual Appliance \"$(APPLIANCE)\" package list >> $(LST_FILE)
@@ -269,7 +270,7 @@ ifneq ($(PKGLIST),0)
 	echo \# >> $(LST_FILE)
 	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) >> $(LST_FILE)
 endif
-	touch software
+	touch $(SOFTWARE)
 
 device-map: $(RAW_IMAGE)
 	echo '(hd0) ' $(RAW_IMAGE) > device-map
@@ -312,7 +313,7 @@ $(VMDK_IMAGE): image
 
 vmdk: $(VMDK_IMAGE)
 
-build_stage4: software $(KERNEL) configs/rsync-excludes $(GRUB)
+build_stage4: $(SOFTWARE) $(KERNEL) configs/rsync-excludes $(GRUB)
 	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
@@ -333,7 +334,7 @@ eclean: $(COMPILE_OPTIONS)
 
 
 clean:
-	rm -f software preproot sysconfig systools
+	rm -f preproot sysconfig systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
