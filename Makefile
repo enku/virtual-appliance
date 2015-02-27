@@ -124,6 +124,8 @@ preproot: stage3 $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
 	#$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp configs/fstab $(CHROOT)/etc/fstab
+	rm -f $(CHROOT)/etc/resolv.conf
+	cp -L /etc/resolv.conf $(CHROOT)/etc/resolv.conf
 	touch preproot
 
 stage3-$(ARCH)-latest.tar.bz2:
