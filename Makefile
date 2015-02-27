@@ -15,6 +15,7 @@ COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
 SOFTWARE = $(CHROOT)/tmp/software
 KERNEL = $(CHROOT)/tmp/kernel
 GRUB = $(CHROOT)/tmp/grub
+PREPROOT = $(CHROOT)/tmp/preproot
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -126,13 +127,13 @@ ifeq ($(EMERGE_RSYNC),YES)
 	$(inroot) emerge --sync --quiet
 endif
 
-preproot: $(STAGE3) $(PORTAGE_DIR) configs/fstab
+$(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
 	#$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp configs/fstab $(CHROOT)/etc/fstab
 	rm -f $(CHROOT)/etc/resolv.conf
 	cp -L /etc/resolv.conf $(CHROOT)/etc/resolv.conf
-	touch preproot
+	touch $(PREPROOT)
 
 stage3-$(ARCH)-latest.tar.bz2:
 	@scripts/echo You do not have a stage3 tarball. Consider \"make sync_stage3\"
@@ -181,7 +182,7 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 endif
 	touch $(KERNEL)
 
-$(SWAP_FILE): preproot
+$(SWAP_FILE): $(PREPROOT)
 ifneq ($(SWAP_SIZE),0)
 	@scripts/echo Creating swap file: $(SWAP_FILE)
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
@@ -190,7 +191,7 @@ else
 	sed -i '/swap/d' $(CHROOT)/etc/fstab
 endif
 
-sysconfig: preproot $(SWAP_FILE)
+sysconfig: $(PREPROOT) $(SWAP_FILE)
 	@echo $(VIRTIO)
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
@@ -215,7 +216,7 @@ ifeq ($(DASH),YES)
 endif
 	touch systools
 
-$(GRUB): preproot configs/grub.conf $(KERNEL) scripts/grub-headless.sed
+$(GRUB): $(PREPROOT) configs/grub.conf $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Installing Grub
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
@@ -334,7 +335,7 @@ eclean: $(COMPILE_OPTIONS)
 
 
 clean:
-	rm -f preproot sysconfig systools
+	rm -f sysconfig systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
