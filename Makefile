@@ -85,7 +85,8 @@ unexport PKGDIR ARCH
 
 all: image
 
-$(RAW_IMAGE):
+$(RAW_IMAGE): $(STAGE4_TARBALL)
+	rm -f $(RAW_IMAGE)
 	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
 	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
 
