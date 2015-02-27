@@ -12,6 +12,7 @@ XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
 STAGE3 = $(CHROOT)/tmp/stage3
 COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
+KERNEL = $(CHROOT)/tmp/kernel
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -37,7 +38,7 @@ M4C = $(M4) $(M4_DEFS)
 USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 EMERGE_RSYNC = NO
-KERNEL = gentoo-sources
+KERNEL_PKG = gentoo-sources
 PACKAGE_FILES = $(wildcard appliances/$(APPLIANCE)/package.*)
 WORLD = appliances/$(APPLIANCE)/world
 EXTRA_WORLD =
@@ -164,19 +165,19 @@ ifdef PACKAGE_FILES
 endif
 	touch $(COMPILE_OPTIONS)
 
-kernel: $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/kernel.sh
+$(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/kernel.sh
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Configuring kernel
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
 	cp scripts/kernel.sh $(CHROOT)/root/kernel.sh
-	$(inroot) --setenv=KERNEL=$(KERNEL) \
+	$(inroot) --setenv=KERNEL=$(KERNEL_PKG) \
 		      --setenv=EMERGE="$(EMERGE)" \
 	          --setenv=USEPKG="$(USEPKG)" \
 			  --setenv=MAKEOPTS="$(MAKEOPTS)" \
 	          /bin/sh /root/kernel.sh
 	rm -f $(CHROOT)/root/kernel.sh
 endif
-	touch kernel
+	touch $(KERNEL)
 
 $(SWAP_FILE): preproot
 ifneq ($(SWAP_SIZE),0)
@@ -212,7 +213,7 @@ ifeq ($(DASH),YES)
 endif
 	touch systools
 
-grub: stage3 configs/grub.conf kernel scripts/grub-headless.sed
+grub: preproot configs/grub.conf $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Installing Grub
 	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
@@ -310,7 +311,7 @@ $(VMDK_IMAGE): image
 
 vmdk: $(VMDK_IMAGE)
 
-build_stage4: software kernel configs/rsync-excludes grub
+build_stage4: software $(KERNEL) configs/rsync-excludes grub
 	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
