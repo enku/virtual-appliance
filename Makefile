@@ -16,6 +16,7 @@ SOFTWARE = $(CHROOT)/tmp/software
 KERNEL = $(CHROOT)/tmp/kernel
 GRUB = $(CHROOT)/tmp/grub
 PREPROOT = $(CHROOT)/tmp/preproot
+SYSCONFIG = $(CHROOT)/tmp/sysconfig
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -191,14 +192,14 @@ else
 	sed -i '/swap/d' $(CHROOT)/etc/fstab
 endif
 
-sysconfig: $(PREPROOT) $(SWAP_FILE)
+$(SYSCONFIG): $(PREPROOT) $(SWAP_FILE)
 	@echo $(VIRTIO)
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
 endif
-	touch sysconfig
+	touch $(SYSCONFIG)
 
-systools: sysconfig $(COMPILE_OPTIONS)
+systools: $(SYSCONFIG) $(COMPILE_OPTIONS)
 	@scripts/echo Installing standard system tools
 	-$(inroot) $(EMERGE) --unmerge sys-fs/udev
 	$(inroot) $(EMERGE) $(USEPKG) -n1 sys-apps/systemd
@@ -335,7 +336,7 @@ eclean: $(COMPILE_OPTIONS)
 
 
 clean:
-	rm -f sysconfig systools
+	rm -f systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
