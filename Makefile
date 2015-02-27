@@ -10,6 +10,7 @@ QCOW_IMAGE = $(IMAGES)/$(APPLIANCE).qcow
 VMDK_IMAGE = $(IMAGES)/$(APPLIANCE).vmdk
 XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
+STAGE3 = $(CHROOT)/tmp/stage3
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -58,7 +59,7 @@ ifeq ($(ARCH),x86)
 endif
 
 stage4-exists := $(wildcard $(STAGE4_TARBALL))
-software-deps := stage3
+software-deps := $(STAGE3)
 
 ifneq ($(SOFTWARE),0)
 	software-deps += build-software
@@ -121,7 +122,7 @@ ifeq ($(EMERGE_RSYNC),YES)
 	$(inroot) emerge --sync --quiet
 endif
 
-preproot: stage3 $(PORTAGE_DIR) configs/fstab
+preproot: $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
 	#$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp configs/fstab $(CHROOT)/etc/fstab
@@ -137,7 +138,7 @@ sync_stage3:
 	./scripts/sync-stage3.sh $(ARCH)
 
 
-stage3: stage3-$(ARCH)-latest.tar.bz2
+$(STAGE3): stage3-$(ARCH)-latest.tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@scripts/echo Using stage4 tarball: $(STAGE4_TARBALL)
@@ -147,9 +148,9 @@ else
 	tar xpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
 endif
 	rm -f $(CHROOT)/etc/localtime
-	touch stage3
+	touch $(STAGE3)
 
-compile_options: stage3 $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
+compile_options: $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
 	cp configs/make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
@@ -329,7 +330,7 @@ eclean: compile_options
 
 
 clean:
-	rm -f compile_options kernel grub stage3 software preproot sysconfig systools
+	rm -f compile_options kernel grub software preproot sysconfig systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
