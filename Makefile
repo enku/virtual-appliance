@@ -11,6 +11,7 @@ VMDK_IMAGE = $(IMAGES)/$(APPLIANCE).vmdk
 XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
 STAGE3 = $(CHROOT)/tmp/stage3
+COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -150,7 +151,7 @@ endif
 	rm -f $(CHROOT)/etc/localtime
 	touch $(STAGE3)
 
-compile_options: $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
+$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
 	cp configs/make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
@@ -161,9 +162,9 @@ compile_options: $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/loca
 ifdef PACKAGE_FILES
 	cp $(PACKAGE_FILES) $(CHROOT)/etc/portage/
 endif
-	touch compile_options
+	touch $(COMPILE_OPTIONS)
 
-kernel: compile_options $(KERNEL_CONFIG) scripts/kernel.sh
+kernel: $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/kernel.sh
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Configuring kernel
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
@@ -193,7 +194,7 @@ ifeq ($(VIRTIO),YES)
 endif
 	touch sysconfig
 
-systools: sysconfig compile_options
+systools: sysconfig $(COMPILE_OPTIONS)
 	@scripts/echo Installing standard system tools
 	-$(inroot) $(EMERGE) --unmerge sys-fs/udev
 	$(inroot) $(EMERGE) $(USEPKG) -n1 sys-apps/systemd
@@ -321,7 +322,7 @@ stage4: build_stage4 clean
 $(STAGE4_TARBALL): stage4
 
 
-eclean: compile_options
+eclean: $(COMPILE_OPTIONS)
 	$(inroot) $(EMERGE) $(USEPKG) -1 --noreplace app-portage/gentoolkit
 	$(inroot) eclean-pkg
 	$(inroot) eclean-dist
@@ -330,7 +331,7 @@ eclean: compile_options
 
 
 clean:
-	rm -f compile_options kernel grub software preproot sysconfig systools
+	rm -f kernel grub software preproot sysconfig systools
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
