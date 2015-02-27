@@ -68,7 +68,7 @@ sys-fs/udev gudev hwdb
 sys-power/upower deprecated
 virtual/udev gudev hwdb
 x11-apps/xinit minimal
-x11-base/xorg-server minimal nptl
+x11-base/xorg-server minimal nptl udev
 x11-libs/cairo glib svg X opengl
 x11-libs/gdk-pixbuf X jpeg
 x11-libs/gtk+ jpeg X
