@@ -287,14 +287,14 @@ endif
 	rm -f partitions device-map
 	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
 
-$(QCOW_IMAGE): image
+$(QCOW_IMAGE): $(RAW_IMAGE)
 	@scripts/echo Creating $(QCOW_IMAGE)
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE).tmp
 	mv $(QCOW_IMAGE).tmp $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
-$(XVA_IMAGE): image
+$(XVA_IMAGE): $(RAW_IMAGE)
 	@scripts/echo Creating $(XVA_IMAGE)
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE).tmp
@@ -303,7 +303,7 @@ $(XVA_IMAGE): image
 xva: $(XVA_IMAGE)
 
 
-$(VMDK_IMAGE): image
+$(VMDK_IMAGE): $(RAW_IMAGE)
 	@scripts/echo Creating $(VMDK_IMAGE)
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE).tmp
 	mv $(VMDK_IMAGE).tmp $(VMDK_IMAGE)
