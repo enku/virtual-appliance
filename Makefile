@@ -310,16 +310,19 @@ $(VMDK_IMAGE): $(RAW_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-build_stage4: $(SOFTWARE) $(KERNEL) configs/rsync-excludes $(GRUB)
+$(STAGE4_TARBALL): $(PORTAGE) stage3-$(ARCH)-latest.tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
+	$(MAKE) $(STAGE3)
+	$(MAKE) $(PREPROOT)
+	$(MAKE) $(SOFTWARE)
+	$(MAKE) $(KERNEL)
+	$(MAKE) $(GRUB)
 	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
 	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
+	$(MAKE) clean
 
-stage4: build_stage4 clean
-
-
-$(STAGE4_TARBALL): stage4
+stage4: $(STAGE4_TARBALL)
 
 
 eclean: $(COMPILE_OPTIONS)
