@@ -164,10 +164,11 @@ $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/l
 	$(inroot) eselect profile set 1
 	cp configs/locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
-	mkdir -p $(CHROOT)/etc/portage
-ifdef PACKAGE_FILES
-	cp $(PACKAGE_FILES) $(CHROOT)/etc/portage/
-endif
+	for f in $(PACKAGE_FILES); do \
+		base=`basename $$f` ; \
+		mkdir -p $(CHROOT)/etc/portage/$$base; \
+		cp $$f $(CHROOT)/etc/portage/$$base/virtual-appliance-$$base; \
+	done
 	touch $(COMPILE_OPTIONS)
 
 $(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/kernel.sh
