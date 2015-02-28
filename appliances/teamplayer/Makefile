@@ -31,15 +31,14 @@ ifeq ($(AVAHI),YES)
 	cp teamplayer.service $(CHROOT)/etc/avahi/services
 	$(inroot) systemctl enable avahi-daemon.service
 endif
-	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
+	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv dev-vcs/mercurial
 	$(inroot) getent passwd $(TP_USER) || \
 		$(inroot) useradd -c "Teamplayer Server" -G postgres -U -d $(TP_HOME) $(TP_USER)
 	rm -rf $(CHROOT)/$(TP_HOME)
 	mkdir -p $(CHROOT)/$(TP_HOME)
-	hg clone -u $(TP_BRANCH) $(TP_REPO) $(CHROOT)/$(TP_HOME)/teamplayer
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) virtualenv $(TP_HOME)
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install -e $(TP_HOME)/teamplayer"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; LANG=en_US.utf8 pip install hg+$(TP_REPO)@$(TP_BRANCH)"
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 uwsgi Whoosh setproctitle"
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; django-admin.py startproject project $(TP_HOME)"
 	chmod +x $(CHROOT)/$(TP_HOME)/manage.py
