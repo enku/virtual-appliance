@@ -93,21 +93,7 @@ unexport PKGDIR ARCH
 
 all: image
 
-$(RAW_IMAGE): $(STAGE4_TARBALL)
-	rm -f $(RAW_IMAGE)
-	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
-	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
-
-partitions: $(RAW_IMAGE)
-	@scripts/echo Creating partition layout
-	parted -s $(RAW_IMAGE) mklabel gpt
-	parted -s $(RAW_IMAGE) mkpart primary 1 $(DISK_SIZE)
-	parted -s $(RAW_IMAGE) set 1 boot on
-
-	losetup --show --find --partscan $(RAW_IMAGE) > partitions.tmp
-	mv partitions.tmp partitions
-	sync
-	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root -m 0 `cat partitions`p1
+image: $(RAW_IMAGE)
 
 portage-snapshot.tar.bz2:
 	@scripts/echo You do not have a portage snapshot. Consider \"make sync_portage\"
@@ -276,23 +262,30 @@ ifneq ($(PKGLIST),0)
 endif
 	touch $(SOFTWARE)
 
-device-map: $(RAW_IMAGE)
-	echo '(hd0) ' $(RAW_IMAGE) > device-map
 
-image: $(STAGE4_TARBALL) partitions device-map scripts/grub.shell scripts/motd.sh
+$(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
 	@scripts/echo Installing files to $(RAW_IMAGE) 
+	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
+	parted -s $(RAW_IMAGE).tmp mklabel gpt
+	parted -s $(RAW_IMAGE).tmp mkpart primary 1 $(DISK_SIZE)
+	parted -s $(RAW_IMAGE).tmp set 1 boot on
+	sync
+	losetup --show --find --partscan $(RAW_IMAGE).tmp > partitions
+	mkfs.ext4 -O sparse_super,^has_journal -L "$(APPLIANCE)"_root -m 0 `cat partitions`p1
 	mkdir $(CHROOT)
 	mount -o noatime `cat partitions`p1 $(CHROOT)
 	tar -xf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C $(CHROOT)
 	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(ARCH) > $(CHROOT)/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
+	echo '(hd0) ' $(RAW_IMAGE).tmp > device-map
 	$(CHROOT)/sbin/grub --device-map=device-map --no-floppy --batch < scripts/grub.shell
 endif
-	umount -l $(CHROOT)
+	umount $(CHROOT)
 	rmdir $(CHROOT)
 	sync
 	losetup --detach `cat partitions`
 	rm -f partitions device-map
+	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
 
 $(QCOW_IMAGE): image
 	@scripts/echo Creating $(QCOW_IMAGE)
