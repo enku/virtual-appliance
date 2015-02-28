@@ -381,4 +381,4 @@ help:
 	@scripts/echo 'Example'
 	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
 
-.PHONY: qcow vmdk clean realclean distclean stage4 build-software image stage4 help appliance-list eclean sync_portage
+.PHONY: qcow vmdk clean realclean distclean stage4 build-software image stage4 help appliance-list eclean sync_portage sync_stage3
