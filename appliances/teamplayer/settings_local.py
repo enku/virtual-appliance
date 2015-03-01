@@ -11,7 +11,8 @@ import os
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-TIME_ZONE = 'America/New_York'
+TIME_ZONE = 'UTC'
+USE_TZ = False
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
