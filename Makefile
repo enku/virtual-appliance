@@ -30,7 +30,6 @@ ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
 HEADLESS = NO
 EXTERNAL_KERNEL = NO
-BUILD_SOFTWARE = 1
 PKGLIST = 0
 ACCEPT_KEYWORDS = amd64
 DASH = NO
@@ -65,12 +64,6 @@ ifeq ($(ARCH),x86)
 endif
 
 stage4-exists := $(wildcard $(STAGE4_TARBALL))
-software-deps := $(STAGE3)
-
-ifneq ($(BUILD_SOFTWARE),0)
-	software-deps += build-software
-endif
-
 
 COPY_ARGS = --exclude-from=configs/rsync-excludes
 
@@ -213,7 +206,8 @@ endif
 	$(inroot) ln -nsf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 	touch $(GRUB)
 
-build-software: $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
+
+$(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 	@scripts/echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
@@ -244,8 +238,6 @@ endif
 ifeq ($(DASH),YES)
 	$(inroot) $(EMERGE) -c app-shells/bash
 endif
-
-$(SOFTWARE): $(software-deps)
 ifneq ($(PKGLIST),0)
 	echo \# > $(LST_FILE)
 	echo \# Gentoo Virtual Appliance \"$(APPLIANCE)\" package list >> $(LST_FILE)
