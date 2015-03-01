@@ -106,6 +106,7 @@ ifeq ($(EMERGE_RSYNC),YES)
 	@scripts/echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
 endif
+	touch $(PORTAGE_DIR)
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
