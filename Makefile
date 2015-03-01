@@ -83,7 +83,7 @@ export USEPKG RSYNC_MIRROR
 
 unexport PKGDIR ARCH 
 
-all: image
+all: stage4
 
 image: $(RAW_IMAGE)
 
