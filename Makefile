@@ -115,7 +115,7 @@ ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
 endif
 ifneq ($(SWAP_SIZE),0)
-	@scripts/echo Creating swap file: $(SWAP_FILE)
+	@scripts/echo Creating swap file: `basename $(SWAP_FILE)`
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
 else
@@ -136,7 +136,7 @@ sync_stage3:
 $(STAGE3): stage3-$(ARCH)-latest.tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
-	@scripts/echo Using stage4 tarball: $(STAGE4_TARBALL)
+	@scripts/echo Using stage4 tarball: `basename $(STAGE4_TARBALL)`
 	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	@scripts/echo Using stage3 tarball
@@ -249,7 +249,7 @@ endif
 
 
 $(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
-	@scripts/echo Installing files to $(RAW_IMAGE) 
+	@scripts/echo Installing files to `basename $(RAW_IMAGE)`
 	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
 	parted -s $(RAW_IMAGE).tmp mklabel gpt
 	parted -s $(RAW_IMAGE).tmp mkpart primary 1 $(DISK_SIZE)
@@ -273,14 +273,14 @@ endif
 	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
 
 $(QCOW_IMAGE): $(RAW_IMAGE)
-	@scripts/echo Creating $(QCOW_IMAGE)
+	@scripts/echo Creating `basename $(QCOW_IMAGE)`
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE).tmp
 	mv $(QCOW_IMAGE).tmp $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
 $(XVA_IMAGE): $(RAW_IMAGE)
-	@scripts/echo Creating $(XVA_IMAGE)
+	@scripts/echo Creating `basename $(XVA_IMAGE)`
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE).tmp
 	mv $(XVA_IMAGE).tmp $(XVA_IMAGE)
@@ -289,7 +289,7 @@ xva: $(XVA_IMAGE)
 
 
 $(VMDK_IMAGE): $(RAW_IMAGE)
-	@scripts/echo Creating $(VMDK_IMAGE)
+	@scripts/echo Creating `basename $(VMDK_IMAGE)`
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE).tmp
 	mv $(VMDK_IMAGE).tmp $(VMDK_IMAGE)
 
@@ -301,7 +301,7 @@ $(STAGE4_TARBALL): $(PORTAGE) stage3-$(ARCH)-latest.tar.bz2 appliances/$(APPLIAN
 	$(MAKE) $(SOFTWARE)
 	$(MAKE) $(KERNEL)
 	$(MAKE) $(GRUB)
-	@scripts/echo Creating stage4 tarball: $(STAGE4_TARBALL)
+	@scripts/echo Creating stage4 tarball: `basename $(STAGE4_TARBALL)`
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
 	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
