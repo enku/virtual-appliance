@@ -295,7 +295,7 @@ $(VMDK_IMAGE): $(RAW_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-$(STAGE4_TARBALL): $(PORTAGE) stage3-$(ARCH)-latest.tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
+$(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(ARCH)-latest.tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
 	$(MAKE) $(STAGE3)
 	$(MAKE) $(PREPROOT)
 	$(MAKE) $(SOFTWARE)
