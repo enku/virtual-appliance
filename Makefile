@@ -16,7 +16,6 @@ SOFTWARE = $(CHROOT)/tmp/software
 KERNEL = $(CHROOT)/tmp/kernel
 GRUB = $(CHROOT)/tmp/grub
 PREPROOT = $(CHROOT)/tmp/preproot
-SYSCONFIG = $(CHROOT)/tmp/sysconfig
 SYSTOOLS = $(CHROOT)/tmp/systools
 STAGE4_TARBALL = $(CURDIR)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
@@ -119,6 +118,16 @@ $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
 	#$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp configs/fstab $(CHROOT)/etc/fstab
+ifeq ($(VIRTIO),YES)
+	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
+endif
+ifneq ($(SWAP_SIZE),0)
+	@scripts/echo Creating swap file: $(SWAP_FILE)
+	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
+	/sbin/mkswap $(SWAP_FILE)
+else
+	sed -i '/swap/d' $(CHROOT)/etc/fstab
+endif
 	rm -f $(CHROOT)/etc/resolv.conf
 	cp -L /etc/resolv.conf $(CHROOT)/etc/resolv.conf
 	touch $(PREPROOT)
@@ -171,23 +180,7 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 endif
 	touch $(KERNEL)
 
-$(SWAP_FILE): $(PREPROOT)
-ifneq ($(SWAP_SIZE),0)
-	@scripts/echo Creating swap file: $(SWAP_FILE)
-	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
-	/sbin/mkswap $(SWAP_FILE)
-else
-	sed -i '/swap/d' $(CHROOT)/etc/fstab
-endif
-
-$(SYSCONFIG): $(PREPROOT) $(SWAP_FILE)
-	@echo $(VIRTIO)
-ifeq ($(VIRTIO),YES)
-	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
-endif
-	touch $(SYSCONFIG)
-
-$(SYSTOOLS): $(SYSCONFIG) $(COMPILE_OPTIONS)
+$(SYSTOOLS): $(PREPROOT) $(COMPILE_OPTIONS)
 	@scripts/echo Installing standard system tools
 	-$(inroot) $(EMERGE) --unmerge sys-fs/udev
 	$(inroot) $(EMERGE) $(USEPKG) -n1 sys-apps/systemd
