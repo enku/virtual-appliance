@@ -95,6 +95,7 @@ portage-snapshot.tar.bz2:
 sync_portage:
 	@scripts/echo Grabbing latest portage snapshot
 	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-snapshot.tar.bz2
+	touch portage-snapshot.tar.bz2
 
 
 $(PORTAGE_DIR): portage-snapshot.tar.bz2
