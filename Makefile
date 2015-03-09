@@ -334,7 +334,7 @@ distclean:
 
 appliance-list:
 	@scripts/echo 'Available appliances:'
-	@/bin/ls appliances
+	@/bin/ls -1 appliances
 
 help:
 	@scripts/echo 'Help targets (this is not a comprehensive list)'
