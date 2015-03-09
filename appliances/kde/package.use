@@ -44,6 +44,7 @@ net-print/cups dbus
 dev-python/PyQt4 X dbus declarative sql svg webkit
 sys-fs/udev hwdb gudev
 virtual/udev hwdb gudev
+app-crypt/qca openssl
 app-crypt/pinentry qt4
 dev-libs/boost threads
 sys-libs/zlib minizip
