@@ -9,14 +9,14 @@ rcdefault := /etc/runlevels/default
 preinstall:
 
 postinstall: bash_profile nginx.conf dpaste.init settings.py firstboot.start
-	$(inroot) $(EMERGE) $(USEPKG) -1n dev-vcs/git
-	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql:$(PGVER)
+	$(inroot) $(EMERGE) $(USEPKG) --oneshot --noreplace dev-vcs/git
+	$(inroot) $(EMERGE) --noreplace $(USEPKG) dev-db/postgresql:$(PGVER)
 	$(inroot) passwd -d postgres
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
 	$(inroot) systemctl enable postgresql-$(PGVER)
-	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
+	$(inroot) $(EMERGE) --oneshot --noreplace $(USEPKG) dev-python/virtualenv
 	$(inroot) getent passwd $(DPASTE_USER) || \
 		$(inroot) useradd -c "Dpaste Server" -G postgres -U -d $(DPASTE_HOME) $(DPASTE_USER)
 	rm -rf $(CHROOT)/$(DPASTE_HOME)

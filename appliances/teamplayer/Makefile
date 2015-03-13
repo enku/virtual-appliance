@@ -18,7 +18,7 @@ post_files += local.start local.stop issue nginx.conf teamplayer.service
 preinstall:
 
 postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
-	$(inroot) $(EMERGE) -n $(USEPKG) dev-db/postgresql:$(PGVER)
+	$(inroot) $(EMERGE) --noreplace $(USEPKG) dev-db/postgresql:$(PGVER)
 	$(inroot) passwd -d postgres
 	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
@@ -26,12 +26,12 @@ postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
 	$(inroot) systemctl enable postgresql-$(PGVER).service
 ifeq ($(AVAHI),YES)
-	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
+	$(inroot) $(EMERGE) --noreplace $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
 	cp teamplayer.service $(CHROOT)/etc/avahi/services
 	$(inroot) systemctl enable avahi-daemon.service
 endif
-	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv dev-vcs/mercurial
+	$(inroot) $(EMERGE) --oneshot --noreplace $(USEPKG) dev-python/virtualenv dev-vcs/mercurial
 	$(inroot) getent passwd $(TP_USER) || \
 		$(inroot) useradd -c "Teamplayer Server" -G postgres -U -d $(TP_HOME) $(TP_USER)
 	rm -rf $(CHROOT)/$(TP_HOME)

@@ -178,14 +178,14 @@ endif
 $(SYSTOOLS): $(PREPROOT) $(COMPILE_OPTIONS)
 	@scripts/echo Installing standard system tools
 	-$(inroot) $(EMERGE) --unmerge sys-fs/udev
-	$(inroot) $(EMERGE) $(USEPKG) -n1 sys-apps/systemd
+	$(inroot) $(EMERGE) $(USEPKG) --noreplace --oneshot sys-apps/systemd
 	$(inroot) systemd-firstboot \
 		--timezone=$(TIMEZONE) \
 		--hostname=$(HOSTNAME) \
 		--root-password=
 ifeq ($(DASH),YES)
 	if ! test -e "$(STAGE4_TARBALL)";  \
-	then $(inroot) $(EMERGE) -n $(USEPKG) app-shells/dash; \
+	then $(inroot) $(EMERGE) --noreplace $(USEPKG) app-shells/dash; \
 	echo /bin/dash >> $(CHROOT)/etc/shells; \
 	$(inroot) chsh -s /bin/sh root; \
 	fi
@@ -238,7 +238,7 @@ ifeq ($(ENABLE_SSHD),YES)
 endif
 	$(change_password)
 ifeq ($(DASH),YES)
-	$(inroot) $(EMERGE) -c app-shells/bash
+	$(inroot) $(EMERGE) --depclean app-shells/bash
 endif
 ifneq ($(PKGLIST),0)
 	echo \# > $(LST_FILE)
@@ -313,7 +313,7 @@ stage4: $(STAGE4_TARBALL)
 
 
 eclean: $(COMPILE_OPTIONS)
-	$(inroot) $(EMERGE) $(USEPKG) -1 --noreplace app-portage/gentoolkit
+	$(inroot) $(EMERGE) $(USEPKG) --oneshot --noreplace app-portage/gentoolkit
 	$(inroot) eclean-pkg
 	$(inroot) eclean-dist
 	$(inroot) $(EMERGE) --depclean app-portage/gentoolkit

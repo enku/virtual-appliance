@@ -14,7 +14,7 @@ postinstall: airport.service settings.py local.start local.stop issue nginx.conf
 	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
 	$(inroot) systemctl enable postgresql-$(PGVER)
-	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
+	$(inroot) $(EMERGE) --oneshot --noreplace $(USEPKG) dev-python/virtualenv
 	rm -rf $(CHROOT)/$(APP_ROOT)
 	hg clone -u $(AIRPORT_BRANCH) $(AIRPORT_REPO) $(CHROOT)/$(APP_ROOT)
 	chroot $(CHROOT) virtualenv -p /usr/bin/python3 $(APP_ROOT)
@@ -41,7 +41,7 @@ endif
 	$(inroot) gpasswd -a nginx airport
 	$(inroot) systemctl enable nginx
 ifeq ($(AVAHI),YES)
-	$(inroot) $(EMERGE) -n $(USEPKG) net-dns/avahi
+	$(inroot) $(EMERGE) --noreplace $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
 	cp airport.service $(CHROOT)/etc/avahi/services
 	$(inroot) systemctl enable avahi-daemon
