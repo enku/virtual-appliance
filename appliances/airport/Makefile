@@ -14,7 +14,6 @@ postinstall: airport.service settings.py local.start local.stop issue nginx.conf
 	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
 	$(inroot) systemctl enable postgresql-$(PGVER)
-	$(inroot) chsh -s /bin/sh postgres
 	$(inroot) $(EMERGE) -1n $(USEPKG) dev-python/virtualenv
 	rm -rf $(CHROOT)/$(APP_ROOT)
 	hg clone -u $(AIRPORT_BRANCH) $(AIRPORT_REPO) $(CHROOT)/$(APP_ROOT)
