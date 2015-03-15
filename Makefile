@@ -344,7 +344,7 @@ help:
 	@echo 'stage4                   - Build a stage4 tarball'
 	@echo 'software                 - Build software into a chroot'
 	@echo 'clean                    - Unmount chroot and clean directory'
-	@echo 'eclean                   - Clean outdated packages and distfiles
+	@echo 'eclean                   - Clean outdated packages and distfiles'
 	@echo 'realclean                - Clean and remove image files'
 	@scripts/echo 'Images'
 	@echo 'image                    - Build a raw VM image from stage4'
