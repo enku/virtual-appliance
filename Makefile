@@ -321,7 +321,7 @@ eclean: $(COMPILE_OPTIONS)
 
 
 clean:
-	rm -f partitions device-map $(IMAGS)/*.tmp
+	rm -f partitions device-map $(IMAGES)/*.tmp
 	rm -rf --one-file-system -- $(CHROOT)
 
 realclean: clean
