@@ -21,6 +21,7 @@ dev-db/sqlite extensions
 dev-lang/vala vapigen
 dev-libs/folks eds telepathy
 dev-libs/gjs cairo
+dev-libs/glib dbus
 dev-libs/libpeas gtk
 dev-libs/libxml2 python
 dev-libs/nettle gmp
@@ -34,7 +35,7 @@ gnome-base/gvfs cdda gdu gtk http udev udisks
 gnome-base/librsvg gtk
 gnome-extra/evolution-data-server gnome-online-accounts ssl vala weather
 mail-client/evolution ssl
-media-libs/clutter gtk
+media-libs/clutter X gtk
 media-libs/cogl glib opengl pango
 media-libs/grilo network playlist
 media-libs/gst-plugins-base X pango
@@ -42,9 +43,10 @@ media-libs/gst-plugins-base ogg theora vorbis
 media-libs/harfbuzz glib icu truetype
 media-libs/libcanberra gtk gtk3
 media-libs/libtheora encode
-media-libs/mesa gallium egl gles2 llvm nptl
+# mutter needs mesa[gdm] even though the ebuild doesn't say so
+media-libs/mesa gallium gbm egl gles2 llvm nptl
 media-libs/swfdec gtk
-media-sound/pulseaudio glib udev
+media-sound/pulseaudio alsa glib udev
 net-dialup/ppp ipv6
 net-dns/avahi dbus
 net-misc/dhcp client
@@ -72,5 +74,7 @@ x11-base/xorg-server minimal nptl udev
 x11-libs/cairo glib svg X opengl
 x11-libs/gdk-pixbuf X jpeg
 x11-libs/gtk+ jpeg X
+x11-libs/libxkbcommon X
 x11-libs/pango X
+x11-libs/libxcb xkb
 x11-themes/gnome-themes-standard gtk
