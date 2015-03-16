@@ -336,6 +336,11 @@ appliance-list:
 	@scripts/echo 'Available appliances:'
 	@/bin/ls -1 appliances
 
+
+checksums:
+	cd $(IMAGES) ; sha256sum * |grep -vE '\.lst$$|\.tmp$$|\*.text$$' > sha256sums.txt.tmp
+	mv $(IMAGES)/sha256sums.txt.tmp $(IMAGES)/sha256sums.txt
+
 help:
 	@scripts/echo 'Help targets (this is not a comprehensive list)'
 	@echo
