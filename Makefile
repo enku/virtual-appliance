@@ -228,7 +228,7 @@ $(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	-$(gcc_config)
-	EDITOR=/usr/bin/nano $(inroot) etc-update
+	$(inroot) --setenv EDITOR=/usr/bin/nano etc-update
 	$(MAKE) -C appliances/$(APPLIANCE) postinstall
 	cp configs/eth.network $(CHROOT)/etc/systemd/network/eth.network
 	$(inroot) systemctl enable systemd-networkd.service
