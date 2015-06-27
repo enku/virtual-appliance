@@ -1,4 +1,4 @@
-kde-base/kde-meta
-kde-base/kdebase-runtime-meta
+kde-apps/kdebase-meta
+kde-base/kdm
 media-fonts/dejavu
 media-fonts/freefont
