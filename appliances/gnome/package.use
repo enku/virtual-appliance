@@ -62,8 +62,6 @@ net-print/cups dbus gnutls
 sys-apps/dbus X
 sys-apps/hwids udev
 sys-apps/systemd policykit
-sys-auth/consolekit policykit
-sys-auth/pambase consolekit
 sys-block/parted device-mapper
 sys-fs/udev gudev hwdb
 sys-power/upower deprecated
