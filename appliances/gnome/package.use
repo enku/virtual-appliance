@@ -7,7 +7,6 @@ sys-apps/portage python3 ipc
 sys-apps/systemd gudev kmod
 sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
-sys-libs/ncurses minimal
 virtual/udev gudev kmod
 
 # for gnome

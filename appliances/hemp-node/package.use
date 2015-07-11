@@ -12,4 +12,3 @@ sys-apps/portage python2
 sys-devel/gcc cxx nptl
 sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
-sys-libs/ncurses minimal

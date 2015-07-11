@@ -7,4 +7,3 @@ sys-apps/kmod tools
 sys-apps/portage ipc
 sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
-sys-libs/ncurses minimal

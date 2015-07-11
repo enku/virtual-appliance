@@ -9,6 +9,5 @@ sys-apps/kmod tools
 sys-apps/portage python3 ipc
 sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
-sys-libs/ncurses minimal
 
 dev-db/postgresql server

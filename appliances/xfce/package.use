@@ -14,7 +14,6 @@ sys-apps/systemd gudev
 sys-devel/gcc cxx nptl
 sys-fs/udev gudev
 sys-kernel/gentoo-sources symlink
-sys-libs/ncurses minimal
 www-client/firefox bindist
 x11-libs/cairo X glib svg
 x11-libs/gdk-pixbuf X

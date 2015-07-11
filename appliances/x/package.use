@@ -4,5 +4,4 @@ dev-util/pkgconfig internal-glib
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-devel/gcc cxx nptl
-sys-libs/ncurses minimal
 x11-base/xorg-server minimal xorg nptl
