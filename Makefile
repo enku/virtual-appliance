@@ -10,6 +10,7 @@ QCOW_IMAGE = $(IMAGES)/$(APPLIANCE).qcow
 VMDK_IMAGE = $(IMAGES)/$(APPLIANCE).vmdk
 XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
+CHECKSUMS = $(IMAGES)/$(APPLIANCE)-sha256sums.txt
 STAGE3 = $(CHROOT)/tmp/stage3
 COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
 SOFTWARE = $(CHROOT)/tmp/software
@@ -338,8 +339,13 @@ appliance-list:
 
 
 checksums:
-	cd $(IMAGES) ; sha256sum * |grep -vE '\.lst$$|\.tmp$$|\*.text$$' > sha256sums.txt.tmp
-	mv $(IMAGES)/sha256sums.txt.tmp $(IMAGES)/sha256sums.txt
+	$(RM) $(CHECKSUMS).tmp
+	-cd $(IMAGES) && sha256sum `basename $(STAGE4_TARBALL)` \
+		`basename $(RAW_IMAGE)` \
+		`basename $(QCOW_IMAGE)` \
+		`basename $(VMDK_IMAGE)` \
+		`basename $(XVA_IMAGE)` > $(CHECKSUMS).tmp
+	mv $(CHECKSUMS).tmp $(CHECKSUMS)
 
 help:
 	@scripts/echo 'Help targets (this is not a comprehensive list)'
@@ -374,4 +380,4 @@ help:
 	@scripts/echo 'Example'
 	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
 
-.PHONY: qcow vmdk clean realclean distclean stage4 build-software image stage4 help appliance-list eclean sync_portage sync_stage3
+.PHONY: qcow vmdk clean realclean distclean stage4 build-software image stage4 help appliance-list eclean sync_portage sync_stage3 checksums
