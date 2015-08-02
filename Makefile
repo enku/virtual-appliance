@@ -71,7 +71,7 @@ ifeq ($(CHANGE_PASSWORD),YES)
 	ifdef ROOT_PASSWORD
 		change_password = $(inroot) usermod -p '$(ROOT_PASSWORD)' root
 	else
-		change_password = $(inroot) passwd -d root; $(inroot) passwd -e root
+		change_password = $(inroot) passwd --delete --expire root
 	endif
 endif
 
