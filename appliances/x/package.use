@@ -3,5 +3,6 @@ dev-libs/libxml2 python
 dev-util/pkgconfig internal-glib
 sys-apps/hwids udev
 sys-apps/kmod tools
+sys-auth/pambase nullok sha512
 sys-devel/gcc cxx nptl
 x11-base/xorg-server minimal xorg nptl
