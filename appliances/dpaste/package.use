@@ -4,6 +4,7 @@ dev-libs/libpcre cxx
 dev-util/pkgconfig internal-glib
 dev-vcs/git curl
 net-misc/curl ssl curl_ssl_openssl
+net-misc/openssh ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/portage python3 ipc

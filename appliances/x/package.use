@@ -1,6 +1,7 @@
 dev-lang/python ssl xml
 dev-libs/libxml2 python
 dev-util/pkgconfig internal-glib
+net-misc/openssh ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-auth/pambase nullok sha512

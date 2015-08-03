@@ -5,6 +5,7 @@ dev-util/pkgconfig internal-glib
 dev-vcs/git curl
 dev-vcs/mercurial python_targets_python2_7
 net-misc/curl ssl threads curl_ssl_openssl
+net-misc/openssh ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/openrc netifrc

@@ -3,6 +3,7 @@ dev-lang/python ssl threads xml
 dev-util/pkgconfig internal-glib
 mail-mta/ssmtp mta
 net-misc/dhcp client
+net-misc/openssh ssl
 sys-apps/hwids udev
 sys-apps/kmod openrc tools
 sys-apps/openrc netifrc

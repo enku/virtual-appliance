@@ -2,6 +2,7 @@ app-editors/nano ncurses
 dev-lang/python ssl threads xml
 dev-libs/libpcre cxx
 dev-util/pkgconfig internal-glib
+net-misc/openssh ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/portage python3 ipc
