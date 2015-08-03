@@ -24,4 +24,5 @@ x11-libs/gtk+ X
 x11-libs/pango X
 xfce-base/thunar dbus xfce_plugins_trash
 xfce-base/xfce4-meta svg
+xfce-base/xfce4-session policykit
 xfce-base/xfwm4 xcomposite
