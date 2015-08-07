@@ -20,7 +20,7 @@ uwsgi --socket TP_DB/teamplayer.sock \
     --uid teamplayer \
     --gid teamplayer \
     --pidfile TP_DB/uwsgi.pid \
-    --daemonize2 /var/log/teamplayer/teamplayer.log \
+    --daemonize2 /var/log/teamplayer/uwsgi.log \
     -T
 
 # Start the Spin Doctor
