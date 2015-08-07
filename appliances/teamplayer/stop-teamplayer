@@ -9,7 +9,7 @@ DJANGO_SETTINGS_MODULE="project.settings_local" ; export DJANGO_SETTINGS_MODULE
 
 cd ~
 
-$PYTHON manage.py stop_stream >> "/var/log/teamplayer/teamplayer.log" 
+$PYTHON manage.py shutdown >> "/var/log/teamplayer/teamplayer.log" 
 [ -f "TP_DB/tps.pid" ] && kill $(cat "TP_DB/tps.pid")
 [ -f "TP_DB/uwsgi.pid" ] && kill $(cat "TP_DB/uwsgi.pid")
 
