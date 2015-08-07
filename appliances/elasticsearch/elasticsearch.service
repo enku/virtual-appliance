@@ -1,0 +1,12 @@
+[Unit]
+Description = ElasticSearch full-text search and analytics engine
+After = network.target
+
+[Service]
+User = elastic
+Group = elastic
+Environment=ES_HOME=/var/lib/elasticsearch
+ExecStart = /var/lib/elasticsearch/bin/elasticsearch
+
+[Install]
+WantedBy = multi-user.target
