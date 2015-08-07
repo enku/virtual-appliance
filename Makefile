@@ -353,7 +353,6 @@ help:
 	@echo 'sync_portage             - Download the latest portage snapshot'
 	@echo 'sync_stage3              - Download the latest stage3 tarball'
 	@echo 'stage4                   - Build a stage4 tarball'
-	@echo 'software                 - Build software into a chroot'
 	@echo 'clean                    - Unmount chroot and clean directory'
 	@echo 'eclean                   - Clean outdated packages and distfiles'
 	@echo 'realclean                - Clean and remove image files'
@@ -380,4 +379,4 @@ help:
 	@scripts/echo 'Example'
 	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
 
-.PHONY: qcow vmdk clean realclean distclean stage4 build-software image stage4 help appliance-list eclean sync_portage sync_stage3 checksums
+.PHONY: qcow vmdk clean realclean distclean stage4 image stage4 help appliance-list eclean sync_portage sync_stage3 checksums
