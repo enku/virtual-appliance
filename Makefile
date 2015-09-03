@@ -246,7 +246,7 @@ ifneq ($(PKGLIST),0)
 	echo \# Gentoo Virtual Appliance \"$(APPLIANCE)\" package list >> $(LST_FILE)
 	echo \# Generated `date -u` >> $(LST_FILE)
 	echo \# >> $(LST_FILE)
-	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */*) >> $(LST_FILE)
+	(cd "$(CHROOT)"/var/db/pkg ; /bin/ls -1d */* | grep -v '^virtual/') >> $(LST_FILE)
 endif
 	touch $(SOFTWARE)
 
