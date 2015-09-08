@@ -56,7 +56,7 @@ EXTRA_WORLD =
 inroot := systemd-nspawn --quiet \
 	--directory=$(CHROOT) \
 	--machine=$(APPLIANCE)-build \
-	--bind=$(PORTAGE_DIR):/usr/portage \
+	--bind=$(PORTAGE_DIR)/portage:/usr/portage \
 	--bind=$(PKGDIR):/usr/portage/packages \
 	--bind=$(DISTDIR):/usr/portage/distfiles 
 
@@ -103,12 +103,11 @@ $(PORTAGE_DIR): portage-snapshot.tar.bz2
 	@scripts/echo Unpacking portage snapshot
 	rm -rf $(PORTAGE_DIR)
 	mkdir $(PORTAGE_DIR)
-	tar xf portage-snapshot.tar.bz2 -C $(PORTAGE_DIR)/..
+	tar xf portage-snapshot.tar.bz2 -C $(PORTAGE_DIR)
 ifeq ($(EMERGE_RSYNC),YES)
 	@scripts/echo Syncing portage tree
 	$(inroot) emerge --sync --quiet
 endif
-	touch $(PORTAGE_DIR)
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
