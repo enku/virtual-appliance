@@ -11,7 +11,7 @@ QCOW_IMAGE = $(IMAGES)/$(APPLIANCE).qcow
 VMDK_IMAGE = $(IMAGES)/$(APPLIANCE).vmdk
 XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
-CHECKSUMS = $(IMAGES)/$(APPLIANCE)-sha256sums.txt
+CHECKSUMS = $(IMAGES)/SHA256SUMS
 STAGE3 = $(CHROOT)/tmp/stage3
 COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
 SOFTWARE = $(CHROOT)/tmp/software
@@ -346,12 +346,8 @@ appliance-list:
 
 
 checksums:
-	$(RM) $(CHECKSUMS).tmp
-	-cd $(IMAGES) && sha256sum `basename $(STAGE4_TARBALL)` \
-		`basename $(RAW_IMAGE)` \
-		`basename $(QCOW_IMAGE)` \
-		`basename $(VMDK_IMAGE)` \
-		`basename $(XVA_IMAGE)` > $(CHECKSUMS).tmp
+	$(RM) $(CHECKSUMS)
+	cd $(IMAGES) && sha256sum --binary * > $(CHECKSUMS).tmp
 	mv $(CHECKSUMS).tmp $(CHECKSUMS)
 
 help:
