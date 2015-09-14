@@ -54,9 +54,16 @@ EXTRA_WORLD =
 # Allow user to override variables
 -include $(profile).cfg
 
+ifneq ($(profile),)
+	container = $(profile)-$(APPLIANCE)-build
+else
+	container = $(APPLIANCE)-build
+endif
+
+
 inroot := systemd-nspawn --quiet \
 	--directory=$(CHROOT) \
-	--machine=$(APPLIANCE)-build \
+	--machine=$(container) \
 	--bind=$(PORTAGE_DIR)/portage:/usr/portage \
 	--bind=$(PKGDIR):/usr/portage/packages \
 	--bind=$(DISTDIR):/usr/portage/distfiles 
