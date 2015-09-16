@@ -7,6 +7,7 @@ gnome-base/gvfs udev udisks
 media-libs/harfbuzz glib truetype
 media-libs/libpng apng
 media-libs/libvpx threads
+media-libs/mesa egl
 net-misc/curl ssl
 net-misc/openssh ssl
 sys-apps/hwids udev
