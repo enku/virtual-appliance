@@ -221,11 +221,8 @@ $(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 	@scripts/echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
-	if test `stat -c "%s" $(WORLD)` -ne 0 ; then \
-		$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep `cat $(WORLD)` $(EXTRA_WORLD); \
-		else \
-		true; \
-	fi
+	cp $(WORLD) $(CHROOT)/tmp/world
+	$(inroot) xargs -a/tmp/world -d'\n' -r $(EMERGE) $(USEPKG) --update --newuse --deep 
 	-$(gcc_config)
 	
 	@scripts/echo Running @preserved-rebuild
