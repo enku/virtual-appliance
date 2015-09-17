@@ -3,8 +3,6 @@ AIRPORT_REPO ?= https://bitbucket.org/marduk/airport
 AIRPORT_BRANCH ?= default
 PGVER := 9.4
 
-rcdefault := /etc/runlevels/default
-
 preinstall:
 
 
