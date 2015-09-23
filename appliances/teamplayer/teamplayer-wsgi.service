@@ -6,6 +6,7 @@ After=teamplayer-pre.service
 Wants=nginx.service
 
 [Service]
+Type=notify
 User=teamplayer
 WorkingDirectory=/opt/teamplayer
 Environment=PYTHONPATH=/opt/teamplayer
