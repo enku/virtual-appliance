@@ -1,0 +1,23 @@
+[Unit]
+Description=TeamPlayer WSGI Server
+Documentation=https://bitbucket.org/marduk/teamplayer/
+Requires=teamplayer-pre.service
+After=teamplayer-pre.service
+Wants=nginx.service
+
+[Service]
+User=teamplayer
+WorkingDirectory=/opt/teamplayer
+Environment=PYTHONPATH=/opt/teamplayer
+Environment=DJANGO_SETTINGS_MODULE=project.settings_local
+WorkingDirectory=/opt/teamplayer
+ExecStart=/opt/teamplayer/bin/uwsgi --master -p 4 \
+    --socket=TP_DB/teamplayer.sock \
+    --chmod=660 -w project.wsgi --uid=teamplayer --gid=teamplayer \
+    --pidfile=TP_DB/teamplayer.pid
+PIDFile=TP_DB/teamplayer.pid
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
+  

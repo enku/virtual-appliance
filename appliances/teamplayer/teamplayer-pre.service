@@ -1,0 +1,15 @@
+[Unit]
+Description=TeamPlayer (Pre)
+Documentation=https://bitbucket.org/marduk/teamplayer/
+Requires=postgresql-PGVER.service
+After=postgresql-PGVER.service
+
+[Service]
+Type=oneshot
+User=TP_USER
+Environment=PYTHONPATH=TP_HOME
+Environment=DJANGO_SETTINGS_MODULE=project.settings_local
+WorkingDirectory=TP_HOME
+ExecStart=-/usr/bin/createuser -U postgres -D -S -R TP_USER
+ExecStart=-/usr/bin/createdb -U postgres TP_USER
+ExecStart=TP_HOME/bin/python manage.py migrate --noinput

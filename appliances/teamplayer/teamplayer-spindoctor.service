@@ -1,0 +1,17 @@
+[Unit]
+Description=TeamPlayer Spin Doctor
+Documentation=https://bitbucket.org/marduk/teamplayer/
+Requires=teamplayer-pre.service
+After=teamplayer-pre.service
+After=teamplayer-wsgi.service
+
+[Service]
+User=TP_USER
+Environment=PYTHONPATH=TP_HOME
+Environment=DJANGO_SETTINGS_MODULE=project.settings_local
+WorkingDirectory=TP_HOME
+ExecStart=TP_HOME/bin/python manage.py spindoctor --verbosity=2 
+
+[Install]
+WantedBy=multi-user.target
+  

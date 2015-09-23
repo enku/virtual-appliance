@@ -7,13 +7,14 @@ PGVER = 9.4
 INSTALL = install
 AVAHI := NO
 
-M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB) -D HOSTNAME=$(HOSTNAME)
+M4_DEFS += -D TP_USER=$(TP_USER) -D TP_HOME=$(TP_HOME) -D TP_DB=$(TP_DB) -D HOSTNAME=$(HOSTNAME) -D PGVER=$(PGVER)
 M4C = $(M4) $(M4_DEFS)
 
 rcdefault := /etc/runlevels/default
 
-post_files = bash_profile settings_local.py start-teamplayer stop-teamplayer
-post_files += local.start local.stop issue nginx.conf teamplayer.service
+post_files = bash_profile settings_local.py teamplayer-pre.service
+post_files += teamplayer-wsgi.service teamplayer-spindoctor.service
+post_files += issue nginx.conf teamplayer.service
 
 preinstall:
 
@@ -24,7 +25,6 @@ postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
-	$(inroot) systemctl enable postgresql-$(PGVER).service
 ifeq ($(AVAHI),YES)
 	$(inroot) $(EMERGE) --noreplace $(USEPKG) net-dns/avahi
 	$(inroot) rm -f /etc/avahi/services/*
@@ -48,27 +48,20 @@ endif
 ifdef SCROBBLER_AUTH
 	cat $(SCROBBLER_AUTH) >> $(CHROOT)/$(TP_HOME)/project/settings_local.py
 endif
-	mkdir -p $(CHROOT)$(TP_HOME)/bin
-	$(M4C) start-teamplayer > $(CHROOT)$(TP_HOME)/bin/start-teamplayer
-	chmod +x $(CHROOT)$(TP_HOME)/bin/start-teamplayer
-	$(M4C) stop-teamplayer > $(CHROOT)$(TP_HOME)/bin/stop-teamplayer
-	chmod +x $(CHROOT)$(TP_HOME)/bin/stop-teamplayer
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate; cd $(TP_HOME); DJANGO_SETTINGS_MODULE=project.settings_local $(TP_HOME)/manage.py collectstatic --noinput"
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)/songs
 	$(inroot) mkdir -p $(TP_HOME)/library
 	$(inroot) chown -R $(TP_USER):$(TP_USER) $(TP_HOME)
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)/mpd
-	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) /var/log/teamplayer
-	$(M4C) local.start > $(CHROOT)/etc/local.d/teamplayer.start
-	$(M4C) local.stop > $(CHROOT)/etc/local.d/teamplayer.stop
-	$(inroot) chmod +x /etc/local.d/teamplayer.start
-	$(inroot) chmod +x /etc/local.d/teamplayer.stop
+	$(M4C) teamplayer-pre.service > $(CHROOT)/etc/systemd/system/teamplayer-pre.service
+	$(M4C) teamplayer-wsgi.service > $(CHROOT)/etc/systemd/system/teamplayer-wsgi.service
+	$(M4C) teamplayer-spindoctor.service > $(CHROOT)/etc/systemd/system/teamplayer-spindoctor.service
 	cp issue $(CHROOT)/etc/issue
 	$(M4C) nginx.conf > $(CHROOT)/etc/nginx/nginx.conf
 	$(inroot) gpasswd -a nginx teamplayer
-
-	$(inroot) systemctl enable nginx.service
-	#$(inroot) ln -sf /etc/init.d/ntpd $(rcdefault)/ntpd
+	$(inroot) systemctl enable teamplayer-wsgi.service
+	$(inroot) systemctl enable teamplayer-spindoctor.service
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 
 clean:
