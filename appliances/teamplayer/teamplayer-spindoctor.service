@@ -14,4 +14,3 @@ ExecStart=TP_HOME/bin/python manage.py spindoctor --verbosity=2
 
 [Install]
 WantedBy=multi-user.target
-  
