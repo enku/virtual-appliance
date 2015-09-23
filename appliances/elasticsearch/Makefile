@@ -14,7 +14,7 @@ create_user:
 
 install_elasticsearch:
 	$(inroot) test -f /usr/portage/distfiles/$(ES_TARBALL) || \
-		wget -P /usr/portage/distfiles $(ES_URL)
+		$(inroot) wget -P /usr/portage/distfiles $(ES_URL)
 	$(inroot) tar xf /usr/portage/distfiles/$(ES_TARBALL) -C $(ES_HOME)
 	$(inroot) sh -c 'cd $(ES_HOME) && ln -s elasticsearch-$(ES_VER)/* .'
 
