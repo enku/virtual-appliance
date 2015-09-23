@@ -16,7 +16,7 @@ ExecStart=/opt/teamplayer/bin/uwsgi --master -p 4 \
     --chmod=660 -w project.wsgi --uid=teamplayer --gid=teamplayer \
     --pidfile=TP_DB/teamplayer.pid
 PIDFile=TP_DB/teamplayer.pid
-TimeoutStopSec=10
+KillSignal=SIGQUIT
 
 [Install]
 WantedBy=multi-user.target
