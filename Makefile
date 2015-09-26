@@ -35,6 +35,7 @@ EXTERNAL_KERNEL = NO
 PKGLIST = 0
 ACCEPT_KEYWORDS = amd64
 DASH = NO
+LOCALE ?= en_US.utf8
 
 M4 = m4
 EMERGE = /usr/bin/emerge --jobs=4
@@ -191,6 +192,7 @@ $(SYSTOOLS): $(PREPROOT) $(COMPILE_OPTIONS)
 		--timezone=$(TIMEZONE) \
 		--hostname=$(HOSTNAME) \
 		--root-password=
+	$(inroot) eselect locale set $(LOCALE)
 ifeq ($(DASH),YES)
 	if ! test -e "$(STAGE4_TARBALL)";  \
 	then $(inroot) $(EMERGE) --noreplace $(USEPKG) app-shells/dash; \
