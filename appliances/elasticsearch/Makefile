@@ -18,11 +18,16 @@ install_elasticsearch:
 	$(inroot) tar xf /usr/portage/distfiles/$(ES_TARBALL) -C $(ES_HOME)
 	$(inroot) sh -c 'cd $(ES_HOME) && ln -s elasticsearch-$(ES_VER)/* .'
 
+install_marvel:
+	$(inroot) sh -c 'cd $(ES_HOME) && ./bin/plugin -i elasticsearch/marvel/latest'
+	echo 'marvel.agent.enabled: false' >> $(CHROOT)/$(ES_HOME)/config/elasticsearch.yml
+
 postinstall: elasticsearch.service
 	$(MAKE) create_user
 	$(inroot) rm -rf $(ES_HOME)
 	$(inroot) mkdir -p $(ES_HOME)
 	$(MAKE) install_elasticsearch
+	$(MAKE) install_marvel
 	$(inroot) chown -R elastic:elastic $(ES_HOME)
 	cp elasticsearch.service $(CHROOT)/etc/systemd/system
 	$(inroot) systemctl enable elasticsearch.service
