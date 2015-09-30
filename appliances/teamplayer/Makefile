@@ -38,8 +38,8 @@ endif
 	mkdir -p $(CHROOT)/$(TP_HOME)
 	cp bash_profile $(CHROOT)$(TP_HOME)/.bash_profile
 	$(inroot) virtualenv $(TP_HOME)
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; LANG=en_US.utf8 pip install hg+$(TP_REPO)@$(TP_BRANCH)"
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install psycopg2 uwsgi Whoosh setproctitle"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; LANG=en_US.utf8 pip install --no-cache-dir hg+$(TP_REPO)@$(TP_BRANCH)"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; pip install --no-cache-dir psycopg2 uwsgi Whoosh setproctitle"
 	$(inroot) bash -c ". $(TP_HOME)/bin/activate ; django-admin.py startproject project $(TP_HOME)"
 	chmod +x $(CHROOT)/$(TP_HOME)/manage.py
 	$(inroot) ln -sf ../manage.py $(TP_HOME)/bin/manage
