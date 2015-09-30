@@ -10,7 +10,7 @@ sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 
 app-eselect/eselect-php apache2 fpm
-dev-lang/php apache2 cgi ctype curl fileinfo filter force-cgi-redirect fpm gd hash iconv json mhash pdo session simplexml sqlite truetype xml xmlreader xmlwriter zip zlib
+dev-lang/php apache2 cgi ctype curl fileinfo filter force-cgi-redirect fpm gd hash iconv json mhash pdo posix session simplexml sqlite truetype xml xmlreader xmlwriter zip zlib
 dev-libs/libpcre cxx
 www-apps/owncloud curl sqlite
 www-servers/apache ssl
