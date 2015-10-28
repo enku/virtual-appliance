@@ -14,7 +14,7 @@ virtual/udev gudev kmod
 # for gnome
 app-crypt/gcr gtk vala
 app-crypt/libsecret crypt  # wtf?
-app-crypt/pinentry gtk
+app-crypt/pinentry gnome-keyring gtk
 app-text/enchant hunspell
 app-text/poppler cairo
 dev-cpp/gtkmm X
@@ -34,7 +34,7 @@ gnome-base/gnome-panel bonobo
 gnome-base/gnome-settings-daemon policykit udev
 gnome-base/gvfs cdda gdu gtk http udev udisks
 gnome-base/librsvg gtk
-gnome-extra/evolution-data-server gnome-online-accounts ssl vala weather
+gnome-extra/evolution-data-server gnome-online-accounts gtk ssl vala weather
 mail-client/evolution ssl
 media-libs/clutter X gtk
 media-libs/cogl glib opengl pango
@@ -65,6 +65,7 @@ sys-apps/dbus X
 sys-apps/hwids udev
 sys-apps/systemd policykit
 sys-block/parted device-mapper
+sys-fs/lvm2 udev
 sys-fs/udev gudev hwdb
 sys-power/upower deprecated
 virtual/udev gudev hwdb

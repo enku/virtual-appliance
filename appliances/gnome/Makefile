@@ -5,7 +5,6 @@ preinstall: custom.conf
 
 
 postinstall: 
-	$(inroot) systemctl enable NetworkManager.service
 	$(inroot) systemctl enable gdm.service
 	$(inroot) systemctl enable avahi-daemon.service
 
