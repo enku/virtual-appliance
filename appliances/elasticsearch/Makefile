@@ -34,3 +34,5 @@ postinstall: elasticsearch.service
 
 clean:
 
+
+.PHONY: create_user preinstall postinstall clean install_elasticsearch install_marvel
