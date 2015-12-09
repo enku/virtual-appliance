@@ -349,6 +349,9 @@ checksums:
 	cd $(IMAGES) && sha256sum --binary * > $(CHECKSUMS).tmp
 	mv $(CHECKSUMS).tmp $(CHECKSUMS)
 
+shell: $(PREPROOT)
+	$(inroot)
+
 help:
 	@scripts/echo 'Help targets (this is not a comprehensive list)'
 	@echo
@@ -358,6 +361,7 @@ help:
 	@echo 'clean                    - Unmount chroot and clean directory'
 	@echo 'eclean                   - Clean outdated packages and distfiles'
 	@echo 'realclean                - Clean and remove image files'
+	@echo 'shell                    - Enter a shell in the build environment'
 	@scripts/echo 'Images'
 	@echo 'image                    - Build a raw VM image from stage4'
 	@echo 'qcow                     - Build a qcow VM image from a raw image'
