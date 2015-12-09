@@ -1,5 +1,5 @@
 ES_HOME ?= /var/lib/elasticsearch
-ES_VER ?= 1.7.2
+ES_VER ?= 2.1.0
 ES_TARBALL = elasticsearch-$(ES_VER).tar.gz
 ES_URL = https://download.elastic.co/elasticsearch/elasticsearch/$(ES_TARBALL)
 
@@ -18,8 +18,11 @@ install_elasticsearch:
 	$(inroot) tar xf /usr/portage/distfiles/$(ES_TARBALL) -C $(ES_HOME)
 	$(inroot) sh -c 'cd $(ES_HOME) && ln -s elasticsearch-$(ES_VER)/* .'
 
-install_marvel:
-	$(inroot) sh -c 'cd $(ES_HOME) && ./bin/plugin -i elasticsearch/marvel/latest'
+install_license:
+	$(inroot) sh -c 'cd $(ES_HOME) && ./bin/plugin install license'
+
+install_marvel: install_license
+	$(inroot) sh -c 'cd $(ES_HOME) && ./bin/plugin install marvel-agent'
 	echo 'marvel.agent.enabled: false' >> $(CHROOT)/$(ES_HOME)/config/elasticsearch.yml
 
 postinstall: elasticsearch.service
@@ -35,4 +38,4 @@ postinstall: elasticsearch.service
 clean:
 
 
-.PHONY: create_user preinstall postinstall clean install_elasticsearch install_marvel
+.PHONY: create_user preinstall postinstall clean install_elasticsearch install_marvel install_license
