@@ -17,6 +17,7 @@ app-crypt/libsecret crypt  # wtf?
 app-crypt/pinentry gnome-keyring gtk
 app-text/enchant hunspell
 app-text/poppler cairo
+app-text/xmlto text
 dev-cpp/gtkmm X
 dev-db/sqlite extensions
 dev-lang/vala vapigen
