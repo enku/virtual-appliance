@@ -31,7 +31,7 @@ ifeq ($(AVAHI),YES)
 	cp teamplayer.service $(CHROOT)/etc/avahi/services
 	$(inroot) systemctl enable avahi-daemon.service
 endif
-	$(inroot) $(EMERGE) --oneshot --noreplace $(USEPKG) dev-python/virtualenv dev-vcs/mercurial
+	$(inroot) $(EMERGE) --oneshot --noreplace $(USEPKG) dev-python/setuptools dev-python/virtualenv dev-vcs/mercurial
 	$(inroot) getent passwd $(TP_USER) || \
 		$(inroot) useradd -c "Teamplayer Server" -G postgres -U -d $(TP_HOME) $(TP_USER)
 	rm -rf $(CHROOT)/$(TP_HOME)
