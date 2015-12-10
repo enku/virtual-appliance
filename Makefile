@@ -354,6 +354,7 @@ shell: $(PREPROOT)
 	@scripts/echo 'Entering interactive shell for the $(APPLIANCE) build.'
 	@scripts/echo 'Type "exit" or "^D" to leave'
 	$(inroot)
+	rm -f $(CHROOT)/root/.bash_history
 
 help:
 	@scripts/echo 'Help targets (this is not a comprehensive list)'
