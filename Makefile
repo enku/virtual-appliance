@@ -345,11 +345,14 @@ appliance-list:
 
 
 checksums:
+	@scripts/echo 'Calculating checksums'
 	$(RM) $(CHECKSUMS)
 	cd $(IMAGES) && sha256sum --binary * > $(CHECKSUMS).tmp
 	mv $(CHECKSUMS).tmp $(CHECKSUMS)
 
 shell: $(PREPROOT)
+	@scripts/echo 'Entering interactive shell for the $(APPLIANCE) build.'
+	@scripts/echo 'Type "exit" or "^D" to leave'
 	$(inroot)
 
 help:
