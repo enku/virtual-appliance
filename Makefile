@@ -50,7 +50,7 @@ WORLD = appliances/$(APPLIANCE)/world
 EXTRA_WORLD =
 
 # Allow appliance to override variables
--include appliance/$(APPLIANCE)/$(APPLIANCE).cfg
+-include appliances/$(APPLIANCE)/$(APPLIANCE).cfg
 
 # Allow user to override variables
 -include $(profile).cfg
