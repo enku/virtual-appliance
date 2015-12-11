@@ -1,0 +1,13 @@
+[Unit]
+Description = An extensible open source continuous integration server
+After = network.target
+Wants = nginx.service
+
+[Service]
+User = jenkins
+Group = jenkins
+Environment=JENKINS_HOME=/var/lib/jenkins
+ExecStart = /usr/bin/java -jar ${JENKINS_HOME}/jenkins.jar
+
+[Install]
+WantedBy = multi-user.target

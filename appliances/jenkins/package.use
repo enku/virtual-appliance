@@ -1,0 +1,15 @@
+app-editors/nano ncurses
+dev-lang/python ssl threads xml
+dev-libs/libpcre cxx
+dev-util/pkgconfig internal-glib
+net-misc/openssh ssl
+net-misc/wget ssl
+sys-apps/hwids udev
+sys-apps/kmod tools
+sys-apps/portage ipc
+sys-auth/pambase nullok sha512
+sys-devel/gcc cxx nptl
+sys-kernel/gentoo-sources symlink
+
+# for Jenkins
+www-servers/nginx http
