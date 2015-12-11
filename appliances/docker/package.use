@@ -1,0 +1,15 @@
+app-editors/nano ncurses
+dev-lang/python ssl threads xml
+dev-libs/libpcre cxx
+dev-util/pkgconfig internal-glib
+net-misc/openssh ssl
+sys-apps/hwids udev
+sys-apps/kmod tools
+sys-apps/portage ipc
+sys-auth/pambase nullok sha512
+sys-devel/gcc cxx nptl
+sys-kernel/gentoo-sources symlink
+
+app-emulation/docker aufs btrfs overlay
+app-text/asciidoc python_single_target_python2_7 python_targets_python2_7
+net-misc/wget ssl
