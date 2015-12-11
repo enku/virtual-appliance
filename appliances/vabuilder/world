@@ -1,0 +1,5 @@
+app-emulation/qemu
+dev-libs/glib
+dev-vcs/mercurial
+sys-block/parted
+www-servers/nginx
