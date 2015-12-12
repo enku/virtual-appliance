@@ -1,0 +1,22 @@
+[Unit]
+Description=Airport WSGI Server
+Documentation=https://bitbucket.org/marduk/airport/
+Requires=airport-pre.service
+After=airport-pre.service
+Wants=nginx.service
+
+[Service]
+Type=notify
+User=airport
+WorkingDirectory=/var/lib/airport
+Environment=PYTHONPATH=/var/lib/airport/djangoproject
+Environment=DJANGO_SETTINGS_MODULE=djangoproject.settings
+ExecStart=/var/lib/airport/bin/uwsgi --master -p 4 \
+    --socket=/var/lib/airport/airport.sock \
+    --chmod=660 -w djangoproject.wsgi --uid=airport --gid=airport \
+    --pidfile=/var/lib/airport/airport.pid
+PIDFile=/var/lib/airport/airport.pid
+KillSignal=SIGQUIT
+
+[Install]
+WantedBy=multi-user.target

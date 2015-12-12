@@ -1,0 +1,16 @@
+[Unit]
+Description=Airport Game Server
+Documentation=https://bitbucket.org/marduk/airport/
+Requires=airport-pre.service
+After=airport-pre.service
+After=airport-wsgi.service
+
+[Service]
+User=airport
+Environment=PYTHONPATH=/var/lib/airport/djangoproject
+Environment=DJANGO_SETTINGS_MODULE=djangoproject.settings
+WorkingDirectory=/var/lib/airport
+ExecStart=/var/lib/airport/bin/python djangoproject/manage.py gameserver --verbosity=2 
+
+[Install]
+WantedBy=multi-user.target

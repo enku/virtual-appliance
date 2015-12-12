@@ -1,5 +1,0 @@
-#!/bin/sh
-# this should be run as the airport user
-
-[ -f "/var/airport/gameserver.pid" ] && kill $(cat "/var/airport/gameserver.pid")
-[ -f "/var/airport/uwsgi.pid" ] && kill $(cat "/var/airport/uwsgi.pid")

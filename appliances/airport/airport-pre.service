@@ -1,0 +1,16 @@
+[Unit]
+Description=Airport (Pre)
+Documentation=https://bitbucket.org/marduk/airport/
+Requires=postgresql-9.4.service
+After=postgresql-9.4.service
+
+[Service]
+Type=oneshot
+User=airport
+Environment=PYTHONPATH=/var/lib/airport/djangoproject
+Environment=DJANGO_SETTINGS_MODULE=djangoproject.settings
+WorkingDirectory=/var/lib/airport
+ExecStart=-/usr/bin/createuser -U postgres -D -S -R airport
+ExecStart=-/usr/bin/createdb -U postgres airport
+ExecStart=/var/lib/airport/bin/python djangoproject/manage.py migrate auth --noinput
+ExecStart=/var/lib/airport/bin/python djangoproject/manage.py migrate --noinput
