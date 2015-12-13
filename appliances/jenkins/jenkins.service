@@ -7,7 +7,7 @@ Wants = nginx.service
 User = jenkins
 Group = jenkins
 Environment=JENKINS_HOME=/var/lib/jenkins
-ExecStart = /usr/bin/java -jar ${JENKINS_HOME}/jenkins.jar
+ExecStart = /usr/bin/java -jar ${JENKINS_HOME}/jenkins.war
 
 [Install]
 WantedBy = multi-user.target
