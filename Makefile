@@ -12,13 +12,13 @@ VMDK_IMAGE = $(IMAGES)/$(APPLIANCE).vmdk
 XVA_IMAGE = $(IMAGES)/$(APPLIANCE).xva
 LST_FILE = $(IMAGES)/$(APPLIANCE)-packages.lst
 CHECKSUMS = $(IMAGES)/SHA256SUMS
-STAGE3 = $(CHROOT)/tmp/stage3
-COMPILE_OPTIONS = $(CHROOT)/tmp/compile_options
-SOFTWARE = $(CHROOT)/tmp/software
-KERNEL = $(CHROOT)/tmp/kernel
-GRUB = $(CHROOT)/tmp/grub
-PREPROOT = $(CHROOT)/tmp/preproot
-SYSTOOLS = $(CHROOT)/tmp/systools
+STAGE3 = $(CHROOT)/var/tmp/stage3
+COMPILE_OPTIONS = $(CHROOT)/var/tmp/compile_options
+SOFTWARE = $(CHROOT)/var/tmp/software
+KERNEL = $(CHROOT)/var/tmp/kernel
+GRUB = $(CHROOT)/var/tmp/grub
+PREPROOT = $(CHROOT)/var/tmp/preproot
+SYSTOOLS = $(CHROOT)/var/tmp/systools
 STAGE4_TARBALL = $(VABUILDER_OUTPUT)/images/$(APPLIANCE).tar.xz
 VIRTIO = NO
 TIMEZONE = UTC
@@ -223,8 +223,8 @@ $(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 	@scripts/echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
-	cp $(WORLD) $(CHROOT)/tmp/world
-	$(inroot) xargs -a/tmp/world -d'\n' -r $(EMERGE) $(USEPKG) --update --newuse --deep 
+	cp $(WORLD) $(CHROOT)/var/tmp/world
+	$(inroot) xargs -a/var/tmp/world -d'\n' -r $(EMERGE) $(USEPKG) --update --newuse --deep 
 	-$(gcc_config)
 	
 	@scripts/echo Running @preserved-rebuild
