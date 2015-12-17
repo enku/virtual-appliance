@@ -43,7 +43,6 @@ M4_DEFS = -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
-EMERGE_RSYNC = NO
 KERNEL_PKG = gentoo-sources
 PACKAGE_FILES = $(wildcard appliances/$(APPLIANCE)/package.*)
 WORLD = appliances/$(APPLIANCE)/world
@@ -65,7 +64,7 @@ endif
 inroot := systemd-nspawn --quiet \
 	--directory=$(CHROOT) \
 	--machine=$(container) \
-	--bind=$(PORTAGE_DIR)/portage:/usr/portage \
+	--bind=$(PORTAGE_DIR):/usr/portage \
 	--bind=$(PKGDIR):/usr/portage/packages \
 	--bind=$(DISTDIR):/usr/portage/distfiles 
 
@@ -97,26 +96,14 @@ all: stage4
 
 image: $(RAW_IMAGE)
 
-portage-snapshot.tar.bz2:
-	@scripts/echo You do not have a portage snapshot. Consider \"make sync_portage\"
-	@exit 1
+sync_portage: $(PORTAGE_DIR)
+	@scripts/echo Grabbing latest portage
+	git -C $(PORTAGE_DIR) pull
+	touch $(PORTAGE_DIR)
 
-
-sync_portage:
-	@scripts/echo Grabbing latest portage snapshot
-	rsync --no-motd -L $(RSYNC_MIRROR)/snapshots/portage-latest.tar.bz2 portage-snapshot.tar.bz2
-	touch portage-snapshot.tar.bz2
-
-
-$(PORTAGE_DIR): portage-snapshot.tar.bz2
-	@scripts/echo Unpacking portage snapshot
-	rm -rf $(PORTAGE_DIR)
-	mkdir $(PORTAGE_DIR)
-	tar xf portage-snapshot.tar.bz2 -C $(PORTAGE_DIR)
-ifeq ($(EMERGE_RSYNC),YES)
-	@scripts/echo Syncing portage tree
-	$(inroot) emerge --sync --quiet
-endif
+$(PORTAGE_DIR):
+	@scripts/echo Grabbing the portage tree
+	git clone --depth=1 git://github.com/gentoo/gentoo.git $(PORTAGE_DIR)
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
