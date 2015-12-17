@@ -1,2 +1,7 @@
 dev-java/icedtea-bin
+dev-python/setuptools
+dev-python/virtualenv
+dev-vcs/git
+dev-vcs/mercurial
+dev-vcs/subversion
 www-servers/nginx

@@ -12,4 +12,6 @@ sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 
 # for Jenkins
+dev-lang/python sqlite
+dev-vcs/mercurial python_targets_python2_7
 www-servers/nginx http
