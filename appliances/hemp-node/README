@@ -1,3 +1,0 @@
-
-You should pass "APPLIANCE=hemp-node CHANGE_PASSWORD=NO REMOVE_PORTAGE=NO"
-to the toplevel Makefile for this to be useable
