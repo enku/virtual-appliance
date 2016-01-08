@@ -8,6 +8,7 @@ dev-util/scons python_targets_python2_7
 net-misc/curl ssl
 net-misc/dhcp client
 net-misc/openssh ssl
+net-misc/wget ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/portage python3 ipc
