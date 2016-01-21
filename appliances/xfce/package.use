@@ -10,6 +10,7 @@ media-libs/libvpx threads
 media-libs/mesa egl
 net-misc/curl ssl
 net-misc/openssh ssl
+net-misc/wget ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/portage python3 ipc

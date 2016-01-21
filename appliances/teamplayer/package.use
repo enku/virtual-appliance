@@ -8,6 +8,7 @@ media-libs/flac ogg
 media-sound/mpd faad audiofile ffmpeg flac glib inotify id3tag lame network ogg vorbis mad soup sqlite  unicode 
 media-video/ffmpeg avx cpudetection mmx mmxext mp3 network ssse3 x264 
 net-misc/openssh ssl
+net-misc/wget ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
 sys-apps/portage ipc
