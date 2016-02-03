@@ -13,4 +13,4 @@ sys-kernel/gentoo-sources symlink
 
 # for mariadb
 net-misc/curl ssl
-dev-db/mariadb ssl
+dev-db/mariadb server ssl
