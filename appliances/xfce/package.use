@@ -1,3 +1,4 @@
+app-crypt/pinentry gtk
 app-editors/nano ncurses
 dev-db/sqlite extensions
 dev-lang/python ssl sqlite threads xml
