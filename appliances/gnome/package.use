@@ -19,6 +19,7 @@ app-crypt/pinentry gnome-keyring gtk
 app-text/enchant hunspell
 app-text/poppler cairo
 app-text/xmlto text
+dev-cpp/cairomm X svg
 dev-cpp/gtkmm X
 dev-db/sqlite extensions
 dev-lang/vala vapigen
@@ -31,6 +32,7 @@ dev-libs/nettle gmp
 dev-python/pygobject threads
 gnome-base/gconf gtk policykit
 gnome-base/gnome extras
+gnome-base/gnome-common autoconf-archive
 gnome-base/gnome-menus python
 gnome-base/gnome-panel bonobo
 gnome-base/gnome-settings-daemon policykit udev
@@ -39,8 +41,11 @@ gnome-base/librsvg gtk
 gnome-extra/evolution-data-server gnome-online-accounts gtk ssl vala weather
 mail-client/evolution ssl
 media-libs/clutter X gtk
+media-libs/clutter-gst X
+media-libs/clutter-gtk X gtk
 media-libs/cogl glib opengl pango
 media-libs/grilo network playlist
+media-libs/gst-plugins-bad X opengl
 media-libs/gst-plugins-base X pango
 media-libs/gst-plugins-base ogg theora vorbis
 media-libs/harfbuzz glib icu truetype
