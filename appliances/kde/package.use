@@ -14,39 +14,50 @@ sys-fs/udev openrc
 sys-kernel/gentoo-sources symlink
 
 # per kde
-app-misc/strigi dbus qt4
+app-arch/libarchive bzip2
+app-crypt/qca openssl
+app-misc/strigi dbus
+app-office/akonadi-server soprano sqlite
 app-text/poppler utils
+dev-libs/boost threads
+dev-libs/libpcre pcre16
 dev-libs/libxml2 python
 dev-libs/soprano dbus raptor redland virtuoso
 dev-libs/xmlrpc-c curl
+dev-python/PyQt4 X dbus declarative sql svg webkit
+dev-qt/qt3support accessibility kde
+dev-qt/qtcore exceptions glib icu qt3support ssl
+dev-qt/qtdeclarative qt3support accessibility
+dev-qt/qtdeclarative widgets
+dev-qt/qtgui accessibility dbus glib jpeg mng qt3support xcb
+dev-qt/qtnetwork ssl
+dev-qt/qtopengl qt3support
+dev-qt/qtquickcontrols widgets
+dev-qt/qtsql qt3support mysql
+dev-qt/qtsvg accessibility
+dev-qt/qtwebkit kde
+kde-base/kdelibs crypt opengl semantic-desktop
+kde-base/kwin opengl
+kde-frameworks/karchive bzip2 lzma
+kde-frameworks/kauth policykit
+kde-frameworks/kdelibs4support X
+kde-frameworks/kwindowsystem X
+kde-plasma/kinfocenter X
+media-libs/gd png
+media-libs/mesa egl gbm wayland
 media-libs/phonon gstreamer
 media-libs/xine-lib vorbis xcb 
 media-plugins/gst-plugins-meta ogg vorbis
 net-misc/curl ssl
+net-print/cups dbus
 sys-apps/dbus X
 sys-auth/consolekit policykit
 sys-block/parted device-mapper
-sys-fs/udev extras
+sys-fs/lvm2 udev
+sys-fs/udev extras hwdb gudev
+sys-libs/zlib minizip
+virtual/udev hwdb gudev
 x11-libs/cairo X svg
 x11-libs/cairo glib
-dev-qt/qtcore exceptions glib qt3support ssl
-dev-qt/qtdeclarative qt3support accessibility
-dev-qt/qtgui accessibility dbus glib mng qt3support
-dev-qt/qtopengl qt3support
-dev-qt/qt3support accessibility kde
-dev-qt/qtsql qt3support mysql
-dev-qt/qtsvg accessibility
-dev-qt/qtwebkit kde
-kde-base/kwin opengl
-kde-base/kdelibs crypt opengl semantic-desktop
-media-libs/gd png
-app-text/poppler qt4
-net-print/cups dbus
-dev-python/PyQt4 X dbus declarative sql svg webkit
-sys-fs/udev hwdb gudev
-virtual/udev hwdb gudev
-app-crypt/qca openssl
-app-crypt/pinentry qt4
-dev-libs/boost threads
-sys-libs/zlib minizip
-app-office/akonadi-server soprano sqlite
+x11-libs/libxcb xkb
+x11-libs/libxkbcommon X
