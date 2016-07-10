@@ -1,6 +1,0 @@
-#!/bin/sh
-# start script for baselayout-2 to start kdm
-
-/usr/bin/kdm -daemon
-
-exit 0
