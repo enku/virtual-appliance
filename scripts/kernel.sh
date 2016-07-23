@@ -2,22 +2,18 @@ set -ev
 
 # (possibly) build the kernel
 
-current_kernel=""
-if [ -d "/var/db/pkg/sys-kernel" ]
-then
-    cd "/var/db/pkg/sys-kernel"
-    current_kernel=`/bin/ls -d1 "${KERNEL}-"* | tail -n 1|sed s/"${KERNEL}-//;s/-r[1-9]\+$//"`
-fi
+current_kernel=$(emerge -qp ${KERNEL}|awk '{print $4}'|cut -d/ -f2|sed s/"${KERNEL}-//;s/-r[1-9]\+$//")
+echo $current_kernel
 
 # If there is already a kernel in /boot and emerging the kernel only
-# re-installs the same package, we can skip this
+# re-installs the same kernel, we can skip this
 if [ -n "$current_kernel" ] && [ -e /boot/vmlinuz ] && \
     readlink /boot/vmlinuz | grep $current_kernel > /dev/null
 then
     exit
 fi
 
-${EMERGE} ${USEPKG} --newuse --noreplace sys-kernel/${KERNEL}
+${EMERGE} ${USEPKG} --oneshot --newuse --noreplace sys-kernel/${KERNEL}
 cp /root/kernel.config /usr/src/linux/.config
 gcc-config 1
 cd /usr/src/linux
