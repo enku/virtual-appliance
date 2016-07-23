@@ -25,9 +25,9 @@ postinstall: jenkins.service nginx.conf
 	$(inroot) mkdir -p $(JENKINS_HOME)
 	$(MAKE) install_jenkins
 	$(inroot) chown -R jenkins:jenkins $(JENKINS_HOME)
-	cp -u jenkins.service $(CHROOT)/etc/systemd/system
+	cp jenkins.service $(CHROOT)/etc/systemd/system
 	$(inroot) systemctl enable jenkins.service
-	cp -u nginx.conf $(CHROOT)/etc/nginx/nginx.conf
+	cp nginx.conf $(CHROOT)/etc/nginx/nginx.conf
 	$(inroot) systemctl enable nginx.service
 
 clean:
