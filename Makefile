@@ -171,9 +171,9 @@ endif
 
 $(SYSTOOLS): $(PREPROOT) $(COMPILE_OPTIONS)
 	@scripts/echo Installing standard system tools
-	-$(inroot) $(EMERGE) --unmerge sys-fs/eudev
-	$(inroot) $(EMERGE) $(USEPKG) --noreplace --oneshot sys-apps/systemd
-	$(inroot) systemd-firstboot \
+	systemd-firstboot \
+		--root=$(CHROOT) \
+		--setup-machine-id \
 		--timezone=$(TIMEZONE) \
 		--hostname=$(HOSTNAME) \
 		--root-password=
