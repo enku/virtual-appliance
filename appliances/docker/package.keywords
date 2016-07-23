@@ -1,7 +1,7 @@
-app-emulation/containerd ~amd64 ~x86
-app-emulation/docker ~amd64
-app-emulation/runc ~amd64 ~x86
-dev-go/blackfriday ~amd64
-dev-go/go-md2man ~amd64
-dev-go/sanitized-anchor-name ~amd64
-sys-kernel/gentoo-sources ~amd64 ~x86
+app-emulation/containerd ~x86 ~amd64
+app-emulation/docker ~x86 ~amd64
+app-emulation/runc ~x86 ~amd64
+dev-go/blackfriday ~x86 ~amd64
+dev-go/go-md2man ~x86 ~amd64
+dev-go/sanitized-anchor-name ~x86 ~amd64
+sys-kernel/gentoo-sources ~x86 ~amd64
