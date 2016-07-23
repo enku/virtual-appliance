@@ -107,7 +107,6 @@ $(PORTAGE_DIR):
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(PKGDIR) $(DISTDIR)
-	#$(inroot) sed -i 's/root:.*/root::9797:0:::::/' /etc/shadow
 	cp configs/fstab $(CHROOT)/etc/fstab
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
