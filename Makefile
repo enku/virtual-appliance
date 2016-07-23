@@ -146,7 +146,6 @@ $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/l
 	cp configs/make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
-	$(inroot) eselect profile set 1
 	cp configs/locale.gen $(CHROOT)/etc/locale.gen
 	$(inroot) locale-gen
 	for f in $(PACKAGE_FILES); do \
