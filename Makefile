@@ -127,7 +127,7 @@ stage3-$(ARCH)-latest.tar.bz2:
 	@exit 1
 
 sync_stage3:
-	./scripts/sync-stage3.sh $(ARCH)
+	./scripts/fetch-stage3 --specialty=systemd --outfile=stage3-$(ARCH)-latest.tar.bz2 $(ARCH)
 
 
 $(STAGE3): stage3-$(ARCH)-latest.tar.bz2

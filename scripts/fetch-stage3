@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""fetch a stage3 from Gentoo's mirror"""
+
+import argparse
+import urllib.request
+import os
+import re
+import sys
+from collections import namedtuple
+
+MIRROR = 'http://gentoo.osuosl.org/'
+Stage3 = namedtuple('Stage3', 'url cpu specialty minimal nomultilib size')
+MINIMAL = re.compile(r'[\+-]minimal-')
+NOMULTILIB = re.compile(r'[\+-]nomultilib-')
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--cpu', type=str, default=None)
+    parser.add_argument('--specialty', type=str, default=None)
+    parser.add_argument('--no-multilib', action='store_true', default=False)
+    parser.add_argument('--minimal', action='store_true', default=False)
+    parser.add_argument('--outfile', type=str, default=None)
+    parser.add_argument('arch', type=str)
+
+    return parser.parse_args()
+
+
+def get_manifest(arch, mirror=MIRROR):
+    manifest = []
+    url = mirror + '/releases/{0}/autobuilds/latest-stage3.txt'.format(arch)
+    base_url = mirror + '/releases/{0}/autobuilds/'.format(arch)
+
+    with urllib.request.urlopen(url) as fp:
+        text = fp.read()
+        text = text.decode('ascii')
+
+    for line in text.split('\n'):
+        line = line.strip()
+
+        if not line or line[0] == '#':
+            continue
+
+        filename, size = line.split()
+        size = int(size)
+        dirname, rest = filename.split('/', 1)
+
+        if '/' in rest:
+            specialty, rest = rest.split('/', 1)
+        else:
+            specialty = None
+
+        cpu = rest.split('-', 2)[1]
+        nomultilib = 'nomultilib-' in rest
+        nomultilib = bool(NOMULTILIB.search(rest))
+        minimal = bool(MINIMAL.search(rest))
+
+        stage3 = Stage3(
+            cpu=cpu,
+            minimal=minimal,
+            nomultilib=nomultilib,
+            size=size,
+            specialty=specialty,
+            url=base_url + filename,
+        )
+
+        manifest.append(stage3)
+
+    return manifest
+
+
+def fetch(url, outfile):
+    """fetch url and write it to outfile"""
+    with urllib.request.urlopen(url) as infile, open(outfile, 'wb') as outfile:
+        while True:
+            data = infile.read(512)
+
+            if not data:
+                break
+
+            outfile.write(data)
+
+
+def main():
+    args = parse_args()
+    manifest = get_manifest(args.arch)
+    manifest.reverse()
+    stage3 = None
+
+    for item in manifest:
+        if args.cpu and item.cpu != args.cpu:
+            continue
+
+        if not all([
+            args.minimal == item.minimal,
+            args.no_multilib == item.nomultilib,
+            args.specialty == item.specialty,
+        ]):
+            continue
+
+        stage3 = item
+        break
+
+    if not stage3:
+        msg = 'No stage3 found matching your criteria\n'
+        sys.stderr.write(msg)
+        sys.exit(404)
+
+    filename = os.path.basename(stage3.url)
+    if args.outfile:
+        outfile = args.outfile
+    else:
+        outfile = filename
+
+    print(filename)
+    fetch(stage3.url, outfile)
+    stat = os.stat(outfile)
+
+    assert stat.st_size == stage3.size, 'File size does not match manifest'
+
+main()
