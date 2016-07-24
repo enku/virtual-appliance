@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+"""Build the latest kernel but only if need be"""
+import os
+import shutil
+import subprocess
+
+EMERGE = os.environ['EMERGE'].split()
+USEPKG = os.environ['USEPKG'].split()
+
+
+def get_latest_available_kernel():
+    kernel = os.environ['KERNEL']
+    package_name = 'sys-kernel/{}'.format(kernel)
+    popen = subprocess.Popen(
+        ['portageq', 'best_visible', '/', package_name],
+        stdout=subprocess.PIPE,
+    )
+    cpv = popen.stdout.read().decode().strip()
+
+    return cpv.rpartition('-')[2]
+
+
+def get_current_kernel():
+    """what kernel does /boot/vmlinuz point to"""
+    vmlinuz = '/boot/vmlinuz'
+
+    if not os.path.islink(vmlinuz):
+        return None
+
+    filename = os.path.basename(os.path.realpath(vmlinuz))
+    assert filename.startswith('vmlinuz')
+    part_after_vmlinuz = filename[8:]
+
+    # may have "-gentoo" or whatever in the name
+    version = part_after_vmlinuz.rpartition('-')[0]
+
+    return version
+
+
+def install_kernel_package():
+    kernel = os.environ['KERNEL']
+    package_name = 'sys-kernel/{}'.format(kernel)
+    cmd = EMERGE + USEPKG + ['--oneshot',  '--noreplace', package_name]
+
+    subprocess.check_call(cmd)
+
+
+def copy_kernel_config():
+    filename = '/root/kernel.config'
+
+    shutil.copy(filename, '/usr/src/linux/.config')
+
+
+def build_kernel():
+    makeopts = os.environ.get('MAKEOPTS', '')
+
+    subprocess.check_call([
+        'make', '-C', '/usr/src/linux', 'MAKEOPTS=' + makeopts, 'oldconfig'
+    ])
+    subprocess.check_call([
+        'make', '-C', '/usr/src/linux', 'MAKEOPTS=' + makeopts
+    ])
+
+
+def remove_old_kernels():
+    kernel_files = ['vmlinuz-', 'System.map-', 'config-']
+
+    for filename in os.listdir('/boot'):
+        for kernel_file in kernel_files:
+            if filename.startswith(kernel_file):
+                path = os.path.join('/boot', filename)
+                os.unlink(path)
+
+    if os.path.exists('/boot/vmlinuz'):
+        os.unlink('/boot/vmlinuz')
+
+    shutil.rmtree('/lib/modules', ignore_errors=True)
+
+
+def install_kernel():
+    makeopts = os.environ.get('MAKEOPTS', '')
+
+    subprocess.check_call([
+        'make', '-C', '/usr/src/linux', 'MAKEOPTS=' + makeopts, 'install',
+        'modules_install'
+    ])
+
+    # create the symlink.  /sbin/installkernel claims this is not used on
+    # "modern" distributions and doesn't create it (unless it already
+    # exists).  I still do this however.
+    for filename in os.listdir('/boot'):
+        if filename.startswith('vmlinuz-'):
+            os.symlink(filename, '/boot/vmlinuz')
+            break
+    else:
+        raise Exception('Could not find installed kernel')
+
+
+def uninstall_kernel_package():
+    subprocess.check_call([
+        'make', '-C', '/usr/src/linux', 'distclean'
+    ])
+
+    subprocess.check_call(EMERGE + USEPKG + ['--depclean', '--with-bdeps=n'])
+
+
+def main():
+    latest_kernel = get_latest_available_kernel()
+    current_kernel = get_current_kernel()
+
+    if current_kernel == latest_kernel:
+        return
+
+    install_kernel_package()
+    copy_kernel_config()
+    build_kernel()
+    remove_old_kernels()
+    install_kernel()
+
+    uninstall_kernel_package()
+
+
+main()
+

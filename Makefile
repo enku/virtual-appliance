@@ -155,17 +155,17 @@ $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/l
 	done
 	touch $(COMPILE_OPTIONS)
 
-$(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/kernel.sh
+$(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/build-kernel
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Configuring kernel
 	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
-	cp scripts/kernel.sh $(CHROOT)/root/kernel.sh
+	cp scripts/build-kernel $(CHROOT)/root/build-kernel
 	$(inroot) --setenv=KERNEL=$(KERNEL_PKG) \
 		      --setenv=EMERGE="$(EMERGE)" \
 	          --setenv=USEPKG="$(USEPKG)" \
 			  --setenv=MAKEOPTS="$(MAKEOPTS)" \
-	          /bin/sh /root/kernel.sh
-	rm -f $(CHROOT)/root/kernel.sh
+	          /root/build-kernel
+	rm -f $(CHROOT)/root/build-kernel
 endif
 	touch $(KERNEL)
 
