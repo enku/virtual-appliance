@@ -122,22 +122,22 @@ endif
 	cp -L /etc/resolv.conf $(CHROOT)/etc/resolv.conf
 	touch $(PREPROOT)
 
-stage3-$(ARCH)-latest.tar.bz2:
+stage3-$(ARCH).tar.bz2:
 	@scripts/echo You do not have a stage3 tarball. Consider \"make sync_stage3\"
 	@exit 1
 
 sync_stage3:
-	./scripts/fetch-stage3 --specialty=systemd --outfile=stage3-$(ARCH)-latest.tar.bz2 $(ARCH)
+	./scripts/fetch-stage3 --specialty=systemd --outfile=stage3-$(ARCH).tar.bz2 $(ARCH)
 
 
-$(STAGE3): stage3-$(ARCH)-latest.tar.bz2
+$(STAGE3): stage3-$(ARCH).tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@scripts/echo Using stage4 tarball: `basename $(STAGE4_TARBALL)`
 	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	@scripts/echo Using stage3 tarball
-	tar xpf stage3-$(ARCH)-latest.tar.bz2 -C $(CHROOT)
+	tar xpf stage3-$(ARCH).tar.bz2 -C $(CHROOT)
 endif
 	rm -f $(CHROOT)/etc/localtime
 	touch $(STAGE3)
@@ -289,7 +289,7 @@ $(VMDK_IMAGE): $(RAW_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-$(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(ARCH)-latest.tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
+$(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(ARCH).tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
 	$(MAKE) $(STAGE3)
 	$(MAKE) $(PREPROOT)
 	$(MAKE) $(SOFTWARE)
@@ -321,7 +321,7 @@ realclean: clean
 
 distclean: 
 	rm -f -- *.qcow *.img *.vmdk
-	rm -f latest-stage3.txt stage3-*-latest.tar.bz2
+	rm -f stage3-*.tar.bz2
 	rm -f portage-snapshot.tar.bz2
 
 appliance-list:
