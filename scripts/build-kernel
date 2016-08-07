@@ -104,6 +104,10 @@ def uninstall_kernel_package():
     subprocess.check_call(EMERGE + USEPKG + ['--depclean', '--with-bdeps=n'])
 
 
+def backup_kernel_config():
+    shutil.copy('/usr/src/linux/.config', '/root/kernel.config')
+
+
 def main():
     latest_kernel = get_latest_available_kernel()
     current_kernel = get_current_kernel()
@@ -116,6 +120,7 @@ def main():
     build_kernel()
     remove_old_kernels()
     install_kernel()
+    backup_kernel_config()
 
     uninstall_kernel_package()
 
