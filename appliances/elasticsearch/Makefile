@@ -30,7 +30,6 @@ postinstall: elasticsearch.service
 	$(inroot) rm -rf $(ES_HOME)
 	$(inroot) mkdir -p $(ES_HOME)
 	$(MAKE) install_elasticsearch
-	$(MAKE) install_marvel
 	$(inroot) chown -R elastic:elastic $(ES_HOME)
 	cp elasticsearch.service $(CHROOT)/etc/systemd/system
 	$(inroot) systemctl enable elasticsearch.service
