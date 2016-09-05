@@ -13,7 +13,7 @@ $(root_conf): my.cnf.root
 postinstall: $(system_conf) $(root_conf)
 	rm -rf $(CHROOT)/var/lib/mysql
 	$(inroot) bash -c 'yes gentoo | emerge --config dev-db/mariadb'
-	$(inroot) systemctl enable mysqld
+	$(inroot) systemctl enable mariadb
 
 clean:
 
