@@ -3,7 +3,7 @@ TP_BRANCH ?= default
 TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
-PGVER = 9.5
+PGVER = 9.6
 INSTALL = install
 AVAHI := NO
 
