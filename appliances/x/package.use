@@ -5,6 +5,7 @@ net-misc/openssh ssl
 net-misc/wget ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
+sys-apps/net-tools hostname
 sys-auth/pambase nullok sha512
 sys-devel/gcc cxx nptl
 x11-base/xorg-server minimal xorg nptl

@@ -11,6 +11,7 @@ net-misc/openssh ssl
 net-misc/wget ssl
 sys-apps/hwids udev
 sys-apps/kmod tools
+sys-apps/net-tools hostname
 sys-apps/portage python3 ipc
 sys-apps/systemd acl
 sys-auth/pambase nullok sha512
