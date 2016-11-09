@@ -13,6 +13,7 @@ sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
 
 # for rabbitmq
+dev-lang/erlang ssl
 dev-python/certifi python_targets_python2_7
 dev-python/packaging python_targets_python2_7
 dev-python/setuptools python_targets_python2_7
