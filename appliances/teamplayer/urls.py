@@ -1,8 +1,9 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
-urlpatterns = patterns(
-    '',
-    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-    url('^library/', include('tp_library.urls')),
-    url('', include('teamplayer.urls')),
-)
+from django.contrib.auth.views import login as django_login
+
+urlpatterns = [
+    url(r'^accounts/login/$', django_login),
+    url(r'^library/', include('tp_library.urls')),
+    url(r'', include('teamplayer.urls')),
+]

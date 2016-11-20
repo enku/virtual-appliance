@@ -1,4 +1,4 @@
-export DJANGO_SETTINGS_MODULE='project.settings_local'
+export DJANGO_SETTINGS_MODULE='project.settings'
 export PYTHONPATH="$HOME"
 PATH="$HOME/bin:$PATH"
 export LANG="en_US.UTF-8"

@@ -8,7 +8,7 @@ After=teamplayer-wsgi.service
 [Service]
 User=TP_USER
 Environment=PYTHONPATH=TP_HOME
-Environment=DJANGO_SETTINGS_MODULE=project.settings_local
+Environment=DJANGO_SETTINGS_MODULE=project.settings
 WorkingDirectory=TP_HOME
 ExecStart=TP_HOME/bin/python manage.py spindoctor --verbosity=2 
 

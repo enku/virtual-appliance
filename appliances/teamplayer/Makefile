@@ -12,7 +12,7 @@ M4C = $(M4) $(M4_DEFS)
 
 rcdefault := /etc/runlevels/default
 
-post_files = bash_profile settings_local.py teamplayer-pre.service
+post_files = bash_profile settings.py teamplayer-pre.service
 post_files += teamplayer-wsgi.service teamplayer-spindoctor.service
 post_files += issue nginx.conf teamplayer.service
 
@@ -44,11 +44,11 @@ endif
 	chmod +x $(CHROOT)/$(TP_HOME)/manage.py
 	$(inroot) ln -sf ../manage.py $(TP_HOME)/bin/manage
 	cp urls.py $(CHROOT)/$(TP_HOME)/project/urls.py
-	$(M4C) settings_local.py >> $(CHROOT)/$(TP_HOME)/project/settings_local.py
+	$(M4C) settings.py >> $(CHROOT)/$(TP_HOME)/project/settings.py
 ifdef SCROBBLER_AUTH
-	cat $(SCROBBLER_AUTH) >> $(CHROOT)/$(TP_HOME)/project/settings_local.py
+	cat $(SCROBBLER_AUTH) >> $(CHROOT)/$(TP_HOME)/project/settings.py
 endif
-	$(inroot) bash -c ". $(TP_HOME)/bin/activate; cd $(TP_HOME); DJANGO_SETTINGS_MODULE=project.settings_local $(TP_HOME)/manage.py collectstatic --noinput"
+	$(inroot) bash -c ". $(TP_HOME)/bin/activate; cd $(TP_HOME); DJANGO_SETTINGS_MODULE=project.settings $(TP_HOME)/manage.py collectstatic --noinput"
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)
 	$(inroot) $(INSTALL) -d -o $(TP_USER) -g $(TP_USER) $(TP_DB)/songs
 	$(inroot) mkdir -p $(TP_HOME)/library
