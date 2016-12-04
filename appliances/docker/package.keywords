@@ -1,6 +1,7 @@
 app-emulation/containerd ~x86 ~amd64
 app-emulation/docker ~x86 ~amd64
 app-emulation/docker-compose ~x86 ~amd64
+app-emulation/docker-proxy ~x86 ~amd64
 app-emulation/runc ~x86 ~amd64
 dev-go/blackfriday ~x86 ~amd64
 dev-go/go-md2man ~x86 ~amd64
@@ -8,6 +9,7 @@ dev-go/sanitized-anchor-name ~x86 ~amd64
 dev-python/backports-ssl-match-hostname ~x86 ~amd64
 dev-python/cached-property ~x86 ~amd64
 dev-python/docker-py ~x86 ~amd64
+dev-python/docker-pycreds ~x86 ~amd64
 dev-python/dockerpty ~x86 ~amd64
 dev-python/jsonschema ~x86 ~amd64
 dev-python/strict-rfc3339 ~x86 ~amd64
