@@ -20,7 +20,6 @@ INSTALLED_APPS = [
     'haystack',
     'rest_framework',
     'teamplayer',
-    'tp_library',
 ]
 
 MIDDLEWARE = [
@@ -128,7 +127,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-HAYSTACK_CUSTOM_HIGHLIGHTER = 'tp_library.Highlighter'
+HAYSTACK_CUSTOM_HIGHLIGHTER = 'teamplayer.library.Highlighter'
 
 TEAMPLAYER = {
     'STREAM_URL': '/stream.mp3',
