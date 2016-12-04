@@ -1,0 +1,5 @@
+[Match]
+
+[Network]
+DHCP=both
+IPForward=kernel
