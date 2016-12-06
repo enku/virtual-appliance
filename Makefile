@@ -221,7 +221,6 @@ $(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 	$(inroot) $(EMERGE) --depclean --with-bdeps=n
 	-$(gcc_config)
 	$(inroot) --setenv EDITOR=/usr/bin/nano etc-update
-	$(MAKE) -C appliances/$(APPLIANCE) postinstall
 	cp configs/eth.network $(CHROOT)/etc/systemd/network/eth.network
 	$(inroot) systemctl enable systemd-networkd.service
 	$(inroot) systemctl enable systemd-resolved.service
@@ -232,6 +231,7 @@ endif
 ifeq ($(DASH),YES)
 	$(inroot) $(EMERGE) --depclean app-shells/bash
 endif
+	$(MAKE) -C appliances/$(APPLIANCE) postinstall
 ifneq ($(PKGLIST),0)
 	echo \# > $(LST_FILE)
 	echo \# Gentoo Virtual Appliance \"$(APPLIANCE)\" package list >> $(LST_FILE)
