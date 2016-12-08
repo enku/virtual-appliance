@@ -90,7 +90,7 @@ def install_kernel():
     # exists).  I still do this however.
     for filename in os.listdir('/boot'):
         if filename.startswith('vmlinuz-'):
-            if os.path.exists('/boot/vmlinuz'):
+            if os.path.lexists('/boot/vmlinuz'):
                 os.unlink('/boot/vmlinuz')
             os.symlink(filename, '/boot/vmlinuz')
             break
