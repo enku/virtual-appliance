@@ -227,7 +227,6 @@ $(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
 ifeq ($(ENABLE_SSHD),YES)
 	$(inroot) systemctl enable sshd.service
 endif
-	$(change_password)
 ifeq ($(DASH),YES)
 	$(inroot) $(EMERGE) --depclean app-shells/bash
 endif
@@ -296,6 +295,7 @@ $(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(ARCH).tar.bz2 appliances/$(APPLIANCE)
 	$(MAKE) $(KERNEL)
 	$(MAKE) $(GRUB)
 	@scripts/echo Creating stage4 tarball: `basename $(STAGE4_TARBALL)`
+	$(change_password)
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
 	mv "$(STAGE4_TARBALL).tmp.xz" "$(STAGE4_TARBALL)"
