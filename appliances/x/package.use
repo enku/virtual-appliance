@@ -8,4 +8,5 @@ sys-apps/kmod tools
 sys-apps/net-tools hostname
 sys-auth/pambase nullok sha512
 sys-devel/gcc cxx nptl
+sys-process/procps kill
 x11-base/xorg-server minimal xorg nptl

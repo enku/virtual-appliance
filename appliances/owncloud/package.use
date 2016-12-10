@@ -10,6 +10,7 @@ sys-apps/portage python3 ipc
 sys-auth/pambase nullok sha512
 sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
+sys-process/procps kill
 
 app-eselect/eselect-php apache2 fpm
 dev-lang/php apache2 cgi ctype curl fileinfo filter force-cgi-redirect fpm gd hash iconv json mhash pdo posix session simplexml sqlite truetype xml xmlreader xmlwriter zip zlib

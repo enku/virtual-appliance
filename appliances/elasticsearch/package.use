@@ -11,3 +11,4 @@ sys-apps/portage ipc
 sys-auth/pambase nullok sha512
 sys-devel/gcc cxx nptl
 sys-kernel/gentoo-sources symlink
+sys-process/procps kill
