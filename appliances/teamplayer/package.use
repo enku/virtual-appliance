@@ -5,7 +5,7 @@ dev-lang/python sqlite ssl threads xml
 dev-util/pkgconfig internal-glib
 dev-vcs/mercurial python_targets_python2_7
 media-libs/flac ogg
-media-sound/mpd faad audiofile ffmpeg flac glib inotify id3tag lame network ogg vorbis mad soup sqlite  unicode 
+media-sound/mpd faad audiofile ffmpeg flac glib inotify id3tag lame network ogg opus vorbis mad soup sqlite  unicode
 media-video/ffmpeg avx cpudetection mmx mmxext mp3 network ssse3 x264 
 net-misc/openssh ssl
 net-misc/wget ssl
