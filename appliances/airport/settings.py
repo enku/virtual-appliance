@@ -1,6 +1,8 @@
 # Django settings for djangoproject project.
 import os
 
+ALLOWED_HOSTS = ['*']
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
