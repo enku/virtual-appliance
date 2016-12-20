@@ -1,5 +1,6 @@
 dev-db/postgresql
-dev-python/virtualenv
 dev-python/pip
+dev-python/virtualenv
+media-sound/mpd
 sys-kernel/gentoo-sources
 virtual/python-imaging
