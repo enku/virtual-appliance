@@ -21,7 +21,6 @@ preinstall:
 postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
 	$(inroot) $(EMERGE) --noreplace $(USEPKG) dev-db/postgresql:$(PGVER)
 	$(inroot) passwd -d postgres
-	echo 'PG_INITDB_OPTS="--locale=en_US.UTF-8"' >> $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) rm -rf /var/lib/postgresql/$(PGVER)/data
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
