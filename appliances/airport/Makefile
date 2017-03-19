@@ -7,7 +7,6 @@ preinstall:
 
 
 postinstall: airport.service settings.py issue nginx.conf airport-pre.service airport-gameserver.service airport-wsgi.service
-	sed -i 's/^PG_INITDB_OPTS.*/PG_INITDB_OPTS="--locale=en_US.UTF-8"/' $(CHROOT)/etc/conf.d/postgresql-$(PGVER)
 	$(inroot) eselect postgresql set $(PGVER)
 	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
