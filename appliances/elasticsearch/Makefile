@@ -1,7 +1,7 @@
 ES_HOME ?= /var/lib/elasticsearch
-ES_VER ?= 2.4.1
+ES_VER ?= 5.2.2
 ES_TARBALL = elasticsearch-$(ES_VER).tar.gz
-ES_URL = https://download.elastic.co/elasticsearch/elasticsearch/$(ES_TARBALL)
+ES_URL = https://artifacts.elastic.co/downloads/elasticsearch/$(ES_TARBALL)
 
 preinstall:
 
