@@ -1,3 +1,4 @@
+app-eselect/eselect-postgresql **
 dev-db/postgresql:9.6 **
 dev-python/virtualenv **
 sys-kernel/gentoo-sources ~amd64 ~x86

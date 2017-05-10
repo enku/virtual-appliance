@@ -1,3 +1,4 @@
+app-eselect/eselect-postgresql
 dev-db/postgresql
 dev-python/pip
 dev-python/virtualenv
