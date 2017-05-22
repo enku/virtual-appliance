@@ -5,6 +5,7 @@ After = network.target
 [Service]
 User = elastic
 Group = elastic
+LimitNOFILE=65536
 Environment=ES_HOME=/var/lib/elasticsearch
 ExecStart = /var/lib/elasticsearch/bin/elasticsearch
 
