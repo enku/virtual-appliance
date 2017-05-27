@@ -188,16 +188,17 @@ ifeq ($(DASH),YES)
 endif
 	touch $(SYSTOOLS)
 
-$(GRUB): $(PREPROOT) configs/grub.conf $(KERNEL) scripts/grub-headless.sed
+$(GRUB): $(PREPROOT) configs/grub.cfg $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Installing Grub
-	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub-static
-	cp configs/grub.conf $(CHROOT)/boot/grub/grub.conf
+	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
+	mkdir -p $(CHROOT)/boot/grub
+	cp configs/grub.cfg $(CHROOT)/boot/grub/grub.cfg
 ifeq ($(VIRTIO),YES)
-	sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.conf
+	sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.cfg
 endif
 ifeq ($(HEADLESS),YES)
-	sed -i -f scripts/grub-headless.sed $(CHROOT)/boot/grub/grub.conf
+	sed -i -f scripts/grub-headless.sed $(CHROOT)/boot/grub/grub.cfg
 endif
 endif
 	$(inroot) ln -nsf /run/systemd/resolve/resolv.conf /etc/resolv.conf
@@ -244,7 +245,7 @@ endif
 $(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
 	@scripts/echo Installing files to `basename $(RAW_IMAGE)`
 	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
-	parted -s $(RAW_IMAGE).tmp mklabel gpt
+	parted -s $(RAW_IMAGE).tmp mklabel msdos
 	parted -s $(RAW_IMAGE).tmp mkpart primary 1 $(DISK_SIZE)
 	parted -s $(RAW_IMAGE).tmp set 1 boot on
 	sync
@@ -255,8 +256,8 @@ $(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
 	tar -xf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C $(CHROOT)
 	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(ARCH) > $(CHROOT)/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
-	echo '(hd0) ' $(RAW_IMAGE).tmp > device-map
-	$(CHROOT)/sbin/grub --device-map=device-map --no-floppy --batch < scripts/grub.shell
+	echo '(hd0) ' `cat partitions` > device-map
+	$(CHROOT)/usr/sbin/grub-install --no-floppy --grub-mkdevicemap=device-map --directory=$(CHROOT)/usr/lib/grub/i386-pc --boot-directory=$(CHROOT)/boot `cat partitions`
 endif
 	umount $(CHROOT)
 	rmdir $(CHROOT)
