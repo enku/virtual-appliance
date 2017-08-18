@@ -1,2 +1,3 @@
+dev-db/postgresql:9.6
 media-sound/mpd
 www-servers/nginx
