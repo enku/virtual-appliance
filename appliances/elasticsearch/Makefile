@@ -1,5 +1,5 @@
 ES_HOME ?= /var/lib/elasticsearch
-ES_VER ?= 5.4.0
+ES_VER ?= 6.4.1
 ES_TARBALL = elasticsearch-$(ES_VER).tar.gz
 ES_URL = https://artifacts.elastic.co/downloads/elasticsearch/$(ES_TARBALL)
 
