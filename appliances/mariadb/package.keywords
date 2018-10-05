@@ -1,2 +1,4 @@
-sys-kernel/gentoo-sources ~amd64 ~x86
 dev-db/mariadb ~amd64 ~x86
+dev-db/mariadb-connector-c ~amd64 ~x86
+dev-db/mysql-connector-c ~amd64 ~x86
+sys-kernel/gentoo-sources ~amd64 ~x86

@@ -14,5 +14,7 @@ sys-kernel/gentoo-sources symlink
 sys-process/procps kill
 
 # for mariadb
-net-misc/curl ssl
 dev-db/mariadb innodb-snappy server sphinx ssl
+dev-db/mariadb-connector-c ssl
+dev-db/mysql-connector-c ssl
+net-misc/curl ssl
