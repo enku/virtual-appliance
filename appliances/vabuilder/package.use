@@ -15,5 +15,6 @@ sys-process/procps kill
 
 # appliance-specific
 app-emulation/qemu python_targets_python2_7
+dev-lang/python ncurses readline
 dev-vcs/mercurial python_targets_python2_7
 www-servers/nginx http
