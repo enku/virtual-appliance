@@ -94,8 +94,6 @@ def install_kernel():
                 os.unlink('/boot/vmlinuz')
             os.symlink(filename, '/boot/vmlinuz')
             break
-    else:
-        raise Exception('Could not find installed kernel')
 
 
 def uninstall_kernel_package():
