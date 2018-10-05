@@ -20,6 +20,7 @@ preinstall:
 
 postinstall: $(post_files) $(SCROBBLER_AUTH) urls.py
 	$(inroot) passwd -d postgres
+	rm -rf $(CHROOT)/var/lib/postgresql/$(PGVER)/data
 	$(inroot) eselect postgresql unset
 	$(inroot) eselect postgresql set $(PGVER)
 	$(inroot) bash -c "echo y |$(EMERGE) --config postgresql:$(PGVER)"
