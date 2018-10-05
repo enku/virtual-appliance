@@ -15,8 +15,11 @@ sys-process/procps kill
 
 # for rabbitmq
 dev-lang/erlang ssl
+dev-python/appdirs python_targets_python2_7
 dev-python/certifi python_targets_python2_7
 dev-python/packaging python_targets_python2_7
 dev-python/setuptools python_targets_python2_7
 dev-python/simplejson python_targets_python2_7
+dev-python/pyparsing python_targets_python2_7
+dev-python/six python_targets_python2_7
 net-misc/rabbitmq-server python_targets_python2_7
