@@ -192,9 +192,9 @@ endif
 $(GRUB): $(PREPROOT) configs/grub.cfg $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Installing Grub
-	$(inroot) $(EMERGE) -nN $(USEPKG) sys-boot/grub
+	RUN $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	mkdir -p $(CHROOT)/boot/grub
-	cp configs/grub.cfg $(CHROOT)/boot/grub/grub.cfg
+	COPY configs/grub.cfg /boot/grub/grub.cfg
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/boot/grub/grub.cfg
 endif
