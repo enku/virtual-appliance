@@ -1,7 +1,7 @@
 APP_ROOT := /var/lib/airport
 AIRPORT_REPO ?= https://bitbucket.org/marduk/airport
 AIRPORT_BRANCH ?= stable
-PGVER := 9.6
+PGVER := 10
 
 preinstall:
 

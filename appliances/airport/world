@@ -1,2 +1,2 @@
-dev-db/postgresql:9.6
+dev-db/postgresql:10
 www-servers/nginx
