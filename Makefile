@@ -98,12 +98,12 @@ all: stage4
 image: $(RAW_IMAGE)
 
 sync_portage: $(PORTAGE_DIR)
-	@scripts/echo Grabbing latest portage
+	@print Grabbing latest portage
 	git -C $(PORTAGE_DIR) pull
 	touch $(PORTAGE_DIR)
 
 $(PORTAGE_DIR):
-	@scripts/echo Grabbing the portage tree
+	@print Grabbing the portage tree
 	git clone --depth=1 git://github.com/gentoo/gentoo.git $(PORTAGE_DIR)
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
@@ -124,7 +124,7 @@ endif
 	touch $(PREPROOT)
 
 stage3-$(VA_ARCH).tar.bz2:
-	@scripts/echo You do not have a stage3 tarball. Consider \"make sync_stage3\"
+	@print You do not have a stage3 tarball. Consider \"make sync_stage3\"
 	@exit 1
 
 sync_stage3:
@@ -134,10 +134,10 @@ sync_stage3:
 $(STAGE3): stage3-$(VA_ARCH).tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
-	@scripts/echo Using stage4 tarball: `basename $(STAGE4_TARBALL)`
+	@print Using stage4 tarball: `basename $(STAGE4_TARBALL)`
 	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
-	@scripts/echo Using stage3 tarball
+	@print Using stage3 tarball
 	tar xpf stage3-$(VA_ARCH).tar.bz2 -C $(CHROOT)
 endif
 	rm -f $(CHROOT)/etc/localtime
@@ -158,7 +158,7 @@ $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) config
 
 $(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/build-kernel
 ifneq ($(EXTERNAL_KERNEL),YES)
-	@scripts/echo Configuring kernel
+	@print Configuring kernel
 	COPY $(KERNEL_CONFIG) /root/kernel.config
 	COPY scripts/build-kernel /root/build-kernel
 	RUN --setenv=KERNEL=$(KERNEL_PKG) \
@@ -171,7 +171,7 @@ endif
 	touch $(KERNEL)
 
 $(SYSTOOLS): $(PREPROOT) $(COMPILE_OPTIONS)
-	@scripts/echo Installing standard system tools
+	@print Installing standard system tools
 	systemd-firstboot \
 		--root=$(CHROOT) \
 		--setup-machine-id \
@@ -191,7 +191,7 @@ endif
 
 $(GRUB): $(PREPROOT) configs/grub.cfg $(KERNEL) scripts/grub-headless.sed
 ifneq ($(EXTERNAL_KERNEL),YES)
-	@scripts/echo Installing Grub
+	@print Installing Grub
 	RUN $(EMERGE) -nN $(USEPKG) sys-boot/grub
 	mkdir -p $(CHROOT)/boot/grub
 	COPY configs/grub.cfg /boot/grub/grub.cfg
@@ -207,13 +207,13 @@ endif
 
 
 $(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD) $(PROFILE)
-	@scripts/echo Building $(APPLIANCE)-specific software
+	@print Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
 	COPY $(WORLD) /var/lib/portage/world
 	RUN $(EMERGE) $(USEPKG) --update --newuse --deep @system
 	
-	@scripts/echo Running @preserved-rebuild
+	@print Running @preserved-rebuild
 	RUN $(EMERGE) --usepkg=n @preserved-rebuild
 	
 	COPY configs/issue /etc/issue
@@ -241,7 +241,7 @@ endif
 
 
 $(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
-	@scripts/echo Installing files to `basename $(RAW_IMAGE)`
+	@print Installing files to `basename $(RAW_IMAGE)`
 	qemu-img create -f raw $(RAW_IMAGE).tmp $(DISK_SIZE)
 	parted -s $(RAW_IMAGE).tmp mklabel msdos
 	parted -s $(RAW_IMAGE).tmp mkpart primary 1 $(DISK_SIZE)
@@ -269,14 +269,14 @@ endif
 	mv $(RAW_IMAGE).tmp $(RAW_IMAGE)
 
 $(QCOW_IMAGE): $(RAW_IMAGE)
-	@scripts/echo Creating `basename $(QCOW_IMAGE)`
+	@print Creating `basename $(QCOW_IMAGE)`
 	qemu-img convert -f raw -O qcow2 -c $(RAW_IMAGE) $(QCOW_IMAGE).tmp
 	mv $(QCOW_IMAGE).tmp $(QCOW_IMAGE)
 
 qcow: $(QCOW_IMAGE)
 
 $(XVA_IMAGE): $(RAW_IMAGE)
-	@scripts/echo Creating `basename $(XVA_IMAGE)`
+	@print Creating `basename $(XVA_IMAGE)`
 	xva.py --disk=$(RAW_IMAGE) --is-hvm --memory=256 --vcpus=1 --name=$(APPLIANCE) \
 		--filename=$(XVA_IMAGE).tmp
 	mv $(XVA_IMAGE).tmp $(XVA_IMAGE)
@@ -285,7 +285,7 @@ xva: $(XVA_IMAGE)
 
 
 $(VMDK_IMAGE): $(RAW_IMAGE)
-	@scripts/echo Creating `basename $(VMDK_IMAGE)`
+	@print Creating `basename $(VMDK_IMAGE)`
 	qemu-img convert -f raw -O vmdk $(RAW_IMAGE) $(VMDK_IMAGE).tmp
 	mv $(VMDK_IMAGE).tmp $(VMDK_IMAGE)
 
@@ -297,7 +297,7 @@ $(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(VA_ARCH).tar.bz2 appliances/$(APPLIAN
 	$(MAKE) $(SOFTWARE)
 	$(MAKE) $(KERNEL)
 	$(MAKE) $(GRUB)
-	@scripts/echo Creating stage4 tarball: `basename $(STAGE4_TARBALL)`
+	@print Creating stage4 tarball: `basename $(STAGE4_TARBALL)`
 	$(change_password)
 	mkdir -p $(IMAGES)
 	tar -acf "$(STAGE4_TARBALL).tmp.xz" --numeric-owner $(COPY_ARGS) -C $(CHROOT) --one-file-system .
@@ -328,25 +328,25 @@ distclean:
 	rm -f portage-snapshot.tar.bz2
 
 appliance-list:
-	@scripts/echo 'Available appliances:'
+	@print 'Available appliances:'
 	@/bin/ls -1 appliances
 
 
 checksums:
-	@scripts/echo 'Calculating checksums'
+	@print Calculating checksums
 	$(RM) $(CHECKSUMS)
 	cd $(IMAGES) && sha256sum --binary * > $(CHECKSUMS).tmp
 	mv $(CHECKSUMS).tmp $(CHECKSUMS)
 
 shell: $(PREPROOT)
-	@scripts/echo 'Entering interactive shell for the $(APPLIANCE) build.'
-	@scripts/echo 'Type "exit" or "^D" to leave'
-	@scripts/echo
+	@print 'Entering interactive shell for the $(APPLIANCE) build.'
+	@print 'Type "exit" or "^D" to leave'
+	@print
 	@RUN
 	@rm -f $(CHROOT)/root/.bash_history
 
 help:
-	@scripts/echo 'Help targets (this is not a comprehensive list)'
+	@print 'Help targets (this is not a comprehensive list)'
 	@echo
 	@echo 'sync_portage             - Download the latest portage snapshot'
 	@echo 'sync_stage3              - Download the latest stage3 tarball'
@@ -355,14 +355,14 @@ help:
 	@echo 'eclean                   - Clean outdated packages and distfiles'
 	@echo 'realclean                - Clean and remove image files'
 	@echo 'shell                    - Enter a shell in the build environment'
-	@scripts/echo 'Images'
+	@print 'Images'
 	@echo 'image                    - Build a raw VM image from stage4'
 	@echo 'qcow                     - Build a qcow VM image from a raw image'
 	@echo 'vmdk                     - Build a vmdk image from a raw image'
 	@echo 'xva                      - Build an xva image from a raw image'
 	@echo 'appliance-list           - List built-in appliances'
 	@echo 'help                     - Show this help'
-	@scripts/echo 'Variables'
+	@echo 'Variables'
 	@echo 'APPLIANCE=               - The appliance to build'
 	@echo 'HOSTNAME=                - Hostname to give appliance'
 	@echo 'TIMEZONE=                - Timezone to set for the appliance'
@@ -375,7 +375,7 @@ help:
 	@echo 'HEADLESS=YES             - Build a headless (serial console) image.'
 	@echo 'ENABLE_SSHD=YES          - Enable sshd to start automatically in the image'
 	@echo
-	@scripts/echo 'Example'
+	@print 'Example'
 	@echo 'make APPLIANCE=mongodb HEADLESS=YES VIRTIO=YES stage4 qcow clean'
 
 .PHONY: qcow vmdk clean realclean distclean stage4 image stage4 help appliance-list eclean sync_portage sync_stage3 checksums
