@@ -38,7 +38,7 @@ DASH = NO
 LOCALE ?= en_US.utf8
 
 M4 = m4
-EMERGE = /usr/bin/emerge --jobs=4
+EMERGE = emerge --jobs=$(shell nproc --all)
 M4_DEFS = -D HOSTNAME=$(HOSTNAME)
 M4C = $(M4) $(M4_DEFS)
 USEPKG = --usepkg --binpkg-respect-use=y
