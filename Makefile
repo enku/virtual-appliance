@@ -128,7 +128,7 @@ stage3-$(VA_ARCH).tar.bz2:
 	@exit 1
 
 sync_stage3:
-	./scripts/fetch-stage3 --specialty=systemd --outfile=stage3-$(VA_ARCH).tar.bz2 $(VA_ARCH)
+	fetch-stage3 --specialty=systemd --outfile=stage3-$(VA_ARCH).tar.bz2 $(VA_ARCH)
 
 
 $(STAGE3): stage3-$(VA_ARCH).tar.bz2
@@ -252,7 +252,7 @@ $(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
 	mkdir $(CHROOT)
 	mount -o noatime `cat partitions`p1 $(CHROOT)
 	tar -xf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C $(CHROOT)
-	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(VA_ARCH) > $(CHROOT)/etc/motd
+	motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(VA_ARCH) > $(CHROOT)/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	echo '(hd0) ' `cat partitions` > device-map
 	$(CHROOT)/usr/sbin/grub-install --no-floppy --grub-mkdevicemap=device-map --directory=$(CHROOT)/usr/lib/grub/i386-pc --boot-directory=$(CHROOT)/boot `cat partitions`
