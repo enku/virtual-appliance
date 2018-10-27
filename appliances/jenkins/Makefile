@@ -4,7 +4,7 @@ JENKINS_URL = http://mirrors.jenkins-ci.org/war/latest/jenkins.war
 preinstall:
 
 create_user:
-	-$(inroot) useradd --system \
+	-RUN useradd --system \
 		--comment "Jenkins CI" \
 		--home-dir=$(JENKINS_HOME) \
 		--create-home \
@@ -12,7 +12,7 @@ create_user:
 
 
 $(CHROOT)/$(JENKINS_HOME)/jenkins.war:
-	$(inroot) wget -O $(JENKINS_HOME)/jenkins.war $(JENKINS_URL)
+	RUN wget -O $(JENKINS_HOME)/jenkins.war $(JENKINS_URL)
 
 
 install_jenkins:
@@ -21,14 +21,14 @@ install_jenkins:
 
 postinstall: jenkins.service nginx.conf
 	$(MAKE) create_user
-	$(inroot) rm -rf $(JENKINS_HOME)
-	$(inroot) mkdir -p $(JENKINS_HOME)
+	RUN rm -rf $(JENKINS_HOME)
+	RUN mkdir -p $(JENKINS_HOME)
 	$(MAKE) install_jenkins
-	$(inroot) chown -R jenkins:jenkins $(JENKINS_HOME)
-	cp jenkins.service $(CHROOT)/etc/systemd/system
-	$(inroot) systemctl enable jenkins.service
-	cp nginx.conf $(CHROOT)/etc/nginx/nginx.conf
-	$(inroot) systemctl enable nginx.service
+	RUN chown -R jenkins:jenkins $(JENKINS_HOME)
+	COPY jenkins.service /etc/systemd/system
+	RUN systemctl enable jenkins.service
+	COPY nginx.conf /etc/nginx/nginx.conf
+	RUN systemctl enable nginx.service
 
 clean:
 

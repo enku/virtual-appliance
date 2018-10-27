@@ -3,7 +3,7 @@ preinstall:
 
 postinstall:
 	sed -i 's/127\.0\.0\.1/0.0.0.0/g' "$(CHROOT)"/etc/mongodb.conf
-	$(inroot) systemctl enable mongodb.service
+	RUN systemctl enable mongodb.service
 
 clean:
 

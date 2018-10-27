@@ -6,33 +6,33 @@ ES_URL = https://artifacts.elastic.co/downloads/elasticsearch/$(ES_TARBALL)
 preinstall:
 
 create_user:
-	-$(inroot) useradd --system \
+	-RUN useradd --system \
 		--comment "Elastic Search" \
 		--home-dir=$(ES_HOME) \
 		--create-home \
 		elastic
 
 install_elasticsearch:
-	$(inroot) test -f /usr/portage/distfiles/$(ES_TARBALL) || \
-		$(inroot) wget -P /usr/portage/distfiles $(ES_URL)
-	$(inroot) tar xf /usr/portage/distfiles/$(ES_TARBALL) -C $(ES_HOME)
-	$(inroot) sh -c 'cd $(ES_HOME) && ln -s elasticsearch-$(ES_VER)/* .'
+	RUN test -f /usr/portage/distfiles/$(ES_TARBALL) || \
+		RUN wget -P /usr/portage/distfiles $(ES_URL)
+	RUN tar xf /usr/portage/distfiles/$(ES_TARBALL) -C $(ES_HOME)
+	RUN sh -c 'cd $(ES_HOME) && ln -s elasticsearch-$(ES_VER)/* .'
 
 install_license:
-	$(inroot) sh -c 'cd $(ES_HOME) && ./bin/plugin install license'
+	RUN sh -c 'cd $(ES_HOME) && ./bin/plugin install license'
 
 install_marvel: install_license
-	$(inroot) sh -c 'cd $(ES_HOME) && ./bin/plugin install marvel-agent'
+	RUN sh -c 'cd $(ES_HOME) && ./bin/plugin install marvel-agent'
 	echo 'marvel.agent.enabled: false' >> $(CHROOT)/$(ES_HOME)/config/elasticsearch.yml
 
 postinstall: elasticsearch.service
 	$(MAKE) create_user
-	$(inroot) rm -rf $(ES_HOME)
-	$(inroot) mkdir -p $(ES_HOME)
+	RUN rm -rf $(ES_HOME)
+	RUN mkdir -p $(ES_HOME)
 	$(MAKE) install_elasticsearch
-	$(inroot) chown -R elastic:elastic $(ES_HOME)
-	cp elasticsearch.service $(CHROOT)/etc/systemd/system
-	$(inroot) systemctl enable elasticsearch.service
+	RUN chown -R elastic:elastic $(ES_HOME)
+	COPY elasticsearch.service /etc/systemd/system
+	RUN systemctl enable elasticsearch.service
 
 clean:
 

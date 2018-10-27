@@ -60,6 +60,9 @@ else
 	container = $(APPLIANCE)-build
 endif
 
+PATH := $(CURDIR)/scripts:$(PATH)
+
+export PATH CHROOT container PORTAGE_DIR VA_PKGDIR DISTDIR VA_ARCH
 
 inroot := systemd-nspawn --quiet \
 	--directory=$(CHROOT) \
@@ -78,9 +81,9 @@ COPY_ARGS = --exclude-from=configs/rsync-excludes
 
 ifeq ($(CHANGE_PASSWORD),YES)
 	ifdef ROOT_PASSWORD
-		change_password = $(inroot) usermod -p '$(ROOT_PASSWORD)' root
+		change_password = RUN usermod --password '$(ROOT_PASSWORD)' root
 	else
-		change_password = $(inroot) passwd --delete --expire root
+		change_password = RUN passwd --delete root
 	endif
 endif
 
@@ -117,7 +120,7 @@ else
 	sed -i '/swap/d' $(CHROOT)/etc/fstab
 endif
 	rm -f $(CHROOT)/etc/resolv.conf
-	cp -L /etc/resolv.conf $(CHROOT)/etc/resolv.conf
+	COPY -L /etc/resolv.conf /etc/resolv.conf
 	touch $(PREPROOT)
 
 stage3-$(VA_ARCH).tar.bz2:
@@ -141,28 +144,28 @@ endif
 	touch $(STAGE3)
 
 $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(PACKAGE_FILES)
-	cp configs/make.conf.$(VA_ARCH) $(CHROOT)/etc/portage/make.conf
+	COPY configs/make.conf.$(VA_ARCH) /etc/portage/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
-	cp configs/locale.gen $(CHROOT)/etc/locale.gen
-	$(inroot) locale-gen
+	COPY configs/locale.gen /etc/locale.gen
+	RUN locale-gen
 	for f in $(PACKAGE_FILES); do \
 		base=`basename $$f` ; \
 		mkdir -p $(CHROOT)/etc/portage/$$base; \
-		cp $$f $(CHROOT)/etc/portage/$$base/virtual-appliance-$$base; \
+		COPY $$f /etc/portage/$$base/virtual-appliance-$$base; \
 	done
 	touch $(COMPILE_OPTIONS)
 
 $(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/build-kernel
 ifneq ($(EXTERNAL_KERNEL),YES)
 	@scripts/echo Configuring kernel
-	cp $(KERNEL_CONFIG) $(CHROOT)/root/kernel.config
-	cp scripts/build-kernel $(CHROOT)/root/build-kernel
-	$(inroot) --setenv=KERNEL=$(KERNEL_PKG) \
-		      --setenv=EMERGE="$(EMERGE)" \
-	          --setenv=USEPKG="$(USEPKG)" \
-			  --setenv=MAKEOPTS="$(MAKEOPTS)" \
-	          /root/build-kernel
+	COPY $(KERNEL_CONFIG) /root/kernel.config
+	COPY scripts/build-kernel /root/build-kernel
+	RUN --setenv=KERNEL=$(KERNEL_PKG) \
+	    --setenv=EMERGE="$(EMERGE)" \
+	    --setenv=USEPKG="$(USEPKG)" \
+	    --setenv=MAKEOPTS="$(MAKEOPTS)" \
+	    /root/build-kernel
 	rm -f $(CHROOT)/root/build-kernel
 endif
 	touch $(KERNEL)
@@ -175,14 +178,14 @@ $(SYSTOOLS): $(PREPROOT) $(COMPILE_OPTIONS)
 		--timezone=$(TIMEZONE) \
 		--hostname=$(HOSTNAME) \
 		--root-password=
-	$(inroot) eselect locale set $(LOCALE)
+	RUN eselect locale set $(LOCALE)
 ifeq ($(DASH),YES)
 	if ! test -e "$(STAGE4_TARBALL)";  \
-	then $(inroot) $(EMERGE) --noreplace $(USEPKG) app-shells/dash; \
+	then RUN $(EMERGE) --noreplace $(USEPKG) app-shells/dash; \
 	echo /bin/dash >> $(CHROOT)/etc/shells; \
-	$(inroot) chsh -s /bin/sh root; \
+	RUN chsh -s /bin/sh root; \
 	fi
-	$(inroot) ln -sf dash /bin/sh
+	RUN ln -sf dash /bin/sh
 endif
 	touch $(SYSTOOLS)
 
@@ -199,35 +202,32 @@ ifeq ($(HEADLESS),YES)
 	sed -i -f scripts/grub-headless.sed $(CHROOT)/boot/grub/grub.cfg
 endif
 endif
-	$(inroot) ln -nsf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+	ln -nsf /run/systemd/resolve/resolv.conf $(CHROOT)/etc/resolv.conf
 	touch $(GRUB)
 
 
-$(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
+$(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD) $(PROFILE)
 	@scripts/echo Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
-	cp $(WORLD) $(CHROOT)/var/tmp/world
-	$(inroot) xargs -a/var/tmp/world -d'\n' -r $(EMERGE) $(USEPKG) --update --newuse --deep 
-	-$(gcc_config)
+	COPY $(WORLD) /var/lib/portage/world
+	RUN $(EMERGE) $(USEPKG) --update --newuse --deep @system
 	
 	@scripts/echo Running @preserved-rebuild
-	$(inroot) $(EMERGE) --usepkg=n @preserved-rebuild
+	RUN $(EMERGE) --usepkg=n @preserved-rebuild
 	
-	cp configs/issue $(CHROOT)/etc/issue
-	-$(gcc_config)
-	$(inroot) $(EMERGE) $(USEPKG) --update --newuse --deep world
-	$(inroot) $(EMERGE) --depclean --with-bdeps=n
-	-$(gcc_config)
-	$(inroot) --setenv EDITOR=/usr/bin/nano etc-update
-	cp configs/eth.network $(CHROOT)/etc/systemd/network/eth.network
-	$(inroot) systemctl enable systemd-networkd.service
-	$(inroot) systemctl enable systemd-resolved.service
+	COPY configs/issue /etc/issue
+	RUN $(EMERGE) $(USEPKG) --update --newuse --deep @world $(grub_package)
+	RUN $(EMERGE) --depclean --with-bdeps=n
+	RUN --setenv EDITOR=/usr/bin/nano etc-update
+	COPY configs/eth.network /etc/systemd/network/eth.network
+	RUN systemctl enable systemd-networkd.service
+	RUN systemctl enable systemd-resolved.service
 ifeq ($(ENABLE_SSHD),YES)
-	$(inroot) systemctl enable sshd.service
+	RUN systemctl enable sshd.service
 endif
 ifeq ($(DASH),YES)
-	$(inroot) $(EMERGE) --depclean app-shells/bash
+	RUN $(EMERGE) --depclean app-shells/bash
 endif
 	$(MAKE) -C appliances/$(APPLIANCE) postinstall
 ifneq ($(PKGLIST),0)
@@ -257,6 +257,10 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 	echo '(hd0) ' `cat partitions` > device-map
 	$(CHROOT)/usr/sbin/grub-install --no-floppy --grub-mkdevicemap=device-map --directory=$(CHROOT)/usr/lib/grub/i386-pc --boot-directory=$(CHROOT)/boot `cat partitions`
 endif
+	COPY device-map /boot/grub/device.map
+	RUN --bind=/dev grub-mkconfig
+	RUN --bind=/dev grub-mkconfig -o /boot/grub/grub.cfg
+	umount $(CHROOT)/boot
 	umount $(CHROOT)
 	rmdir $(CHROOT)
 	sync
@@ -304,10 +308,10 @@ stage4: $(STAGE4_TARBALL)
 
 
 eclean: $(COMPILE_OPTIONS)
-	$(inroot) $(EMERGE) $(USEPKG) --oneshot --noreplace app-portage/gentoolkit
-	$(inroot) eclean-pkg
-	$(inroot) eclean-dist
-	$(inroot) $(EMERGE) --depclean app-portage/gentoolkit
+	RUN $(EMERGE) $(USEPKG) --oneshot --noreplace app-portage/gentoolkit
+	RUN eclean-pkg
+	RUN eclean-dist
+	RUN $(EMERGE) --depclean app-portage/gentoolkit
 	$(MAKE) clean
 
 
@@ -338,7 +342,7 @@ shell: $(PREPROOT)
 	@scripts/echo 'Entering interactive shell for the $(APPLIANCE) build.'
 	@scripts/echo 'Type "exit" or "^D" to leave'
 	@scripts/echo
-	@$(inroot)
+	@RUN
 	@rm -f $(CHROOT)/root/.bash_history
 
 help:
