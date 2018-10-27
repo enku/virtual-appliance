@@ -1,7 +1,7 @@
 APPLIANCE ?= base
 VABUILDER_OUTPUT := $(CURDIR)
 CHROOT = $(VABUILDER_OUTPUT)/build/$(APPLIANCE)
-PKGDIR = $(VABUILDER_OUTPUT)/packages
+VA_PKGDIR = $(VABUILDER_OUTPUT)/packages
 DISTDIR = $(CURDIR)/distfiles
 PORTAGE_DIR = $(CURDIR)/portage
 HOSTNAME = $(APPLIANCE)
@@ -65,7 +65,7 @@ inroot := systemd-nspawn --quiet \
 	--directory=$(CHROOT) \
 	--machine=$(container) \
 	--bind=$(PORTAGE_DIR):/usr/portage \
-	--bind=$(PKGDIR):/usr/portage/packages \
+	--bind=$(VA_PKGDIR):/usr/portage/packages \
 	--bind=$(DISTDIR):/usr/portage/distfiles 
 
 ifeq ($(VA_ARCH),x86)
@@ -90,7 +90,7 @@ export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C inroot
 export HOSTNAME MAKEOPTS TIMEZONE USEPKG WORLD 
 export USEPKG RSYNC_MIRROR
 
-unexport PKGDIR VA_ARCH 
+unexport VA_PKGDIR VA_ARCH 
 
 all: stage4
 
@@ -106,7 +106,7 @@ $(PORTAGE_DIR):
 	git clone --depth=1 git://github.com/gentoo/gentoo.git $(PORTAGE_DIR)
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
-	mkdir -p $(PKGDIR) $(DISTDIR)
+	mkdir -p $(VA_PKGDIR) $(DISTDIR)
 	cp configs/fstab $(CHROOT)/etc/fstab
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
