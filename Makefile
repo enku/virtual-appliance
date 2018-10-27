@@ -113,7 +113,7 @@ ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
 endif
 ifneq ($(SWAP_SIZE),0)
-	@scripts/echo Creating swap file: `basename $(SWAP_FILE)`
+	@print Creating swap file: `basename $(SWAP_FILE)`
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
 else
