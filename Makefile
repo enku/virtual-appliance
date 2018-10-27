@@ -25,8 +25,8 @@ TIMEZONE = UTC
 DISK_SIZE = 6.0G
 SWAP_SIZE = 30
 SWAP_FILE = $(CHROOT)/.swap
-ARCH = amd64
-KERNEL_CONFIG = configs/kernel.config.$(ARCH)
+VA_ARCH = amd64
+KERNEL_CONFIG = configs/kernel.config.$(VA_ARCH)
 MAKEOPTS = -j5 -l5.64
 ENABLE_SSHD = NO
 CHANGE_PASSWORD = YES
@@ -68,7 +68,7 @@ inroot := systemd-nspawn --quiet \
 	--bind=$(PKGDIR):/usr/portage/packages \
 	--bind=$(DISTDIR):/usr/portage/distfiles 
 
-ifeq ($(ARCH),x86)
+ifeq ($(VA_ARCH),x86)
 	inroot := linux32 $(inroot)
 endif
 
@@ -90,7 +90,7 @@ export APPLIANCE ACCEPT_KEYWORDS CHROOT EMERGE HEADLESS M4 M4C inroot
 export HOSTNAME MAKEOPTS TIMEZONE USEPKG WORLD 
 export USEPKG RSYNC_MIRROR
 
-unexport PKGDIR ARCH 
+unexport PKGDIR VA_ARCH 
 
 all: stage4
 
@@ -122,28 +122,28 @@ endif
 	cp -L /etc/resolv.conf $(CHROOT)/etc/resolv.conf
 	touch $(PREPROOT)
 
-stage3-$(ARCH).tar.bz2:
+stage3-$(VA_ARCH).tar.bz2:
 	@scripts/echo You do not have a stage3 tarball. Consider \"make sync_stage3\"
 	@exit 1
 
 sync_stage3:
-	./scripts/fetch-stage3 --specialty=systemd --outfile=stage3-$(ARCH).tar.bz2 $(ARCH)
+	./scripts/fetch-stage3 --specialty=systemd --outfile=stage3-$(VA_ARCH).tar.bz2 $(VA_ARCH)
 
 
-$(STAGE3): stage3-$(ARCH).tar.bz2
+$(STAGE3): stage3-$(VA_ARCH).tar.bz2
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@scripts/echo Using stage4 tarball: `basename $(STAGE4_TARBALL)`
 	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	@scripts/echo Using stage3 tarball
-	tar xpf stage3-$(ARCH).tar.bz2 -C $(CHROOT)
+	tar xpf stage3-$(VA_ARCH).tar.bz2 -C $(CHROOT)
 endif
 	rm -f $(CHROOT)/etc/localtime
 	touch $(STAGE3)
 
-$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(ARCH) configs/locale.gen $(PACKAGE_FILES)
-	cp configs/make.conf.$(ARCH) $(CHROOT)/etc/portage/make.conf
+$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(PACKAGE_FILES)
+	cp configs/make.conf.$(VA_ARCH) $(CHROOT)/etc/portage/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
 	cp configs/locale.gen $(CHROOT)/etc/locale.gen
@@ -254,7 +254,7 @@ $(RAW_IMAGE): $(STAGE4_TARBALL) scripts/grub.shell scripts/motd.sh
 	mkdir $(CHROOT)
 	mount -o noatime `cat partitions`p1 $(CHROOT)
 	tar -xf $(STAGE4_TARBALL) --numeric-owner $(COPY_ARGS) -C $(CHROOT)
-	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(ARCH) > $(CHROOT)/etc/motd
+	scripts/motd.sh $(EXTERNAL_KERNEL) $(VIRTIO) $(DISK_SIZE) $(SWAP_SIZE) $(DASH) $(VA_ARCH) > $(CHROOT)/etc/motd
 ifneq ($(EXTERNAL_KERNEL),YES)
 	echo '(hd0) ' `cat partitions` > device-map
 	$(CHROOT)/usr/sbin/grub-install --no-floppy --grub-mkdevicemap=device-map --directory=$(CHROOT)/usr/lib/grub/i386-pc --boot-directory=$(CHROOT)/boot `cat partitions`
@@ -289,7 +289,7 @@ $(VMDK_IMAGE): $(RAW_IMAGE)
 
 vmdk: $(VMDK_IMAGE)
 
-$(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(ARCH).tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
+$(STAGE4_TARBALL): $(PORTAGE_DIR) stage3-$(VA_ARCH).tar.bz2 appliances/$(APPLIANCE) configs/rsync-excludes
 	$(MAKE) $(STAGE3)
 	$(MAKE) $(PREPROOT)
 	$(MAKE) $(SOFTWARE)
@@ -367,7 +367,7 @@ help:
 	@echo 'CHROOT=                  - The directory to build the chroot'
 	@echo 'DISK_SIZE=               - Size of the disk image'
 	@echo 'SWAP_SIZE=               - Size of the swap file'
-	@echo 'ARCH=                    - Architecture to build for (x86 or amd64)'
+	@echo 'VA_ARCH=                 - Architecture to build for (x86 or amd64)'
 	@echo 'VIRTIO=YES               - Configure the stage2/image to use virtio'
 	@echo 'EXTERNAL_KERNEL=YES      - Do not build a kernel in the image'
 	@echo 'HEADLESS=YES             - Build a headless (serial console) image.'
