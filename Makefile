@@ -108,7 +108,7 @@ $(PORTAGE_DIR):
 
 $(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
 	mkdir -p $(VA_PKGDIR) $(DISTDIR)
-	cp configs/fstab $(CHROOT)/etc/fstab
+	COPY configs/fstab /etc/fstab
 ifeq ($(VIRTIO),YES)
 	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
 endif
