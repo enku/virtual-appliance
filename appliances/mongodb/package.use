@@ -3,6 +3,10 @@ dev-db/mongodb ssl tools
 dev-lang/python ssl threads xml
 dev-libs/boost threads
 dev-libs/libpcre cxx
+dev-python/certifi python_targets_python2_7
+dev-python/cheetah python_targets_python2_7
+dev-python/markdown python_targets_python2_7
+dev-python/setuptools python_targets_python2_7
 dev-util/pkgconfig internal-glib
 dev-util/scons python_targets_python2_7
 net-misc/curl ssl
