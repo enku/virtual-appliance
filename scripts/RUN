@@ -20,7 +20,7 @@ def main():
     if os.environ.get("VA_ARCH") == "linux32":
         command = ["linux32"] + command
 
-    subprocess.check_call(command)
+    sys.exit(subprocess.call(command))
 
 
 if __name__ == "__main__":
