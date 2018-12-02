@@ -78,17 +78,24 @@ def install_kernel():
     makeopts = os.environ.get("MAKEOPTS", "")
 
     subprocess.check_call(
-        ["make", "-C", "/usr/src/linux", "MAKEOPTS=" + makeopts, "install", "modules_install"]
+        [
+            "make",
+            "-C",
+            "/usr/src/linux",
+            "MAKEOPTS=" + makeopts,
+            "install",
+            "modules_install",
+        ]
     )
 
     # create the symlink.  /sbin/installkernel claims this is not used on
     # "modern" distributions and doesn't create it (unless it already
     # exists).  I still do this however.
-    for filename in os.listdir('/boot'):
-        if filename.startswith('vmlinuz-'):
-            if os.path.lexists('/boot/vmlinuz'):
-                os.unlink('/boot/vmlinuz')
-            os.symlink(filename, '/boot/vmlinuz')
+    for filename in os.listdir("/boot"):
+        if filename.startswith("vmlinuz-"):
+            if os.path.lexists("/boot/vmlinuz"):
+                os.unlink("/boot/vmlinuz")
+            os.symlink(filename, "/boot/vmlinuz")
             break
 
 
