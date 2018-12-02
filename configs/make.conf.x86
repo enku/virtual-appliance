@@ -13,3 +13,5 @@ FEATURES="noinfo -test nodoc noman nostrip unmerge-orphans buildpkg notitles par
 CURL_SSL="openssl"
 PYTHON_TARGETS="python3_6"
 ABI_X86="32"
+
+source make.conf.local

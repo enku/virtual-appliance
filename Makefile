@@ -1,6 +1,6 @@
 APPLIANCE ?= base
 VABUILDER_OUTPUT := $(CURDIR)
-CHROOT = $(VABUILDER_OUTPUT)/build/$(APPLIANCE)
+CHROOT := $(VABUILDER_OUTPUT)/build/$(APPLIANCE)
 VA_PKGDIR = $(VABUILDER_OUTPUT)/packages
 DISTDIR = $(CURDIR)/distfiles
 PORTAGE_DIR = $(CURDIR)/portage
@@ -44,9 +44,16 @@ M4C = $(M4) $(M4_DEFS)
 USEPKG = --usepkg --binpkg-respect-use=y
 RSYNC_MIRROR = rsync://rsync.gtlib.gatech.edu/gentoo/
 KERNEL_PKG = gentoo-sources
-PACKAGE_FILES = $(wildcard appliances/$(APPLIANCE)/package.*)
 WORLD = appliances/$(APPLIANCE)/world
 EXTRA_WORLD =
+
+# /etc/portage targets
+base_etc_portage := $(wildcard configs/portage/*)
+etc_portage := $(patsubst configs/portage/%,$(CHROOT)/etc/portage/%,$(base_etc_portage))
+appliance_package_files := $(wildcard appliances/$(APPLIANCE)/package.*)
+portage_package_files = $(patsubst appliances/$(APPLIANCE)/package.%,$(CHROOT)/etc/portage/package.%/01$(APPLIANCE),$(appliance_package_files))
+appliance_make_conf = $(wildcard appliances/$(APPLIANCE)/make.conf)
+portage_make_conf_local = $(CHROOT)/etc/portage/make.conf.local
 
 # Allow appliance to override variables
 -include appliances/$(APPLIANCE)/$(APPLIANCE).cfg
@@ -106,7 +113,10 @@ $(PORTAGE_DIR):
 	@print Grabbing the portage tree
 	git clone --depth=1 git://github.com/gentoo/gentoo.git $(PORTAGE_DIR)
 
-$(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab
+$(CHROOT)/etc/portage/%: configs/portage/%
+	COPY --recursive $< /etc/portage/
+
+$(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab $(etc_portage) $(portage_package_files)
 	mkdir -p $(VA_PKGDIR) $(DISTDIR)
 	COPY configs/fstab /etc/fstab
 ifeq ($(VIRTIO),YES)
@@ -143,17 +153,18 @@ endif
 	rm -f $(CHROOT)/etc/localtime
 	touch $(STAGE3)
 
-$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(PACKAGE_FILES)
+$(CHROOT)/etc/portage/package.%/01$(APPLIANCE): appliances/$(APPLIANCE)/package.% $(STAGE3)
+	mkdir -p `dirname $@`
+	cp $< $@
+
+$(portage_make_conf_local): $(appliance_make_conf)
+	COPY $< $@ || touch $@
+
+$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(portage_package_files) $(portage_make_conf_local)
 	COPY configs/make.conf.$(VA_ARCH) /etc/portage/make.conf
 	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
-	-[ -f "appliances/$(APPLIANCE)/make.conf" ] && cat "appliances/$(APPLIANCE)/make.conf" >> $(CHROOT)/etc/portage/make.conf
 	COPY configs/locale.gen /etc/locale.gen
 	RUN locale-gen
-	for f in $(PACKAGE_FILES); do \
-		base=`basename $$f` ; \
-		mkdir -p $(CHROOT)/etc/portage/$$base; \
-		COPY $$f /etc/portage/$$base/virtual-appliance-$$base; \
-	done
 	touch $(COMPILE_OPTIONS)
 
 $(KERNEL): $(COMPILE_OPTIONS) $(KERNEL_CONFIG) scripts/build-kernel

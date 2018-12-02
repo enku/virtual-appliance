@@ -1,7 +1,7 @@
 build\/.*
 loop\/.*
 packages\/.*
-portage\/.*
+^portage\/.*
 distfiles\/.*
 ^images\/.*
 .*\.cfg
