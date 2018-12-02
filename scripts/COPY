@@ -9,6 +9,11 @@ def main():
     chroot = os.environ["CHROOT"]
     target = sys.argv[-1]
     chroot_target = os.path.join(chroot, target.lstrip("/"))
+    chroot_target_dir = os.path.dirname(chroot_target)
+
+    if not os.path.exists(chroot_target_dir):
+        os.makedirs(chroot_target_dir)
+
     command = ["cp"] + sys.argv[1:-1] + [chroot_target]
 
     subprocess.check_call(command)
