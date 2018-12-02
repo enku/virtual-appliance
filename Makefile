@@ -158,7 +158,7 @@ $(CHROOT)/etc/portage/package.%/01$(APPLIANCE): appliances/$(APPLIANCE)/package.
 	cp $< $@
 
 $(portage_make_conf_local): $(appliance_make_conf)
-	COPY $< $@ || touch $@
+	COPY $< /etc/portage/make.conf.local || touch $@
 
 $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(portage_package_files) $(portage_make_conf_local)
 	COPY configs/make.conf.$(VA_ARCH) /etc/portage/make.conf
