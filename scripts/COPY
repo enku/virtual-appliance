@@ -16,7 +16,7 @@ def main():
 
     command = ["cp"] + sys.argv[1:-1] + [chroot_target]
 
-    subprocess.check_call(command)
+    sys.exit(subprocess.call(command))
 
 
 if __name__ == "__main__":
