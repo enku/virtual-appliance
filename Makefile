@@ -268,10 +268,6 @@ ifneq ($(EXTERNAL_KERNEL),YES)
 	echo '(hd0) ' `cat partitions` > device-map
 	$(CHROOT)/usr/sbin/grub-install --no-floppy --grub-mkdevicemap=device-map --directory=$(CHROOT)/usr/lib/grub/i386-pc --boot-directory=$(CHROOT)/boot `cat partitions`
 endif
-	COPY device-map /boot/grub/device.map
-	RUN --bind=/dev grub-mkconfig
-	RUN --bind=/dev grub-mkconfig -o /boot/grub/grub.cfg
-	umount $(CHROOT)/boot
 	umount $(CHROOT)
 	rmdir $(CHROOT)
 	sync
