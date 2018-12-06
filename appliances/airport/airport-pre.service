@@ -1,8 +1,8 @@
 [Unit]
 Description=Airport (Pre)
 Documentation=https://bitbucket.org/marduk/airport/
-Requires=postgresql-9.6.service
-After=postgresql-9.6.service
+Requires=postgresql-10.service
+After=postgresql-10.service
 
 [Service]
 Type=oneshot
