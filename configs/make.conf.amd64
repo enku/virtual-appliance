@@ -12,5 +12,6 @@ EMERGE_DEFAULT_OPTS="--jobs=2 --autounmask=n"
 FEATURES="noinfo -test nodoc noman nostrip unmerge-orphans buildpkg notitles parallel-fetch binpkg-multi-instance cgroup"
 CURL_SSL="openssl"
 PYTHON_TARGETS="python3_6"
+INSTALL_MASK="/etc/default/grub /etc/locale.gen /etc/fstab /etc/issue /usr/share/doc"
 
 source make.conf.local

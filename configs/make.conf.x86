@@ -13,5 +13,6 @@ FEATURES="noinfo -test nodoc noman nostrip unmerge-orphans buildpkg notitles par
 CURL_SSL="openssl"
 PYTHON_TARGETS="python3_6"
 ABI_X86="32"
+INSTALL_MASK="/etc/default/grub /etc/locale.gen /etc/fstab /etc/issue /usr/share/doc"
 
 source make.conf.local
