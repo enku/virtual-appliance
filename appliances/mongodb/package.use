@@ -1,5 +1,5 @@
 app-editors/nano ncurses
-dev-db/mongodb ssl tools
+dev-db/mongodb python_targets_python2_7 ssl tools
 dev-lang/python ssl threads xml
 dev-libs/boost threads
 dev-libs/libpcre cxx
