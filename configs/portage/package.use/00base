@@ -1,2 +1,3 @@
 dev-lang/python ssl xml
+sys-apps/kmod tools
 sys-process/procps kill
