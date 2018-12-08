@@ -33,7 +33,6 @@ CHANGE_PASSWORD = YES
 HEADLESS = NO
 EXTERNAL_KERNEL = NO
 PKGLIST = 0
-ACCEPT_KEYWORDS = amd64
 DASH = NO
 LOCALE ?= en_US.utf8
 
@@ -162,7 +161,6 @@ $(portage_make_conf_local): $(appliance_make_conf)
 
 $(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(portage_package_files) $(portage_make_conf_local)
 	COPY configs/make.conf.$(VA_ARCH) /etc/portage/make.conf
-	echo ACCEPT_KEYWORDS=$(ACCEPT_KEYWORDS) >> $(CHROOT)/etc/portage/make.conf
 	COPY configs/locale.gen /etc/locale.gen
 	RUN locale-gen
 	touch $(COMPILE_OPTIONS)
