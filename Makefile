@@ -53,6 +53,7 @@ appliance_package_files := $(wildcard appliances/$(APPLIANCE)/package.*)
 portage_package_files = $(patsubst appliances/$(APPLIANCE)/package.%,$(CHROOT)/etc/portage/package.%/01$(APPLIANCE),$(appliance_package_files))
 appliance_make_conf = $(wildcard appliances/$(APPLIANCE)/make.conf)
 portage_make_conf_local = $(CHROOT)/etc/portage/make.conf.local
+appliance_profile := default/linux/amd64/17.0/systemd
 
 # Allow appliance to override variables
 -include appliances/$(APPLIANCE)/$(APPLIANCE).cfg
@@ -115,19 +116,18 @@ $(PORTAGE_DIR):
 $(CHROOT)/etc/portage/%: configs/portage/%
 	COPY --recursive $< /etc/portage/
 
-$(PREPROOT): $(STAGE3) $(PORTAGE_DIR) configs/fstab $(etc_portage) $(portage_package_files)
-	mkdir -p $(VA_PKGDIR) $(DISTDIR)
-	COPY configs/fstab /etc/fstab
+$(CHROOT)/etc/fstab: configs/fstab.in
 ifeq ($(VIRTIO),YES)
-	sed -i 's/sda/vda/' $(CHROOT)/etc/fstab
+	$(M4) -DDRIVE=sda $< > $@
+else
+	$(M4) -DDRIVE=vda $< > $@
 endif
-ifneq ($(SWAP_SIZE),0)
+
+$(PREPROOT): $(STAGE3) $(PORTAGE_DIR) $(CHROOT)/etc/fstab $(etc_portage) $(portage_package_files)
+	mkdir -p $(VA_PKGDIR) $(DISTDIR)
 	@print Creating swap file: `basename $(SWAP_FILE)`
 	dd if=/dev/zero of=$(SWAP_FILE) bs=1M count=$(SWAP_SIZE)
 	/sbin/mkswap $(SWAP_FILE)
-else
-	sed -i '/swap/d' $(CHROOT)/etc/fstab
-endif
 	rm -f $(CHROOT)/etc/resolv.conf
 	COPY -L /etc/resolv.conf /etc/resolv.conf
 	touch $(PREPROOT)
@@ -140,14 +140,14 @@ sync_stage3:
 	fetch-stage3 --specialty=systemd --outfile=stage3-$(VA_ARCH).tar.bz2 $(VA_ARCH)
 
 
-$(STAGE3): stage3-$(VA_ARCH).tar.bz2
+$(STAGE3): stage3-$(VA_ARCH).tar.bz2 configs/stage3-tarball-excludes
 	mkdir -p $(CHROOT)
 ifdef stage4-exists
 	@print Using stage4 tarball: `basename $(STAGE4_TARBALL)`
 	tar xpf "$(STAGE4_TARBALL)" -C $(CHROOT)
 else
 	@print Using stage3 tarball
-	tar xpf stage3-$(VA_ARCH).tar.bz2 -C $(CHROOT)
+	tar xpf stage3-$(VA_ARCH).tar.bz2 -C $(CHROOT) --exclude-from=configs/stage3-tarball-excludes
 endif
 	rm -f $(CHROOT)/etc/localtime
 	touch $(STAGE3)
@@ -156,12 +156,21 @@ $(CHROOT)/etc/portage/package.%/01$(APPLIANCE): appliances/$(APPLIANCE)/package.
 	mkdir -p `dirname $@`
 	cp $< $@
 
+
+$(CHROOT)/etc/portage/make.conf: configs/make.conf.$(VA_ARCH)
+	COPY configs/make.conf.$(VA_ARCH) /etc/portage/make.conf
+
 $(portage_make_conf_local): $(appliance_make_conf)
 	COPY $< /etc/portage/make.conf.local || touch $@
 
-$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) configs/make.conf.$(VA_ARCH) configs/locale.gen $(portage_package_files) $(portage_make_conf_local)
-	COPY configs/make.conf.$(VA_ARCH) /etc/portage/make.conf
-	COPY configs/locale.gen /etc/locale.gen
+$(CHROOT)/var/tmp/profile: $(STAGE3)
+	RUN eselect profile set $(appliance_profile)
+	touch $@
+
+$(CHROOT)/etc/locale.gen: configs/locale.gen
+	COPY configs/locale.gen $@
+
+$(COMPILE_OPTIONS): $(STAGE3) $(PORTAGE_DIR) $(CHROOT)/etc/portage/make.conf configs/locale.gen $(portage_package_files) $(portage_make_conf_local) $(CHROOT)/var/tmp/profile $(CHROOT)/etc/locale.gen
 	RUN locale-gen
 	touch $(COMPILE_OPTIONS)
 
@@ -214,8 +223,9 @@ endif
 	ln -nsf /run/systemd/resolve/resolv.conf $(CHROOT)/etc/resolv.conf
 	touch $(GRUB)
 
+software: $(SOFTWARE)
 
-$(SOFTWARE): $(STAGE3) $(SYSTOOLS) configs/eth.network configs/issue $(WORLD)
+$(SOFTWARE): $(SYSTOOLS) configs/eth.network configs/issue $(COMPILE_OPTIONS) $(WORLD)
 	@print Building $(APPLIANCE)-specific software
 	$(MAKE) -C appliances/$(APPLIANCE) preinstall
 	
