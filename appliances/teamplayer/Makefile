@@ -4,7 +4,7 @@ TP_USER = teamplayer
 TP_HOME = /opt/teamplayer
 TP_DB = /var/lib/teamplayer
 PYTHON = $(TP_HOME)/bin/python
-PGVER = 10
+PGVER = 11
 INSTALL = install
 AVAHI := NO
 
